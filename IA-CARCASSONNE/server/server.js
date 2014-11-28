@@ -1,5 +1,10 @@
 // Fichero que incluye la lógica del juego.
 
+
+
+
+
+//******************************* datos ******************************************
 var tipos=19;
 
 // fichas
@@ -219,56 +224,77 @@ var entrada=[
 
 ];
 
-function Ficha(tipo, elegible, escudo){
+//**************************** variables *******************************************
+
+var mazo =[];
+
+
+//************************ funciones generadoras ***********************************
+
+function Ficha(tipo, numFicha, elegible, escudo){
 	this.dato=entrada[tipo-1] || [];
 	this.tipo=tipo;
 	this.elegible=elegible || true; //default true;
-	this.escudo=escudo||false; //default false
+	this.escudo=escudo ||false; //default false
+	this.numFicha=numFicha; //no default porque sino la ficha madre no toma valor
 };
+//prototype
 
-var mazo =[];
 function generarMazo(){
-	var cont=0
+	cont=0
 	//genera mazo ordenado, de forma que la primera ficha es la ficha madre
 	//recorremos los tipos
 	for (i=1; i<=tipos; i++){
 		//nomales
 		console.log("fichas normales tipo "+i+" : "+entrada[i-1].cantidad[0])
 		for(cn=1; cn<=entrada[i-1].cantidad[0];cn++){
-			var nuevaFicha=new Ficha(i, true, false);
+			var nuevaFicha=new Ficha(i, cont, true, false);
 			mazo.push(nuevaFicha);
 			cont++;
 		}
 		//con escudo
 		for(ce=1; ce<=entrada[i-1].cantidad[1];ce++){
-			mazo.push(new Ficha(i, true, true));
+			mazo.push(new Ficha(i, cont, true, true));
 			cont++
 		}
 	}
 	console.log("generadas "+cont+" fichas." )
 };
 
+
+//***************************** funciones no generadoras ***************************
+
 function dameFichaMadre(){
 	console.log("devuelta ficha madre")
-	return mazo[0];
+	//almaceno ficha en aux antes de sacarla para no perderla
+	fichaaux=mazo[0];
+	//compruebo que es la ficha madre
+	if(fichaaux.numFicha==0){
+		//saco la ficha del mazo splice(indice a borrar, numero de elementos a borrar) 
+		mazo.splice(0, 1);
+		return fichaaux;
+	}else{
+		return "La ficha madre no se encuentra en el mazo";
+	}
+
 };
 
 function dameFicha(){
-	//devuelve una ficha aleatoria
-	//primera versión, hay formas mejores de hacerlo
-	var continuar=true;
-	var fichaaux;
-	var numeroFicha;
+	//devuelve una ficha aleatoria, no la inserta en el tablero!! eso lo hará otro método
+	continuar=true;
 	while(continuar){
 		console.log("el mazo tiene "+ mazo.length +" fichas");
 		numeroFicha=Math.floor(Math.random()*mazo.length);
 		console.log("generado "+numeroFicha);
 		fichaaux=mazo[numeroFicha];
+		//compruebo que la ficha es elegible
 		if(fichaaux.elegible){
-			console.log("devuelta ficha "+numeroFicha);
+			console.log("devuelta ficha numero"+fichaaux.numFicha);
 			//ya está elegida, por lo que no se la puede elegir
 			fichaaux.elegible=false;
 			continuar=false;
+			//saco la ficha del mazo splice(indice a borrar, numero de elementos a borrar)
+			mazo.splice(numeroFicha,1);
 			return fichaaux;
 		}
 	}
