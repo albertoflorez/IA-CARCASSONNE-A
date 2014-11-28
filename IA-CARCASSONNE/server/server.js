@@ -127,7 +127,7 @@ var entrada=[
 	tipo: 11,
 	cantidad:[1,2]
 	},
-	//+1con escudo
+	//3+1con escudo
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f, elegible (t o f) default t (puede sacarse del mazo)
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
@@ -135,7 +135,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{dato: ['c','c','c','c','c','c','f','f','f','c','c','c', 'c'],
 	tipo: 12,
-	cantidad:[1,1]
+	cantidad:[3,1]
 	},
 
 //ciudad
