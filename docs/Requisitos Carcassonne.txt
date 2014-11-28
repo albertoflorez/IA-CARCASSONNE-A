@@ -1,0 +1,75 @@
+Toma de requisitos aplicación Carcassonne (juego)
+
+Cumplir con las reglas de juego del "juego clásico Carccassone" (especificar requisitos menores de las fichas, las reglas y la descripción de los turnos"
+
+Aplicación web moderna usando meteor
+
+Jugadores: 2-5
+    remotos:
+        cada uno en su navegador.
+        posibilidad de jugar múltiples partidas simultáneas.
+
+        Jugadores registrados (en nuestra app o mediante módulos como facebook ...)
+        
+    IA: completa el mínimo de jugadores necesarios para una partida.
+        sustituye a un jugador remoto si avandona, se desconecta o esta inactivo más de cierto tiempo.
+        (en el caso de sea por inactividad es posible que el jugador vuelva, por lo que la IA actua por turno, 
+        no por sesión en partida)
+        Inteligencia:
+            mínimo debe jugar siguiendo las reglas.
+            IA con más de un nivel de dificultad/inteligencia.
+Visitante:
+        jugadores visitantes que sólo miran
+
+
+Ranking:
+    Progeso de cada jugador (registro de partidas jugadas, ganadas, perdidas)
+    Top 10
+
+Juego:
+    Partida (1 sala de juego) - Creación de partidas
+        Manejo de turnos (que cada jugador sepa cuando le toca y a quien le toca en cada momento)
+            ¿tiempo máximo por turno? para que entre la IA a sustituir ver apartado jugadores IA.
+        Pausar partida, guardar, continuar otro día
+        Reserva de salas
+        ¿Cuándo comenzar las partidas?
+
+    Torneo
+
+Puntuación:
+    En partida de acuerdo a las normas clásicas del juego
+    Posibilidad puntuación extra por partida ganada
+    Penalización por abandono
+
+Social:
+    Chat por partida (en el se incluyen los jugadores visitantes)
+    videollamada
+    compartir la puntuación por fb tw...
+    invitar a amigos a jugar
+    publicidad
+
+Personalización:
+    Colores de fichas para jugadores (premium..)
+
+Tecnología utilizada:
+    meteor{ modelo cliente servidor }
+
+Plataforma:
+    Posibilidad de integrar más juegos
+
+Ayuda y pistas:
+    uso de plataforma
+    reglas del juego accesibles durante la partida
+    ayuda dinámica, que de pista si así se desea o se permite sobre por ejemplo dónde colocar una ficha.
+         "ojo con usar esto en torneos"
+
+Pruebas:
+    Unitarias
+    De bloque
+    De integración
+
+
+Grupos:
+    IA-reglas
+    Plataforma parte social, partidas ...
+    Interfaz de usuario dónde van las fichas -reglas
