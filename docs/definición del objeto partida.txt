@@ -1,0 +1,64 @@
+Es necesario crear un objeto partida que contenga todo lo concerniente a una partida. Desde Meteor.methods se accede a los objetos de cada partida, es decir el id de una partida debe ser un atributo a la hora de llamar a los diferentes metodos.
+
+El objeto cuando se crea debe tener un id, los ids de los jugadores y llamarse a su método start.
+
+El método start debe generar el mazo, el tablero y colocar la ficha madre.
+var partidasEnCurso = [];
+
+var Partida = function(id,jugs){
+	this.id = id;
+	this.jugs = jugs;
+	this.start();
+} 
+
+Partida.prototype.start = function(){
+	partidasEnCurso.push(this);
+	this.mazo = generarMazo();
+	this.tablero = new Tablero();
+	this.tablero.partida = this;
+	this.tablero.put(dameFichaMadre(this.mazo));
+	this.turno = 0;
+}
+
+Partida.prototype.getJugAct = function(){
+	return this.jugs[this.turno];
+}
+
+Partida.prototype.terminarTurno = function(){
+	this.fichaEnJuego = null;
+	this.turno = ((this.turno + 1) > this.jugs.length) ? 0 : this.turno + 1; 
+}
+
+Partida.prototype.dameFicha = function(){
+	if (Meteor.userId() == this.getJugAct[this.turno].id)
+		var ficha = this.mazo.dameFicha();
+		if (ficha != undefined){
+			this.fichaEnJuego = ficha;
+			return ficha;
+		}
+}
+
+Partida.prototype.getPosiblesPositions (){
+	if (Meteor.userId() == this.getJugAct[this.turno].id)
+		return this.tablero.getPosiblesPositions(fichaEnJuego);
+}
+
+Partida.prototype.ponerFicha = function(pos){
+	if (Meteor.userId() == this.getJugAct[this.turno].id)
+		this.tablero.put(fichaEnJuego,pos);
+}
+
+Partida.prototype.rotarFicha = function(num){
+	if (Meteor.userId() == this.getJugAct[this.turno].id)
+		this.fichaEnJuego.rotar(num);
+}
+
+Partida.prototype.colocarSeguidor = function(pos){
+	if (Meteor.userId() == this.getJugAct[this.turno].id)
+		return this.Tablero.colocarSeguidor (this.fichaEnJuego,pos); //devuelve true o false.
+
+}
+
+Partida.prototype.damePuntos = function(){
+	
+}
