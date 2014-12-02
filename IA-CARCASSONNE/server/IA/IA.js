@@ -224,10 +224,6 @@ var entrada=[
 
 ];
 
-//**************************** variables *******************************************
-
-var mazo =[];
-
 
 //************************ funciones generadoras ***********************************
 
@@ -238,66 +234,67 @@ var Ficha = function(tipo, numFicha, elegible, escudo){
 	this.escudo=escudo ||false; //default false
 	this.numFicha=numFicha; //no default porque sino la ficha madre no toma valor
 };
+
 //prototype
 
+
+
 generarMazo = function (){
-	cont=0
-	//genera mazo ordenado, de forma que la primera ficha es la ficha madre
-	//recorremos los tipos
-	for (i=1; i<=tipos; i++){
-		//nomales
-		console.log("fichas normales tipo "+i+" : "+entrada[i-1].cantidad[0])
-		for(cn=1; cn<=entrada[i-1].cantidad[0];cn++){
-			mazo.push(new Ficha(i, cont, true, false));
-			cont++;
-		}
-		//con escudo
-		for(ce=1; ce<=entrada[i-1].cantidad[1];ce++){
-			mazo.push(new Ficha(i, cont, true, true));
-			cont++
-		}
-	}
-	console.log("generadas "+cont+" fichas." )
+	mazo = new Mazo();
+	mazo.generate();
+	return mazo;
 };
 
 
 //***************************** funciones no generadoras ***************************
 
-dameFichaMadre = function(){
-	console.log("devuelta ficha madre")
-	//almaceno ficha en aux antes de sacarla para no perderla
-	fichaaux=mazo[0];
-	//compruebo que es la ficha madre
-	if(fichaaux.numFicha==0){
-		//saco la ficha del mazo splice(indice a borrar, numero de elementos a borrar) 
-		mazo.splice(0, 1);
-		return fichaaux;
-	}else{
-		return "La ficha madre no se encuentra en el mazo";
-	}
 
-};
 
-dameFicha = function(){
-	//devuelve una ficha aleatoria, no la inserta en el tablero!! eso lo hará otro método
-	continuar=true;
-	while(continuar){
-		console.log("el mazo tiene "+ mazo.length +" fichas");
-		numeroFicha=Math.floor(Math.random()*mazo.length);
-		console.log("generado "+numeroFicha);
-		fichaaux=mazo[numeroFicha];
-		//compruebo que la ficha es elegible
-		if(fichaaux.elegible){
-			console.log("devuelta ficha numero"+fichaaux.numFicha);
-			//ya está elegida, por lo que no se la puede elegir
-			fichaaux.elegible=false; 
-			continuar=false;
-			//saco la ficha del mazo splice(indice a borrar, numero de elementos a borrar)
-			mazo.splice(numeroFicha,1); //la ficha deberia de borrarse del mazo cuando esté puesta en el tablero.
-			return fichaaux;
+//*********** OBJETOS **********
+function Mazo (){
+	this.data = []; //donde estan las fichas.
+}
+
+Mazo.prototype.generate = function(){
+	var cont=0;
+	//genera mazo ordenado, de forma que la primera ficha es la ficha madre
+	//recorremos los tipos
+	for (i=1; i<=tipos; i++){
+		//nomales
+		for(cn=1; cn<=entrada[i-1].cantidad[0];cn++){
+			this.data.push(new Ficha(i, cont, false));
+			cont++;
+		}
+		//con escudo
+		for(ce=1; ce<=entrada[i-1].cantidad[1];ce++){
+			this.data.push(new Ficha(i, cont, true));
+			cont++;
 		}
 	}
+	console.log("generadas "+cont+" fichas." );
+}
+
+Mazo.prototype.dameFichaMadre = function(){
+	var ficha;
+	var numFicha = this.data[0].numFicha;
+	//compruebo que es la ficha madre
+	if(numFicha == 0){
+		var ficha = this.data[numFicha];
+		this.data.splice (0,1); //eliminamos la ficha madre.
+	}
+
+	return ficha;
 };
+
+Mazo.prototype.dameFicha = function(){
+	var num = Math.floor(Math.random()*this.data.length)
+	var ficha = this.data [num];
+	this.data.splice(num,1); //eliminamos la ficha del mazo.
+	//devuelve una ficha aleatoria, no la inserta en el tablero!! eso lo hará otro método
+	return ficha;
+};
+
+
 
 //******* tablero *********
 //el tablero tendrá dim 41 x 41. La ficha madre estará en la posición (21,21). //esto se podrá cambiar.

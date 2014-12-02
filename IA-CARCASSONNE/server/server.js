@@ -1,14 +1,16 @@
+var mazo;
+
 Meteor.methods ({
 	generarMazo: function(){
-		generarMazo();
+		mazo = generarMazo();
 	},
 	
 	dameFichaMadre: function(){
-		return dameFichaMadre();
+		return mazo.dameFichaMadre();
 	},
 
 	dameFicha: function(){
-		return dameFicha();
+		return mazo.dameFicha();
 	}
 
 });
