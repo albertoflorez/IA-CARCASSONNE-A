@@ -295,129 +295,35 @@ Mazo.prototype.dameFicha = function(){
 };
 
 
+generarTablero = function (){
+	tablero = new Tablero();
+	tablero.generate();
+	return tablero;
+};
 
 //******* tablero *********
 //el tablero tendrá dim 41 x 41. La ficha madre estará en la posición (21,21). //esto se podrá cambiar.
-var Tablero = function(){
+function Tablero(){
 	//el array estará formado por celdas en el que se almacena (ficha : {es necesario el tipo de la ficha}, pos: {x,y}).
 	var cellSet = [];
-	var freePos = [];
-	var posiblePos = [];
-	var posOcupadas = [];
+};
 
-	var Cell = function(ficha,pos){
+function Cell(ficha,pos){
 		this.ficha = ficha;
 		this.pos = pos;
-	};
+};
 
-	//coloca una ficha en una posicion.
-	this.put = function (ficha,pos){
-		if (posiblePos && posiblePos.indexOf(pos)){
-			ficha.pos = pos; //añadimos la posicion a la ficha a colocar.
-			//añadimos la posición de la ficha para saber que esa posicion ha sido ocupada.
-			posOcUpdate (pos);
-			//ahora actualizamos las las posiciones libres.
-			posFreeUpdate (ficha,pos);
-			//añadimos la ficha a fichas colocadas.
+Tablero.prototype.generate = function(){
+	//para inicializar
+	//llamar a poner ficha madre
 
-			fichas.push(new Cell (ficha,pos));
-			//borramos ahora la ficha del Mazo.
-		};
-	};
+};
 
-	this.posOcUpdate = function(pos){
-		posOcupadas.push (pos);
-	};
-
-	this.posFreeUpdate = function(ficha,pos){
-		//conocemos las posiciones adyacentes a la posicion en la que se va a colocar la ficha.
-		var posAd = getPosAd (pos);
-		//conocemos las nuevas posiciones libres a añadir.
-		var fP = _(posAd).filter(function(pA){
-				_(posOcupadas).all(function(pO){ //como mucho son 71 fichas puestas.
-					return pO.x != pA.x && pO.y != pA.y;
-				});
-		});
-		//las añadimos.
-		_(fP).each (function(p){freePos.push(p)});
-	};
-
-	//devuelve las posiciones en las que se puede poner una ficha.
-	this.getPosiblePositions = function(ficha){
-		//se recorre las posiciones libres y comprueba para cada una si la ficha encaja.
-		//si encaja arriba, abajo, izq y derecha encaja.
-		//a partir de sus posiciones adyacentes referentes a una posicion libre.
-		var posiblePositions = _(freePos).filter (function(pos){
-			var posAd = getAd(pos);
-			//sacamos las posiciones adyacentes que sí están ocupadas.
-			var posMatched = _(posAd).filter (function(pA){
-				return _(posOcupadas).any (function(pO){
-					return pO.x == pA.x && pO.y == pA.y;
-				});
-			});
- 			//encontramos las fichas correspondientes a las coincidencias.
- 			var fichasMatched = _(cellSet).filter (function(c){
- 				return _(posMatched).any (function(pm){
- 					return pm == c.pos;
- 				});
- 			});
-
- 			//devuelve true si encaja con todas las fichas puestas que rodean a la posicion indicada.
- 			return _(fichasMatched).all(function(f){
- 				return encajan(ficha,f,pos,f.pos)
- 			});
-		});
+//coloca una ficha en una posicion.
+Tablero.prototype.put = function (ficha,pos){
+	this.cellSet.push(new Cell (ficha,pos));
+};
 
 
-		var encajan = function(f1,f2,p1,p2){
-			var success = false; //no encajan por defecto.
-			var conocerUb = function(p1,p2){
-				var ub;
-				ub = (p1.x < p2.x) ? "r" : "l";
-				if (ub == undefined){ //no es horizontal.
-					ub = (p1.y < p2.y) ? "d" : "u";
-				}
-				return ub;
-			};
-			var ub = conocerUb(p1,p2);
-
-			//conocemos si encaja segun su ubicación. (si tienen las propiedades complementarias).
-			switch (ub){
-				case "r":
-				//el lado derecho de la ficha a poner coincide con el lado izquierdo de la ficha a considerar?.
-					success = f1.ru == f2.lu && f1.r == f2.l && f1.rd == f2.ld;
-					break;
-				case "l":
-				//el lado izq de la ficha a poner coincide con el lado derecho de la ficha a considerar?.
-					success = f2.ru == f1.lu && f2.r == f1.l && f2.rd == f1.ld;
-					break;
-				case "d":
-				//el lado inferior de la ficha a poner coincide con el lado superior de la ficha a considerar?.
-					success = f1.dl == f2.ul && f1.d  == f2.u && f1.dr == f2.ur;
-					break;
-				case "u":
-				//el lado superior de la ficha a poner coincide con el lado inferior de la ficha a considerar?.
-					success = f2.dl == f1.ul && f2.d  == f1.u && f2.dr == f1.ur;;
-					break;
-			}
-			return success;
-		};
-
-		return posiblePositions;
-	};
-	var getAd = function(pos){
-		//da igual el orden. [u,r,d,l] (en relacion con las coordenadas del canvas, arriba y abajo estan invertidos OJO)
-		return [{x: pos.x, y: pos.y-1},
-				{x: pos.x+1 ,y: pos.y},
-				{x: pos.x ,y: pos.y+1},
-				{x: pos.x-1 , y: pos.y}];
-
-	};
-	this.getStatus = function(){
-		//devuelve una copia del tablero en un momento dado.
-		return cellSet;
-	}
-
-}
 
 
