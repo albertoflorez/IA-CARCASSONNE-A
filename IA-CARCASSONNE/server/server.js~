@@ -15,7 +15,7 @@ Meteor.methods ({
 	},
 
     generarTablero: function(){
-        tablero = generarTablero(mazo);
+        tablero = generarTablero();
     }
 
 });
