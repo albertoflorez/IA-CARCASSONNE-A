@@ -322,9 +322,17 @@ Tablero.prototype.generate = function(){
 
 //coloca una ficha en una posicion.
 Tablero.prototype.put = function (ficha,pos){
-	this.cellSet.push(new Cell (ficha,pos));
+    var fichaaux=new Cell (ficha,pos)
+    if(fichaaux.encaja()){
+	this.cellSet.push(fichaaux);
+    }
 };
 
+
+
+Cell.prototype.encaja(){
+    return true
+}
 
 
 
