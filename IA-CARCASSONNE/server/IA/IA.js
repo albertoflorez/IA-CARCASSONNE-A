@@ -305,6 +305,8 @@ generarTablero = function (){
 function Tablero(){
 	//el array estará formado por celdas en el que se almacena (ficha : {es necesario el tipo de la ficha}, pos: {x,y}).
 	this.cellSet = [];
+	this.maxDim = 100;
+	this.posCentral = {x: (this.maxDim -1)/2,y: (this.maxDim -1)/2}
 };
 
 function Cell(ficha,pos){
@@ -316,8 +318,8 @@ Tablero.prototype.generate = function(){
 	//para inicializar
 	//llamar a poner ficha madre
 	var fichaMadre = Mazo.dameFichaMadre();
-	var cellFichaMadre = new Cell(fichaMadre,);
-    
+	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
+    this.cellSet.push(cellFichaMadre);
 };
 
 //coloca una ficha en una posicion.

@@ -305,6 +305,7 @@ generarTablero = function (){
 function Tablero(){
 	//el array estará formado por celdas en el que se almacena (ficha : {es necesario el tipo de la ficha}, pos: {x,y}).
 	this.cellSet = [];
+	this.MaxDim = 100;
 };
 
 function Cell(ficha,pos){
@@ -315,14 +316,24 @@ function Cell(ficha,pos){
 Tablero.prototype.generate = function(){
 	//para inicializar
 	//llamar a poner ficha madre
-
+	var fichaMadre = Mazo.dameFichaMadre();
+	var cellFichaMadre = new Cell(fichaMadre,{x: (this.MaxDim -1)/2,y: (this.MaxDim -1)/2});
+    this.cellSet.push(cellFichaMadre);
 };
 
 //coloca una ficha en una posicion.
 Tablero.prototype.put = function (ficha,pos){
-	this.cellSet.push(new Cell (ficha,pos));
+    var fichaaux=new Cell (ficha,pos)
+    if(fichaaux.encaja()){
+	this.cellSet.push(fichaaux);
+    }
 };
 
+
+
+Cell.prototype.encaja(){
+    return true
+}
 
 
 
