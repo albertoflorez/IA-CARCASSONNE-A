@@ -227,7 +227,7 @@ var entrada=[
 
 //************************ funciones generadoras ***********************************
 
-function Ficha (tipo, numFicha, escudo){
+var Ficha = function(tipo, numFicha, escudo){
 	this.dato=entrada[tipo-1] || [];
 	this.tipo=tipo;
 	this.escudo=escudo ||false; //default false
