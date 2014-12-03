@@ -315,7 +315,9 @@ function Cell(ficha,pos){
 Tablero.prototype.generate = function(){
 	//para inicializar
 	//llamar a poner ficha madre
-
+	var fichaMadre = Mazo.dameFichaMadre();
+	var cellFichaMadre = new Cell(fichaMadre,);
+    
 };
 
 //coloca una ficha en una posicion.
