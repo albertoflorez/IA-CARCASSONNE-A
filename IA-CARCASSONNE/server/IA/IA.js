@@ -329,20 +329,63 @@ Tablero.prototype.put = function (ficha,pos){
 };
 
 
+
 //******* partida *********
-var Partida = function(){
-    this.Tablero = new Tablero();
-    this.initialize();
+var Partida = function(idPartida,jugs,numJugs){
+    
+    this.idPartida = idPartida;
+    addPartida(this);
+    this.initialize(jugs,numJugs);
 }
 
-Partida.prototype.initialize = function(){
+Partida.prototype.initialize = function(jugs,numJugs){
     //iran las cosas de jugadores y ia etcetc
+    this.tablero = new Tablero();    
+    this.jugs = [];
+    this.puntosJugs = [];
+    this.jugs.forEach(function(jug){
+        this.puntosJugs[jug] = {puntos : 0};
+    });
+    var idIA = 0;
+    for (var i = 0; i<numJugs; i++){
+        if (i>= jugs.length){
+            this.jugs [i] = "IA"+ idIA;
+            idIA ++;
+        }else{
+            this.jugs[i] = jugs [i];
+        }
+    }
+    this.turno = this.jugs[0];
+}
+
+Partida.prototype.getTurno = function(){
+    return this.turno;
+}
+
+Partida.prototype.pasarTurno = function(){
+    this.turno = (this.turno + 1 > this.jugs.length -1) ? 0 : this.turno +1;
+}
+
+Partida.prototype.finalizar = function(){
+    //actualizar en la base de datos los puntos de los jugadores
+    //borrar la partida actual
+    //hablar con plataforma
+}
+
+Partida.prototype.getPuntos = function(){
+    //
+}
+
+//******* para todas las partidas *********
+partidas = [];
+addPartida  = function(partida){
+    partidas[partida.idPartida] = partida;
 }
 
 
 //******* para meteor *********
-generarPartida = function(){
-    return new Partida();
+generarPartida = function(id,jugs,num){
+    return new Partida(id,jugs,num);
 }
 
 generarTablero = function(){

@@ -228,7 +228,7 @@ var entrada=[
 //************************ funciones generadoras ***********************************
 
 function Ficha (tipo, numFicha, escudo){
-	this.dato=entrada[tipo-1] || [];
+	this.dato=entrada[tipo-1].dato || [];
 	this.tipo=tipo;
 	this.escudo=escudo ||false; //default false
 	this.numFicha=numFicha; //no default porque sino la ficha madre no toma valor
@@ -236,14 +236,6 @@ function Ficha (tipo, numFicha, escudo){
 
 //prototype
 
-var mazo;
-
-
-generarMazo = function (){
-	mazo = new Mazo();
-	mazo.generate();
-	return mazo;
-};
 
 
 //***************************** funciones no generadoras ***************************
@@ -251,8 +243,9 @@ generarMazo = function (){
 
 
 //*********** OBJETOS **********
-function Mazo (){
+var Mazo = function(){
 	this.data = []; //donde estan las fichas.
+    this.generate();
 }
 
 Mazo.prototype.generate = function(){
@@ -301,30 +294,28 @@ generarTablero = function (){
 	return tablero;
 };
 
-//******* tablero *********
-//el tablero tendrá dim 100 x 100. La ficha madre estará en la posición (50,50). //esto se podrá cambiar.
-var Tablero = function (){
-	//el array estará formado por celdas en el que se almacena (ficha : {es necesario el tipo de la ficha}, pos: {x,y}).
-	this.cellSet = [];    
-	this.maxDim = 100;
-	this.posCentral = {x: (this.maxDim -1)/2,y: (this.maxDim -1)/2}
-};
-
-function Cell(ficha,pos){
+//******* celda *********
+var Cell = function(ficha,pos){
 		this.ficha = ficha;
 		this.pos = pos;
 };
 
-generarTablero = function (mazo){
-	tablero = new Tablero();
-	tablero.generate(mazo);
-	return tablero;
+
+//******* tablero *********
+//el tablero tendrá dim 100 x 100. La ficha madre estará en la posición (50,50). //esto se podrá cambiar.
+var Tablero = function (){
+	//el array estará formado por celdas en el que se almacena (ficha : {es necesario el tipo de la ficha}, pos: {x,y}).
+    this.mazo = new Mazo();
+	this.cellSet = [];    
+	this.maxDim = 100;
+	this.posCentral = {x: Math.floor((this.maxDim -1)/2),y: Math.floor((this.maxDim -1)/2)};
+    this.generate();
 };
 
-Tablero.prototype.generate = function(mazo){
+Tablero.prototype.generate = function(){
 	//para inicializar
 	//llamar a poner ficha madre
-	var fichaMadre = mazo.dameFichaMadre();
+	var fichaMadre = this.mazo.dameFichaMadre();
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
 };
@@ -339,9 +330,74 @@ Tablero.prototype.put = function (ficha,pos){
 
 
 
-/*Cell.prototype.encaja(){
-    return true
-}*/
+//******* partida *********
+var Partida = function(idPartida,jugs,numJugs){
+    
+    this.idPartida = idPartida;
+    addPartida(this);
+    this.initialize(jugs,numJugs);
+}
+
+Partida.prototype.initialize = function(jugs,numJugs){
+    //iran las cosas de jugadores y ia etcetc
+    this.tablero = new Tablero();    
+    this.jugs = [];
+    this.puntosJugs = [];
+    this.jugs.forEach(function(jug){
+        this.puntosJugs[jug] = {puntos : 0};
+    });
+    var idIA = 0;
+    for (var i = 0; i<numJugs; i++){
+        if (i>= jugs.length){
+            this.jugs [i] = "IA"+ idIA;
+            idIA ++;
+        }else{
+            this.jugs[i] = jugs [i];
+        }
+    }
+    this.turno = this.jugs[0];
+}
+
+Partida.prototype.getTurno = function(){
+    return this.turno;
+}
+
+Partida.prototype.pasarTurno = function(){
+    this.turno = (this.turno + 1 > this.jugs.length -1) ? 0 : this.turno +1;
+}
+
+Partida.prototype.finalizar = function(){
+    //actualizar en la base de datos los puntos de los jugadores
+    //borrar la partida actual
+    //hablar con plataforma
+}
+
+Partida.prototype.getPuntos = function(){
+    //
+}
+
+//******* para todas las partidas *********
+partidas = [];
+addPartida  = function(partida){
+    partidas[partida.id] = partida;
+}
+
+
+//******* para meteor *********
+generarPartida = function(id,jugs,num){
+    return new Partida(id,jugs,num);
+}
+
+generarTablero = function(){
+    return new Tablero();
+}
+
+generarMazo = function(){
+    return new Mazo();
+}
+
+
+
 
 
 

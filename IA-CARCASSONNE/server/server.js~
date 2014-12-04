@@ -2,10 +2,13 @@ var mazo;
 var tablero;
 var partida;
 
-Meteor.methods ({
+
+Meteor.methods ({    
+    
 	crearPartida: function(){
 		partida = generarPartida();
         console.log("se ha generado la partida");
+        console.log(partidas);
 	},
 	
     generarMazo: function(){
@@ -17,7 +20,7 @@ Meteor.methods ({
 	},
 
 	dameFicha: function(){
-		return mazo.dameFicha();
+		return partida.tablero.mazo.dameFicha();
 	},
 
     generarTablero: function(){

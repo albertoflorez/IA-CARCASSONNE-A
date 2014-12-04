@@ -34,7 +34,7 @@ var play = function (){
 		});
 	};
 
-    Meteor.call ("crearPartida",function(error){
+    Meteor.call ("crearPartida","aajkejeijeie",[1,2], 4, function(error){
         if(error){
 				console.log("error al crear la partida");
 			}else{

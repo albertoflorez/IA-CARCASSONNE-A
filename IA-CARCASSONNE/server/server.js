@@ -2,10 +2,13 @@ var mazo;
 var tablero;
 var partida;
 
-Meteor.methods ({
-	crearPartida: function(){
-		partida = generarPartida();
+
+Meteor.methods ({    
+    
+	crearPartida: function(id,jugs,num){
+		partida = generarPartida(id,jugs,num);
         console.log("se ha generado la partida");
+        console.log(partidas);
 	},
 	
     generarMazo: function(){

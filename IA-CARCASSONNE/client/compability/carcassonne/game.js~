@@ -33,6 +33,14 @@ var play = function (){
 			}
 		});
 	};
+
+    Meteor.call ("crearPartida","a",[1,2], 4, function(error){
+        if(error){
+				console.log("error al crear la partida");
+			}else{
+				console.log("se ha creado la partida");
+			}
+    })
 }
 
 $(play());
