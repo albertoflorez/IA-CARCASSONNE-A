@@ -305,11 +305,9 @@ generarTablero = function (){
 //el tablero tendrá dim 100 x 100. La ficha madre estará en la posición (50,50). //esto se podrá cambiar.
 var Tablero = function (){
 	//el array estará formado por celdas en el que se almacena (ficha : {es necesario el tipo de la ficha}, pos: {x,y}).
-	this.cellSet = [];
-    this.mazo = new Mazo();    
+	this.cellSet = [];    
 	this.maxDim = 100;
 	this.posCentral = {x: (this.maxDim -1)/2,y: (this.maxDim -1)/2}
-    this.mazo.generate();
 };
 
 function Cell(ficha,pos){
@@ -317,16 +315,16 @@ function Cell(ficha,pos){
 		this.pos = pos;
 };
 
-generarTablero = function (){
+generarTablero = function (mazo){
 	tablero = new Tablero();
-	tablero.generate();
+	tablero.generate(mazo);
 	return tablero;
 };
 
-Tablero.prototype.generate = function(){
+Tablero.prototype.generate = function(mazo){
 	//para inicializar
 	//llamar a poner ficha madre
-	var fichaMadre = this.mazo.dameFichaMadre();
+	var fichaMadre = mazo.dameFichaMadre();
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
 };

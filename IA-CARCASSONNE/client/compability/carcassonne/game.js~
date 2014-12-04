@@ -14,16 +14,7 @@ var play = function (){
 		}else{
 			console.log(ficha);
 		}
-	});
-	for (i=1; i<72; i++){
-		Meteor.call("dameFicha",function(error,ficha){
-			if(error){
-				console.log("error en el servidor al devolver una ficha al azar");
-			}else{
-				console.log(ficha);
-			}
-		});
-	};*/
+	});*/
 
     Meteor.call("generarTablero",function(error){
             if(error){
@@ -32,6 +23,16 @@ var play = function (){
 				console.log("se ha generado el tablero");
 			}
     });
+
+    for (i=1; i<72; i++){
+		Meteor.call("dameFicha",function(error,ficha){
+			if(error){
+				console.log("error en el servidor al devolver una ficha al azar");
+			}else{
+				console.log(ficha);
+			}
+		});
+	};
 }
 
 $(play());

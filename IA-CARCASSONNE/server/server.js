@@ -1,21 +1,27 @@
-
+var mazo;
 var tablero;
+var partida;
 
 Meteor.methods ({
-	generarMazo: function(){
-		mazo = generarMazo();
+	crearPartida: function(){
+		partida = generarPartida();
+        console.log("se ha generado la partida");
 	},
 	
+    generarMazo: function(){
+        mazo = generarMazo();
+    },
+
 	dameFichaMadre: function(){
 		return mazo.dameFichaMadre();
 	},
 
 	dameFicha: function(){
-		return mazo.dameFicha();
+		return partida.tablero.mazo.dameFicha();
 	},
 
     generarTablero: function(){
-        tablero = generarTablero(mazo);
+        tablero = generarTablero();
     }
 
 });
