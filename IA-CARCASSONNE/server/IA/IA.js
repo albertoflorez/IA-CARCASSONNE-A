@@ -232,6 +232,7 @@ function Ficha (tipo, numFicha, escudo){
 	this.tipo=tipo;
 	this.escudo=escudo ||false; //default false
 	this.numFicha=numFicha; //no default porque sino la ficha madre no toma valor
+	this.giro = 0;
 };
 
 //prototype
@@ -322,11 +323,96 @@ Tablero.prototype.generate = function(){
 
 //coloca una ficha en una posicion.
 Tablero.prototype.put = function (ficha,pos){
-    var fichaaux=new Cell (ficha,pos)
-    if(fichaaux.encaja()){
-	this.cellSet.push(fichaaux);
+    if(this.encaja(ficha,pos)){
+    	console.log("la ficha encaja! y se añade al tablero");
+		this.cellSet.push(new Cell(ficha,pos));
     }
 };
+
+Tablero.prototype.getPosAdyacentes = function(pos){
+	// ************* u,r,d,l ************* //
+	//si pos == esquina ==> array long 2,
+	//si pos == marco ==> array long 3,
+	//otro caso ==> array long 4.
+	//de momento solo se comprueba el ultimo caso.
+	return [{x:pos.x,y: pos.y -1},
+			{x: pos.x+1,y: pos.y}, 
+			{x: pos.x , y: pos.y + 1}, 
+			{x: pos.x -1,y: pos.y}];
+}
+
+Tablero.prototype.getCellAdyacentes = function(pos){
+	var posAd = this.getPosAdyacentes(pos);
+	console.log("he sacado las posiciones adyacentes y son:");
+	console.log(posAd);
+	var cellAdyacentes = _(this.cellSet).filter (function(c){
+		//esta función devolverá true si la ficha es la adyacente, es decir,
+		//si su posición coincide con alguna de las posiciones adyacentes.
+		return _(posAd).some(function(pAd){
+			//compruebo si es su posicion.
+			return pAd.x == c.pos.x && pAd.y == c.pos.y;
+		});
+	});
+	console.log("he extraido las cell adyacentes");
+	console.log(cellAdyacentes);
+	return cellAdyacentes;
+}
+
+//este método permite saber si dos fichas coinciden o no.
+Tablero.prototype.coinciden = function (f1,f2,p1,p2){
+	console.log("comparo con: " + f2.dato);
+	var success = false; //no encajan por defecto.
+	//esta funcion nos permite conocer la ubicación de p1 con respecto a p2, es decir, 
+	//si p1 esta arriba, abajo, izq y derecha de p2. OJO (arriba y abajo cambian puesto que el origen 
+	//de coordenadas se encuentra en la esquina superior izquierda).
+	var conocerUb = function(p1,p2){
+		var ub;
+		//la ficha adyacente está a la izq o derecha de la ficha a colocar.
+		if (p1.y == p2.y){ //es vertical
+			ub = (p1.x < p2.x && p1.y == p2.y) ? "r" : "l"; 
+		}else{ //es horizontal
+			ub = (p1.y < p2.y && p1.x == p2.x) ? "d" : "u";
+		}
+		return ub;
+	};
+
+	var ub = conocerUb(p1,p2);
+	console.log("la ubicación de la ficha adyacente es: " + ub);
+	//conocemos si encaja segun su ubicación. (si tienen las propiedades complementarias).
+	switch (ub){
+		case "r":
+			//el lado derecho de la ficha a poner coincide con el lado izquierdo de la ficha a considerar?.
+			success = f1.dato[3] == f2.dato[11] && f1.dato[4] == f2.dato[10] && f1.dato[5] == f2.dato[9];
+			break;
+		case "l":
+			//el lado izq de la ficha a poner coincide con el lado derecho de la ficha a considerar?.
+			success = f2.dato[3] == f1.dato[11] && f2.dato[4] == f1.dato[10] && f2.dato[5] == f1.dato[9];
+			break;
+		case "d":
+			//el lado inferior de la ficha a poner coincide con el lado superior de la ficha a considerar?.
+			success = f1.dato[8] == f2.dato[0] && f1.dato[7]  == f2.dato[1] && f1.dato[6] == f2.dato[2];
+			break;
+		case "u":
+			//el lado superior de la ficha a poner coincide con el lado inferior de la ficha a considerar?.
+			success = f2.dato[8] == f1.dato[0] && f2.dato[7]  == f1.dato[1] && f2.dato[6] == f1.dato[2];
+			break;
+	}
+	console.log("coinciden: " + success);
+	return success;
+};
+
+Tablero.prototype.encaja = function(ficha,pos){
+	//busco las fichas que rodean a la posicion en la que quiero insertar la ficha.
+	console.log("ficha a encajar: " + ficha.dato);
+	var cellAdyacentes = this.getCellAdyacentes (pos);
+	//devuelve si encaja con todas las fichas adyacentes.
+	var that = this; //necesario para poder llamar a coinciden del tablero en la función del underscore.
+	return _(cellAdyacentes).every(function(cAd){
+		return that.coinciden (ficha,cAd.ficha,pos,cAd.pos);
+	});
+}
+
+
 
 
 

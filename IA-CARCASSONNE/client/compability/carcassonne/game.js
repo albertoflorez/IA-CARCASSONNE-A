@@ -41,6 +41,13 @@ var play = function (){
 				console.log("se ha creado la partida");
 			}
     })
+    Meteor.call("ponerFicha",function(error){
+    	if (error){
+    		console.log("el encajar tiene fallos");
+    	}else{
+    		console.log("todo ha salido bien al probar el encajar ficha");
+    	}
+    })
 }
 
 $(play());
