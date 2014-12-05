@@ -1,8 +1,24 @@
 // Fichero que incluye la lógica del juego.
 
+/*+++++++++++++++++++++++++++pendiente!!!!!++++++++++++++++++++++++++++++++
+	hacer ficha actual
 
+	seguidor
+		pos en casilla dentro de ficha
+		tipo de casilla que ocupa
+		jugador al que pertenece
 
+	revisar pdato
+		aplicar giro a pdato
 
+	marcar en que casilla de ficha va el escudo
+		aplicarle el giro
+
+	asignar propietario al insertar una ficha en el tablero
+		aplicar ese cambio de propiedad a las adyacentes
+		aplicar ese cambio de propiedad a las adyacentes de las adyacentes.....
+
+*/
 
 //******************************* datos ******************************************
 var tipos=19;
@@ -17,9 +33,9 @@ var entrada=[
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
-		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{
-	dato: ['c','c','c','f','r','f','f','f','f','f','r','f', 'r'],
+		 //	 0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
+	{dato: ['c','c','c','f','r','f','f','f','f','f','r','f', 'r'],
+	pdato: ['1','1','1','1','1','2','2','2','2','2','1','1', '1'],
 	tipo: 1,
 	cantidad:[4,0]
 	},
@@ -30,8 +46,8 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{
-	dato: ['c','c','c','f','f','f','f','r','f','f','r','f', 'r'],
+	{dato: ['c','c','c','f','f','f','f','r','f','f','r','f', 'r'],
+	pdato: ['1','1','1','1','1','1','1','1','2','2','1','1', '1'],
 	tipo: 2,
 	cantidad:[3,0]
 	},
@@ -42,17 +58,22 @@ var entrada=[
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
-	dato: ['c','c','c','f','r','f','f','r','f','f','f','f', 'r'],
+	dato:  ['c','c','c','f','r','f','f','r','f','f','f','f', 'r'],
+	pdato: ['1','1','1','1','1','2','2','1','1','1','1','1', '1'],
 	tipo: 3,
 	cantidad:[3,0]
 	},
 	//3
+	//tipo problematico para el control de campo
+	//ojo que tiene 3 caminos independientes y el centro pertenece al campo 1!! para que se pueda calcular que continúa el campo!!!!
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','f','r','f','f','r','f','f','r','f', 'x'],
+	{
+	dato:  ['c','c','c','f','r','f','f','r','f','f','r','f', 'x'],
+	pdato: ['1','1','1','1','1','2','2','2','3','3','3','1', '1'],
 	tipo: 4,
 	cantidad:[3,0]
 	},
@@ -63,7 +84,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','f','r','f','f','r','f','c','c','c', 'f'],
+	{
+	dato:  ['c','c','c','f','r','f','f','r','f','c','c','c', 'f'],
+	pdato: ['1','1','1','1','1','2','2','1','1','1','1','1', '1'],
 	tipo: 5,
 	cantidad:[3,2]
 	},
@@ -74,7 +97,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','c','c','c','f','r','f','c','c','c', 'c'],
+	{
+	dato:  ['c','c','c','c','c','c','f','r','f','c','c','c', 'c'],
+	pdato: ['1','1','1','1','1','1','1','1','2','1','1','1', '1'],
 	tipo: 6,
 	cantidad:[1,2]
 	},
@@ -86,7 +111,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','f','f','f','f','f','f','f','f','f', 'f'],
+	{
+	dato:  ['c','c','c','f','f','f','f','f','f','f','f','f', 'f'],
+	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
 	tipo: 7,
 	cantidad:[5,0]
 	},
@@ -98,7 +125,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','c','c','c','f','f','f','f','f','f', 'f'],
+	{
+	dato:  ['c','c','c','c','c','c','f','f','f','f','f','f', 'f'],
+	pdato: ['1','1','1','2','2','2','1','1','1','1','1','1', '1'],
 	tipo: 8,
 	cantidad:[2,0]
 	},
@@ -108,7 +137,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','f','f','f','c','c','c','f','f','f', 'f'],
+	{
+	dato:  ['c','c','c','f','f','f','c','c','c','f','f','f', 'f'],
+	pdato: ['1','1','1','1','1','1','2','2','2','1','1','1', '1'],
 	tipo: 9,
 	cantidad:[3,0]
 	},
@@ -118,7 +149,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','f','f','f','f','f','f','c','c','c', 'f'],
+	{
+	dato:  ['c','c','c','f','f','f','f','f','f','c','c','c', 'f'],
+	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
 	tipo: 10,
 	cantidad:[3,2]
 	},
@@ -128,7 +161,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['f','f','f','c','c','c','f','f','f','c','c','c','c'],
+	{
+	dato:  ['f','f','f','c','c','c','f','f','f','c','c','c','c'],
+	pdato: ['1','1','1','1','1','1','2','2','2','1','1','1','1'],
 	tipo: 11,
 	cantidad:[1,2]
 	},
@@ -138,7 +173,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','c','c','c','f','f','f','c','c','c', 'c'],
+	{
+	dato:  ['c','c','c','c','c','c','f','f','f','c','c','c', 'c'],
+	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
 	tipo: 12,
 	cantidad:[3,1]
 	},
@@ -151,7 +188,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','c','c','c','c','c','c','c','c','c', 'c'],
+	{
+	dato:  ['c','c','c','c','c','c','c','c','c','c','c','c', 'c'],
+	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
 	tipo: 13,
 	cantidad:[0,1]
 	},
@@ -164,7 +203,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['c','c','c','f','r','f','f','f','f','f','r','f', 'r'],
+	{
+	dato:  ['f','f','f','f','f','f','f','r','f','f','r','f', 'r'],
+	pdato: ['1','1','1','1','1','1','1','1','2','2','1','1', '1'],
 	tipo: 14,
 	cantidad:[9,0]
 	},
@@ -174,7 +215,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['f','f','f','f','r','f','f','f','f','f','r','f', 'r'],
+	{
+	dato:  ['f','f','f','f','r','f','f','f','f','f','r','f', 'r'],
+	pdato: ['1','1','1','1','1','2','2','2','2','2','1','1', '1'],
 	tipo: 15,
 	cantidad:[8,0]
 	},
@@ -184,7 +227,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['f','f','f','f','r','f','f','r','f','f','r','f', 'x'],
+	{
+	dato:  ['f','f','f','f','r','f','f','r','f','f','r','f', 'x'],
+	pdato: ['1','1','1','1','1','2','2','2','3','4','3','1', '1'],
 	tipo: 16,
 	cantidad:[4,0]
 	},
@@ -194,7 +239,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['f','r','f','f','r','f','f','r','f','f','r','f', 'x'],
+	{
+	dato:  ['f','r','f','f','r','f','f','r','f','f','r','f', 'x'],
+	pdato: ['1','1','2','2','2','3','3','3','4','4','4','1', '1'],
 	tipo: 17,
 	cantidad:[1,0]
 	},
@@ -206,7 +253,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['f','f','f','f','f','f','f','f','f','f','f','f', 'm'],
+	{
+	dato:  ['f','f','f','f','f','f','f','f','f','f','f','f', 'm'],
+	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
 	tipo: 18,
 	cantidad:[4,0]
 	},
@@ -217,7 +266,9 @@ var entrada=[
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
-	{dato: ['f','f','f','f','f','f','f','r','f','f','f','f', 'm'],
+	{
+	dato:  ['f','f','f','f','f','f','f','r','f','f','f','f', 'm'],
+	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
 	tipo: 19,
 	cantidad:[2,0]
 	}
@@ -232,7 +283,7 @@ function Ficha (tipo, numFicha, escudo){
 	this.tipo=tipo;
 	this.escudo=escudo ||false; //default false
 	this.numFicha=numFicha; //no default porque sino la ficha madre no toma valor
-	//this.giro = 0;
+	this.giroUI = 0;
 };
 
 // girar
