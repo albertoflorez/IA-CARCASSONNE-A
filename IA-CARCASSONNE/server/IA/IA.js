@@ -1,6 +1,6 @@
 // Fichero que incluye la lógica del juego.
 
-/*+++++++++++++++++++++++++++pendiente!!!!!++++++++++++++++++++++++++++++++
+/*++++++++++++++++++++++++++ cosas a recordar ++++++++++++++++++++++++++++++++
 	hacer ficha actual
 
 	seguidor
@@ -17,6 +17,12 @@
 	asignar propietario al insertar una ficha en el tablero
 		aplicar ese cambio de propiedad a las adyacentes
 		aplicar ese cambio de propiedad a las adyacentes de las adyacentes.....
+
+	añadir turno a partida
+
+
+	Comprobar:
+		dame ficha y ponerFicha de la parte de meteor -  no está hechas las llamadas en el server
 
 */
 
@@ -35,7 +41,7 @@ var entrada=[
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		 //	 0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{dato: ['c','c','c','f','r','f','f','f','f','f','r','f', 'r'],
-	pdato: ['1','1','1','1','1','2','2','2','2','2','1','1', '1'],
+	pdato: [1,1,1,1,1,2,2,2,2,2,1,1, 1],
 	tipo: 1,
 	cantidad:[4,0]
 	},
@@ -47,7 +53,7 @@ var entrada=[
 		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{dato: ['c','c','c','f','f','f','f','r','f','f','r','f', 'r'],
-	pdato: ['1','1','1','1','1','1','1','1','2','2','1','1', '1'],
+	pdato: [1,1,1,1,1,1,1,1,2,2,1,1, 1],
 	tipo: 2,
 	cantidad:[3,0]
 	},
@@ -59,7 +65,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','r','f','f','r','f','f','f','f', 'r'],
-	pdato: ['1','1','1','1','1','2','2','1','1','1','1','1', '1'],
+	pdato: [1,1,1,1,1,2,2,1,1,1,1,1, 1],
 	tipo: 3,
 	cantidad:[3,0]
 	},
@@ -73,7 +79,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','r','f','f','r','f','f','r','f', 'x'],
-	pdato: ['1','1','1','1','1','2','2','2','3','3','3','1', '1'],
+	pdato: [1,1,1,1,1,2,2,2,3,3,3,1, 1],
 	tipo: 4,
 	cantidad:[3,0]
 	},
@@ -86,7 +92,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','r','f','f','r','f','c','c','c', 'f'],
-	pdato: ['1','1','1','1','1','2','2','1','1','1','1','1', '1'],
+	pdato: [1,1,1,1,1,2,2,1,1,1,1,1, 1],
 	tipo: 5,
 	cantidad:[3,2]
 	},
@@ -99,7 +105,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','c','c','c','f','r','f','c','c','c', 'c'],
-	pdato: ['1','1','1','1','1','1','1','1','2','1','1','1', '1'],
+	pdato: [1,1,1,1,1,1,1,1,2,1,1,1, 1],
 	tipo: 6,
 	cantidad:[1,2]
 	},
@@ -113,7 +119,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','f','f','f','f','f','f','f','f', 'f'],
-	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
+	pdato: [1,1,1,1,1,1,1,1,1,1,1,1, 1],
 	tipo: 7,
 	cantidad:[5,0]
 	},
@@ -127,7 +133,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','c','c','c','f','f','f','f','f','f', 'f'],
-	pdato: ['1','1','1','2','2','2','1','1','1','1','1','1', '1'],
+	pdato: [1,1,1,2,2,2,1,1,1,1,1,1, 1],
 	tipo: 8,
 	cantidad:[2,0]
 	},
@@ -139,7 +145,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','f','f','c','c','c','f','f','f', 'f'],
-	pdato: ['1','1','1','1','1','1','2','2','2','1','1','1', '1'],
+	pdato: [1,1,1,1,1,1,2,2,2,1,1,1, 1],
 	tipo: 9,
 	cantidad:[3,0]
 	},
@@ -151,7 +157,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','f','f','f','f','f','c','c','c', 'f'],
-	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
+	pdato: [1,1,1,1,1,1,1,1,1,1,1,1, 1],
 	tipo: 10,
 	cantidad:[3,2]
 	},
@@ -163,7 +169,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','c','c','c','f','f','f','c','c','c','c'],
-	pdato: ['1','1','1','1','1','1','2','2','2','1','1','1','1'],
+	pdato: [1,1,1,1,1,1,2,2,2,1,1,1,1],
 	tipo: 11,
 	cantidad:[1,2]
 	},
@@ -175,7 +181,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','c','c','c','f','f','f','c','c','c', 'c'],
-	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
+	pdato: [1,1,1,1,1,1,1,1,1,1,1,1, 1],
 	tipo: 12,
 	cantidad:[3,1]
 	},
@@ -190,7 +196,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','c','c','c','c','c','c','c','c','c', 'c'],
-	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
+	pdato: [1,1,1,1,1,1,1,1,1,1,1,1, 1],
 	tipo: 13,
 	cantidad:[0,1]
 	},
@@ -205,7 +211,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','f','f','f','r','f','f','r','f', 'r'],
-	pdato: ['1','1','1','1','1','1','1','1','2','2','1','1', '1'],
+	pdato: [1,1,1,1,1,1,1,1,2,2,1,1, 1],
 	tipo: 14,
 	cantidad:[9,0]
 	},
@@ -217,7 +223,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','r','f','f','f','f','f','r','f', 'r'],
-	pdato: ['1','1','1','1','1','2','2','2','2','2','1','1', '1'],
+	pdato: [1,1,1,1,1,2,2,2,2,2,1,1, 1],
 	tipo: 15,
 	cantidad:[8,0]
 	},
@@ -229,7 +235,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','r','f','f','r','f','f','r','f', 'x'],
-	pdato: ['1','1','1','1','1','2','2','2','3','4','3','1', '1'],
+	pdato: [1,1,1,1,1,2,2,2,3,4,3,1, 1],
 	tipo: 16,
 	cantidad:[4,0]
 	},
@@ -241,7 +247,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','r','f','f','r','f','f','r','f','f','r','f', 'x'],
-	pdato: ['1','1','2','2','2','3','3','3','4','4','4','1', '1'],
+	pdato: [1,1,2,2,2,3,3,3,4,4,4,1, 1],
 	tipo: 17,
 	cantidad:[1,0]
 	},
@@ -255,7 +261,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','f','f','f','f','f','f','f','f', 'm'],
-	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
+	pdato: [1,1,1,1,1,1,1,1,1,1,1,1, 1],
 	tipo: 18,
 	cantidad:[4,0]
 	},
@@ -268,7 +274,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','f','f','f','r','f','f','f','f', 'm'],
-	pdato: ['1','1','1','1','1','1','1','1','1','1','1','1', '1'],
+	pdato: [1,1,1,1,1,1,1,1,1,1,1,1, 1],
 	tipo: 19,
 	cantidad:[2,0]
 	}
@@ -278,8 +284,9 @@ var entrada=[
 
 //*********** Ficha **********
 
-function Ficha (tipo, numFicha, escudo){
+function Ficha (tipo, numFicha, escudo, pdato){
 	this.dato=entrada[tipo-1].dato || [];
+	this.pdato=pdato;
 	this.tipo=tipo;
 	this.escudo=escudo ||false; //default false
 	this.numFicha=numFicha; //no default porque sino la ficha madre no toma valor
@@ -288,7 +295,7 @@ function Ficha (tipo, numFicha, escudo){
 
 // girar
 
-Ficha.prototype.aplicarGiro(giro){
+Ficha.prototype.aplicarGiro = function(giro){
 	this.dato=girarDato(this.dato,giro);
 }
 
@@ -323,19 +330,85 @@ Mazo.prototype.generate = function(){
 	var cont=0;
 	//genera mazo ordenado, de forma que la primera ficha es la ficha madre
 	//recorremos los tipos
+	var cgc=0; //contador de ciudades distintas
+	var cgf=0; //contador de campos distintos
+	var cgr=0; //contador de caminos distintos
+	var cgm=0; //contador de monasterios distintos
+	var cgx=0; //contador de cruces distintos
+	var nuevaFicha;
 	for (i=1; i<=tipos; i++){
-		//nomales
-		for(cn=1; cn<=entrada[i-1].cantidad[0];cn++){
-			this.data.push(new Ficha(i, cont, false));
-			cont++;
-		}
-		//con escudo
-		for(ce=1; ce<=entrada[i-1].cantidad[1];ce++){
-			this.data.push(new Ficha(i, cont, true));
-			cont++;
-		}
-	}
+		//console.log("----------------------------------------tipo "+i);
+		//recojo el dato del tipo actual y el pdato
+		datoaux=entrada[i-1].dato;
+		pdatoaux=entrada[i-1].pdato;
+
+		//inserto la ficha generada en el mazo
+		//nos normal o escudo
+		for(nos=0;nos<entrada[i-1].cantidad.length;nos++){
+			for(cst=1; cst<=entrada[i-1].cantidad[nos];cst++){
+	
+				//evaluo todas las casillas dentro de una ficha
+				//contadores locales a ficha
+				var cfc=0; //contador de ciudades distintas
+				var cff=0; //contador de campos distintos
+				var cfr=0; //contador de caminos distintos
+				var cfm=0; //contador de monasterios distintos
+				var cfx=0; //contador de cruces distintos
+				var pdato=[];
+				for(contaux=0;contaux<pdatoaux.length;contaux++){
+
+					switch (datoaux[contaux]){
+					case "c": //ciudad
+						cfc = (cfc > pdatoaux[contaux]) ? cfc : pdatoaux[contaux];
+						//escribo el nuevo valor en la variable que se le pasará al constructor de Ficha
+						pdato[contaux]=cgc+pdatoaux[contaux];
+						break;
+					//campo
+					case "f":
+						cff = (cff > pdatoaux[contaux]) ? cff : pdatoaux[contaux];
+						pdato[contaux]=cgf+pdatoaux[contaux];
+						break;
+					//camino
+					case "r":
+						cfr = (cfr > pdatoaux[contaux]) ? cfr : pdatoaux[contaux];
+						pdato[contaux]=cgr+pdatoaux[contaux];
+						break;
+					//monasterio
+					case "m":
+						cfm = (cfm > pdatoaux[contaux]) ? cfm : pdatoaux[contaux];
+						pdato[contaux]=cgm+pdatoaux[contaux];
+						break;
+					//cruces
+					case "x":
+						cfx = (cfx > pdatoaux[contaux]) ? cfx : pdatoaux[contaux];
+						pdato[contaux]=cgx+pdatoaux[contaux];
+						break;
+					}
+				}
+				//he terminado de evaluar una ficha
+				//actualizo contadores globales
+
+				cgc=cgc+cfc; //contador de ciudades distintas
+				cgf=cgf+cff; //contador de campos distintos
+				cgr=cgr+cfr; //contador de caminos distintos
+				cgm=cgm+cfm; //contador de monasterios distintos
+				cgx=cgx+cfx; //contador de cruces distintos
+
+				var tieneEscudo=(nos==1);
+				nuevaFicha=new Ficha(i, cont, tieneEscudo, pdato)
+				this.data.push(nuevaFicha);
+				cont++;
+
+				//console.log("--------------------"+cont);
+				//console.log(nuevaFicha.dato);
+				//console.log(pdatoaux);
+				//console.log(nuevaFicha.pdato);
+				//console.log("cgc= "+cgc+" cgf= "+cgf+" cgr= "+cgr+" cgm= "+cgm+" cgx= "+cgx);
+			}//contador cuantas fichas hay de cada sub tipo dentro del tipo
+		}//nos
+	}//tipo
 	console.log("generadas "+cont+" fichas." );
+	console.log( +cgc+" porciones de ciudad, "+cgf+" porciones de campo, "+cgr+" porciones de camino, "+cgm+" monasterios y "+cgx+" cruces.");
 }
 
 Mazo.prototype.dameFichaMadre = function(){
@@ -364,6 +437,7 @@ Mazo.prototype.dameFicha = function(){
 //el tablero tendrá dim 100 x 100. La ficha madre estará en la posición (50,50). //esto se podrá cambiar.
 var Tablero = function (){
 	//el array estará formado por celdas en el que se almacena (ficha : {es necesario el tipo de la ficha}, pos: {x,y}).
+    this.fichaActual;
     this.mazo = new Mazo();
 	this.cellSet = [];    
 	this.maxDim = 100;
@@ -536,6 +610,17 @@ generarTablero = function(){
 
 generarMazo = function(){
     return new Mazo();
+}
+
+dameFicha = function(){
+	partida.tablero.fichaActual=partida.tablero.mazo.dameFicha();
+	return partida.tablero.fichaActual;
+}
+
+ponerFicha = function(x, y, giro){
+	//posiblemente x e y no encajen con las de IU
+	var auxpos={x:x,y:y}
+	partida.tablero.put(partida.tablero.fichaActual.aplicarGiro,auxpos);
 }
 
 
