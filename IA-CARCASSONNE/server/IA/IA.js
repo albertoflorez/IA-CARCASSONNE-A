@@ -1,15 +1,6 @@
 // Fichero que incluye la lógica del juego.
 
 /*++++++++++++++++++++++++++ cosas a recordar ++++++++++++++++++++++++++++++++
-	hacer ficha actual
-
-	seguidor
-		pos en casilla dentro de ficha
-		tipo de casilla que ocupa
-		jugador al que pertenece
-
-	revisar pdato
-		aplicar giro a pdato
 
 	marcar en que casilla de ficha va el escudo
 		aplicarle el giro
@@ -18,11 +9,9 @@
 		aplicar ese cambio de propiedad a las adyacentes
 		aplicar ese cambio de propiedad a las adyacentes de las adyacentes.....
 
-	añadir turno a partida
-
 
 	Comprobar:
-		dame ficha y ponerFicha de la parte de meteor -  no está hechas las llamadas en el server
+		dame ficha,ponerFicha y poner seguidor de la parte de meteor -  no está hechas las llamadas en el server
 
 */
 
@@ -291,12 +280,21 @@ function Ficha (tipo, numFicha, escudo, pdato){
 	this.escudo=escudo ||false; //default false
 	this.numFicha=numFicha; //no default porque sino la ficha madre no toma valor
 	this.giroUI = 0;
+	this.seguidor = new Seguidor();
 };
 
 // girar
 
 Ficha.prototype.aplicarGiro = function(giro){
 	this.dato=girarDato(this.dato,giro);
+	this.pdato=girarDato(this.pdato,giro);
+	this.seguidor.posSeguidor = (this.seguidor.posSeguidor(posant+(3*giro)) % 12);
+}
+
+Ficha.prototype.actualizarSeguidor = function(posSeguidor,IdPropietario){
+	this.seguidor.posSeguidor = posSeguidor;
+	this.seguidor.tipoSeguidor = this.dato[posSeguidor];
+	this.seguidor.idJugSeguidor  = IdPropietario;
 }
 
 function girarDato(dato, giro){
@@ -311,6 +309,14 @@ function girarDato(dato, giro){
 	//ultimo elemento, parte central
 	nuevodato[dato.length-1]=dato[dato.length-1];
 	return nuevodato;
+}
+
+
+//******* seguidor *******
+var Seguidor = function(pos, tipo, idJug){
+	this.posSeguidor = pos | -1;
+	this.tipoSeguidor = tipo | -1;
+	this.idJugSeguidor = idJug | -1;
 }
 
 //******* celda *********
@@ -427,7 +433,7 @@ Mazo.prototype.dameFicha = function(){
 	var num = Math.floor(Math.random()*this.data.length)
 	var ficha = this.data [num];
 	this.data.splice(num,1); //eliminamos la ficha del mazo.
-	//devuelve una ficha aleatoria, no la inserta en el tablero!! eso lo hará otro método
+	//devuelve una ficha aleatoria, y la guarda en fichaActual
 	return ficha;
 };
 
@@ -459,7 +465,7 @@ Tablero.prototype.put = function (ficha,pos){
     	console.log("la ficha encaja! y se añade al tablero");
 		this.cellSet.push(new Cell(ficha,pos));
     }
-};
+}
 
 Tablero.prototype.getPosAdyacentes = function(pos){
 	// ************* u,r,d,l ************* //
@@ -544,6 +550,17 @@ Tablero.prototype.encaja = function(ficha,pos){
 	});
 }
 
+Tablero.prototype.ponerFicha = function(pos, giro, posSeguidor,IdPropietario){
+	this.fichaActual.giro = giro;
+	this.fichaActual.actualizarSeguidor(posSeguidor,IdPropietario);
+	this.put(this.fichaActual.aplicarGiro,pos);
+	//console.log(this.fichaActual.seguidor);
+}
+Tablero.prototype.dameFicha = function(){
+	this.fichaActual = this.mazo.dameFicha();
+	return this.fichaActual;
+}
+
 
 //******* partida *********
 var Partida = function(idPartida,jugs,numJugs){
@@ -588,7 +605,7 @@ Partida.prototype.finalizar = function(){
 }
 
 Partida.prototype.getPuntos = function(){
-    //
+    return this.puntosJugs;
 }
 
 //******* para todas las partidas *********
@@ -612,16 +629,30 @@ generarMazo = function(){
     return new Mazo();
 }
 
+/*
+
+probarlos con meteor, por consola dice Error: no se puede acceder al objeto partida
+
+
 dameFicha = function(){
-	partida.tablero.fichaActual=partida.tablero.mazo.dameFicha();
-	return partida.tablero.fichaActual;
+	return partida.tablero.dameFicha();
 }
 
-ponerFicha = function(x, y, giro){
-	//posiblemente x e y no encajen con las de IU
-	var auxpos={x:x,y:y}
-	partida.tablero.put(partida.tablero.fichaActual.aplicarGiro,auxpos);
+ponerFicha = function(x, y, giro, posSeguidor,IdPropietario){
+	var pos={x:x,y:y};
+	partida.tablero.ponerFicha(pos, giro, posSeguidor,IdPropietario)
 }
+
+ponerSeguidor = function(posantSeguidor){
+	//Nota: se aplica el giro a la posición del seguidor para que no lo tengan que hacer los de iu
+
+	//recuperar la ultima celda puesta y añadir el seguidor
+	var CellEnJuego = partida.tablero.cellSet[partida.tablero.cellSet.length-1];
+	
+	var nuevoSeguidor=new Seguidor(posact, CellEnJuego.ficha.data[posSeguidor], partida.turno));
+	CellEnJuego.addSeguidor(nuevoSeguidor);
+}
+*/
 
 
 
