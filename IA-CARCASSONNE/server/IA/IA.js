@@ -225,25 +225,44 @@ var entrada=[
 ];
 
 
-//************************ funciones generadoras ***********************************
+//*********** Ficha **********
 
 function Ficha (tipo, numFicha, escudo){
 	this.dato=entrada[tipo-1].dato || [];
 	this.tipo=tipo;
 	this.escudo=escudo ||false; //default false
 	this.numFicha=numFicha; //no default porque sino la ficha madre no toma valor
-	this.giro = 0;
+	//this.giro = 0;
 };
 
-//prototype
+// girar
+
+Ficha.prototype.aplicarGiro(giro){
+	this.dato=girarDato(this.dato,giro);
+}
+
+function girarDato(dato, giro){
+	var nuevodato=[];
+	var posact;
+	//que no evalue el último elemento porque es la parte central
+	for (posant=0; posant<dato.length-1; posant++){
+		console.log(i);
+		posact=((posant+(3*giro)) % 12);
+		nuevodato[posact]=dato[posant];
+	}
+	//ultimo elemento, parte central
+	nuevodato[dato.length-1]=dato[dato.length-1];
+	return nuevodato;
+}
+
+//******* celda *********
+var Cell = function(ficha,pos){
+		this.ficha = ficha;
+		this.pos = pos;
+};
 
 
-
-//***************************** funciones no generadoras ***************************
-
-
-
-//*********** OBJETOS **********
+//*********** Mazo **********
 var Mazo = function(){
 	this.data = []; //donde estan las fichas.
     this.generate();
@@ -288,18 +307,6 @@ Mazo.prototype.dameFicha = function(){
 	return ficha;
 };
 
-
-generarTablero = function (){
-	tablero = new Tablero();
-	tablero.generate();
-	return tablero;
-};
-
-//******* celda *********
-var Cell = function(ficha,pos){
-		this.ficha = ficha;
-		this.pos = pos;
-};
 
 
 //******* tablero *********
@@ -413,9 +420,6 @@ Tablero.prototype.encaja = function(ficha,pos){
 }
 
 
-
-
-
 //******* partida *********
 var Partida = function(idPartida,jugs,numJugs){
     
@@ -470,6 +474,7 @@ addPartida  = function(partida){
 
 
 //******* para meteor *********
+
 generarPartida = function(id,jugs,num){
     return new Partida(id,jugs,num);
 }
