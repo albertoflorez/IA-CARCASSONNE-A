@@ -288,7 +288,7 @@ function Ficha (tipo, numFicha, escudo, pdato){
 Ficha.prototype.aplicarGiro = function(giro){
 	this.dato=girarDato(this.dato,giro);
 	this.pdato=girarDato(this.pdato,giro);
-	this.seguidor.posSeguidor = (this.seguidor.posSeguidor(posant+(3*giro)) % 12);
+	//this.seguidor.posSeguidor = (this.seguidor.posSeguidor(posant+(3*giro)) % 12);
 }
 
 Ficha.prototype.actualizarSeguidor = function(posSeguidor,IdPropietario){
@@ -464,7 +464,10 @@ Tablero.prototype.put = function (ficha,pos){
     if(this.encaja(ficha,pos)){
     	console.log("la ficha encaja! y se añade al tablero");
 		this.cellSet.push(new Cell(ficha,pos));
-    }
+		return true;
+    }else{
+    	return false;
+	}
 }
 
 Tablero.prototype.getPosAdyacentes = function(pos){
@@ -550,10 +553,14 @@ Tablero.prototype.encaja = function(ficha,pos){
 	});
 }
 
-Tablero.prototype.ponerFicha = function(pos, giro, posSeguidor,IdPropietario){
-	this.fichaActual.giro = giro;
+Tablero.prototype.ponerFicha = function(pos, giro){
+	this.fichaActual.giroIU = giro;
+	return this.put(this.fichaActual.aplicarGiro(giro),pos);
+}
+
+ablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
+	this.fichaActual.giroIU = giro;
 	this.fichaActual.actualizarSeguidor(posSeguidor,IdPropietario);
-	this.put(this.fichaActual.aplicarGiro,pos);
 	//console.log(this.fichaActual.seguidor);
 }
 Tablero.prototype.dameFicha = function(){
@@ -627,6 +634,12 @@ generarTablero = function(){
 
 generarMazo = function(){
     return new Mazo();
+}
+
+getPartida = function(id_partida){
+	_(partidas).find(function (partida){
+		return partida.idPartida == id_partida;
+	});
 }
 
 /*
