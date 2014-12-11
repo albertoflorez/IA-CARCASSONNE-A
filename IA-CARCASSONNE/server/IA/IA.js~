@@ -632,7 +632,7 @@ Partida.prototype.finalizarPartida = function(){
     //borrar la partida actual
     //hablar con plataforma
     console.log("partidas antes de finalizar: "+partidas.length);
-    var p = partidas.splice(this.idPartida,1);
+    var p = partidas.slice(this.idPartida,1);
     console.log("la partida que se ha borrado es: " + p.idPartida);
     console.log("partidas despues de finalizar: "+partidas.length);
     //return this.getPuntos();
