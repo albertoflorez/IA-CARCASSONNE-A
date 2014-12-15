@@ -326,7 +326,10 @@ var Cell = function(ficha,pos){
 };
 
 
-//*********** Mazo **********
+//*************************************************************************//
+//************************************ MAZO *******************************//
+//*************************************************************************//
+
 var Mazo = function(){
 	this.data = []; //donde estan las fichas.
     this.generate();
@@ -439,7 +442,10 @@ Mazo.prototype.dameFichaMazo = function(){
 
 
 
-//******* tablero *********
+//****************************************************************************//
+//************************************ TABLERO *******************************//
+//****************************************************************************//
+
 //el tablero tendrá dim 100 x 100. La ficha madre estará en la posición (50,50). //esto se podrá cambiar.
 var Tablero = function (partida){
 	//el array estará formado por celdas en el que se almacena (ficha : {es necesario el tipo de la ficha}, pos: {x,y}).
@@ -459,10 +465,10 @@ Tablero.prototype.generate = function(){
 	var fichaMadre = this.mazo.dameFichaMadre();
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
-    this.generarAreas(fichaMadre);
+    this.generarAreasFM(fichaMadre);
 };
 
-Tablero.prototype.generarAreas = function(ficha){
+Tablero.prototype.generarAreasFM = function(ficha){
     var cr = 0;
     var cf = 0;
     var cc = 0;
@@ -480,7 +486,7 @@ Tablero.prototype.generarAreas = function(ficha){
                     //creo un nuevo campo
                     var nuevoCampo = new Campo(cf);
                     nuevoCampo.add(cf);
-                    this.partida.listaCampos[cf] = nuevoCampo;  
+                    this.partida.listaCampos.push(nuevoCampo);  
                     console.log("nuevoCampos contenido: " + nuevoCampo.content);                  
                 }
                 break;
@@ -492,7 +498,7 @@ Tablero.prototype.generarAreas = function(ficha){
                     //creo un nuevo campo
                     var nuevoCamino = new Camino(cr);
                     nuevoCamino.add(cr); 
-                    this.partida.listaCaminos[cr] = nuevoCamino;  
+                    this.partida.listaCaminos.push(nuevoCamino);  
                     console.log("nuevoCamino contenido: " + nuevoCamino.content);                  
                 }
                 break;
@@ -504,19 +510,15 @@ Tablero.prototype.generarAreas = function(ficha){
                     //creo un nuevo campo
                     var nuevoCiudad = new Ciudad(cc);
                     nuevoCiudad.add(cc);
-                    
-                    this.partida.listaCiudades[cc] = nuevoCiudad;  
+                    this.partida.listaCiudades.push(nuevoCiudad);  
                     console.log("nuevoCiudad contenido: " + nuevoCiudad.content);                  
                 }
                 break;
         }   
     }
-    var lF =  _(this.partida.listaCampos).filter(function(elem){return elem != undefined;});
-    var lC =  _(this.partida.listaCiudades).filter(function(elem){return elem != undefined;});
-    var lR =  _(this.partida.listaCaminos).filter(function(elem){return elem != undefined;});
-    console.log("el tamaño de listaCampos es: " + lF.length);
-    console.log("el tamaño de listaCiudades es: " + lC.length);
-    console.log("el tamaño de listaCaminos es: " + lR.length);
+    console.log("el tamaño de listaCampos es: " + this.partida.listaCampos.length);
+    console.log("el tamaño de listaCiudades es: " + this.partida.listaCiudades.length);
+    console.log("el tamaño de listaCaminos es: " + this.partida.listaCaminos.length);
 }
 
 //coloca una ficha en una posicion.
@@ -525,11 +527,165 @@ Tablero.prototype.put = function (ficha,pos){
     if(this.encaja(ficha,pos)){
     	//console.log("la ficha encaja! y se añade al tablero");
 		this.cellSet.push(new Cell(ficha,pos));
+        this.asignarAreas(ficha,pos);
+        this.generarAreas(ficha);
 		return true;
     }else{
         //console.log("la ficha NO encaja!");
     	return false;
 	}
+}
+
+Tablero.prototype.generarAreas = function(ficha){
+    console.log("la partida: " + this.partida);
+    for(i = 0; i<11; i++){
+        var auxData = ficha.dato[i]; 
+        var auxPdata = ficha.pdato[i];          
+        switch (auxData){
+            case 'f':
+                if (_(this.partida.listaCampos).any(function(f){
+                    return _(f.content).contains(auxPdata);
+                })){
+                    var nuevoCampo = new Campo(auxPdata);
+                    nuevoCampo.add(auxPdata);
+                    this.partida.listaCampos.push(nuevoCampo);  
+                    console.log("nuevoCampos contenido: " + nuevoCampo.content);                  
+                }
+                break;
+            case 'r':
+               if (_(this.partida.listaCaminos).any(function(r){
+                    return _(r.content).contains(auxPdata);
+                })){
+                    var nuevoCamino = new Camino(auxPdata);
+                    nuevoCamino.add(auxPdata); 
+                    this.partida.listaCaminos.push(nuevoCamino);  
+                    console.log("nuevoCamino contenido: " + nuevoCamino.content);                  
+                }
+                break;
+            case 'c':
+                if (_(this.partida.listaCiudades).any(function(c){
+                    return _(c.content).contains(auxPdata);
+                })){
+                    var nuevoCiudad = new Ciudad(auxPdata);
+                    nuevoCiudad.add(auxPdata);
+                    this.partida.listaCiudades.push(nuevoCiudad);  
+                    console.log("nuevoCiudad contenido: " + nuevoCiudad.content);                  
+                }
+                break;
+        }   
+    }
+    console.log("el tamaño de listaCampos es: " + this.partida.listaCampos.length);
+    console.log("el tamaño de listaCiudades es: " + this.partida.listaCiudades.length);
+    console.log("el tamaño de listaCaminos es: " + this.partida.listaCaminos.length);
+}
+
+Tablero.prototype.asignarCampoAFicha = function(pdatoady,pdatoficha){
+    var campo = _(this.partida.listaCampos).find(function(elem){
+        return _(elem.content).any (function(subCelda){
+           return subCelda == pdatoady;
+        });
+    });
+    if(!_(campo.content).contains(pdatoficha)){
+        campo.add(pdatoficha);
+    }
+}
+
+Tablero.prototype.asignarCaminoAFicha = function(pdatoady,pdatoficha){
+    var camino = _(this.partida.listaCaminos).find(function(elem){
+        return _(elem.content).any (function(subCelda){
+           return subCelda == pdatoady;
+        });
+    });
+    if(!_(camino.content).contains(pdatoficha)){
+        camino.add(pdatoficha);
+    }
+}
+
+Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha){
+    var ciudad = _(this.partida.listaCiudades).find(function(elem){
+        return _(elem.content).any (function(subCelda){
+           return subCelda == pdatoady;
+        });
+    });
+    if(!_(ciudad.content).contains(pdatoficha)){
+        ciudad.add(pdatoficha);
+    }
+}
+
+Tablero.prototype.propagarDerecha = function(pdatosAdy, pdatosFicha, datosCell){
+    for (var i = 0; i< 3; i++){
+        var pdatoAdy = pdatosAdy[i];
+        var pdatoFicha = pdatosFicha [i];
+        switch(datosCell[i]){
+            case 'f':
+                this.asignarCampoAFicha(pdatoAdy,pdatoFicha);
+                break;
+            case 'r':
+                this.asignarCaminoAFicha(pdatoAdy,pdatoFicha);
+                break;
+            case 'c':
+                this.asignarCiudadAFicha(pdatoAdy,pdatoFicha);
+                break;
+        }
+    }
+}
+
+Tablero.prototype.asignarAreas(ficha,pos){
+    var cellAdyacentes = this.getCellAdyacentes(pos);
+    cellAdyacentes.forEach(function(cell){
+        var ub = this.conocerUb(cell.pos,pos);
+        var pdatosAdy;
+        var pdatosFicha;
+        var datosCell;
+        switch(ub){
+            case 'r':
+                pdatosAdy = [cell.ficha.pdato[3],
+                             cell.ficha.pdato[4],
+                             cell.ficha.pdato[5]];
+                pdatosFicha = [ficha.pdato[11],
+                               ficha.pdato[10],
+                               ficha.pdato[9]];
+                datosCell = [cell.ficha.dato[3],
+                             cell.ficha.dato[4],
+                             cell.ficha.dato[5]];
+                
+                break;
+            case 'l':
+                pdatosAdy = [cell.ficha.pdato[11],
+                             cell.ficha.pdato[10],
+                             cell.ficha.pdato[9]];
+                pdatosFicha = [ficha.pdato[3],
+                               ficha.pdato[4],
+                               ficha.pdato[5]];
+                datosCell = [cell.ficha.dato[11],
+                             cell.ficha.dato[10],
+                             cell.ficha.dato[9]];
+                break;
+            case 'u':
+                pdatosAdy = [cell.ficha.pdato[0],
+                             cell.ficha.pdato[1],
+                             cell.ficha.pdato[2]];
+                pdatosFicha = [ficha.pdato[8],
+                               ficha.pdato[7],
+                               ficha.pdato[6]];
+                datosCell = [cell.ficha.dato[0],
+                             cell.ficha.dato[1],
+                             cell.ficha.dato[2]];
+                break;
+            case 'd':
+                pdatosAdy = [cell.ficha.pdato[8],
+                             cell.ficha.pdato[7],
+                             cell.ficha.pdato[6]];
+                pdatosFicha = [ficha.pdato[0],
+                               ficha.pdato[1],
+                               ficha.pdato[2]];
+                datosCell = [cell.ficha.dato[8],
+                             cell.ficha.dato[7],
+                             cell.ficha.dato[6]];
+                break;
+        }
+        this.propagar (pdatosAdy,pdatosFicha,datosCell);
+    });
 }
 
 Tablero.prototype.getPosAdyacentes = function(pos){
@@ -558,16 +714,10 @@ Tablero.prototype.getCellAdyacentes = function(pos){
 	});
 	return cellAdyacentes;
 }
-
-//este método permite saber si dos fichas coinciden o no.
-Tablero.prototype.coinciden = function (f1,f2,p1,p2){
-	//console.log("comparo con: " + f2.dato);
-   //console.log(f1);
-	var success = false; //no encajan por defecto.
-	//esta funcion nos permite conocer la ubicación de p1 con respecto a p2, es decir, 
-	//si p1 esta arriba, abajo, izq y derecha de p2. OJO (arriba y abajo cambian puesto que el origen 
-	//de coordenadas se encuentra en la esquina superior izquierda).
-	var conocerUb = function(p1,p2){
+//Ubicacion del segundo arg en funcion de la posicion del primero. 
+//p2 esta a la "ub" de p1
+//de coordenadas se encuentra en la esquina superior izquierda).
+Tablero.prototype.conocerUb = function(p1,p2){
 		var ub;
 		//la ficha adyacente está a la izq o derecha de la ficha a colocar.
 		if (p1.y == p2.y){ //es vertical
@@ -577,8 +727,16 @@ Tablero.prototype.coinciden = function (f1,f2,p1,p2){
 		}
 		return ub;
 	};
+//este método permite saber si dos fichas coinciden o no.
+Tablero.prototype.coinciden = function (f1,f2,p1,p2){
+	//console.log("comparo con: " + f2.dato);
+   //console.log(f1);
+	var success = false; //no encajan por defecto.
+	//esta funcion nos permite conocer la ubicación de p1 con respecto a p2, es decir, 
+	//si p1 esta arriba, abajo, izq y derecha de p2. OJO (arriba y abajo cambian puesto que el origen 
+	
 
-	var ub = conocerUb(p1,p2);
+	var ub = this.conocerUb(p1,p2);
 	//console.log("la ubicación de la ficha adyacente es: " + ub);
 	//conocemos si encaja segun su ubicación. (si tienen las propiedades complementarias).
 	switch (ub){
@@ -642,7 +800,11 @@ Tablero.prototype.dameFicha = function(){
 }
 
 
-//******* partida *********
+//****************************************************************************//
+//************************************ PARTIDA *******************************//
+//****************************************************************************//
+
+
 var Partida = function(idPartida,jugs,numJugs){
     
     this.idPartida = idPartida;
@@ -721,7 +883,6 @@ var Campo = function(idCampo){
     this.numFichas = 0;
     this.propietarios = [];
     this.ciudadesIncluidas = [];
-    this.ciudadesCerradas = 0; //preguntar a alvaro si se cuenta por fichas o como.
 }
 
 Campo.prototype.add = function(numSubcelda){
@@ -762,6 +923,11 @@ var Monasterio = function(idMonasterio, pos, propietario){
     this.pos = pos;
 }
 
+
+
+
+
+
 //******* para todas las partidas *********
 partidas = [];
 addPartida  = function(partida){
@@ -771,6 +937,13 @@ addPartida  = function(partida){
 getTodasLasPartidas = function(){
     return partidas;
 }
+
+
+
+
+
+
+
 
 //******* para meteor *********
 
