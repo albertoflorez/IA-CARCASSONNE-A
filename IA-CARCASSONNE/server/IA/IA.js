@@ -27,7 +27,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		 //	 0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{dato: ['c','c','c','f','r','f','f','f','f','f','r','f', 'r'],
 	pdato: [1,1,1,1,1,2,2,2,2,2,1,1, 1],
@@ -39,7 +39,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{dato: ['c','c','c','f','f','f','f','r','f','f','r','f', 'r'],
 	pdato: [1,1,1,1,1,1,1,1,2,2,1,1, 1],
@@ -50,7 +50,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','r','f','f','r','f','f','f','f', 'r'],
@@ -64,7 +64,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','r','f','f','r','f','f','r','f', 'x'],
@@ -77,7 +77,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','r','f','f','r','f','c','c','c', 'f'],
@@ -90,7 +90,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','c','c','c','f','r','f','c','c','c', 'c'],
@@ -104,7 +104,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','f','f','f','f','f','f','f','f', 'f'],
@@ -118,7 +118,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','c','c','c','f','f','f','f','f','f', 'f'],
@@ -130,7 +130,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','f','f','c','c','c','f','f','f', 'f'],
@@ -142,7 +142,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','f','f','f','f','f','f','c','c','c', 'f'],
@@ -154,7 +154,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','c','c','c','f','f','f','c','c','c','c'],
@@ -166,7 +166,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','c','c','c','f','f','f','c','c','c', 'c'],
@@ -181,7 +181,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['c','c','c','c','c','c','c','c','c','c','c','c', 'c'],
@@ -196,7 +196,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','f','f','f','r','f','f','r','f', 'r'],
@@ -208,7 +208,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','r','f','f','f','f','f','r','f', 'r'],
@@ -220,7 +220,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','r','f','f','r','f','f','r','f', 'x'],
@@ -232,7 +232,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','r','f','f','r','f','f','r','f','f','r','f', 'x'],
@@ -246,7 +246,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','f','f','f','f','f','f','f','f', 'm'],
@@ -259,7 +259,7 @@ var entrada=[
 	//c city(ciudad), r road(camino), f field(campo), m monastery(convento), x cruce de caminos
 	//u up, d down, l left, r rigth, tipo (n de sprite), giro (0,1,2,3), escudo (t o f) default f 
 	//para aplicar un giro: pos=[posori+(3*giro)]mod 12	
-		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo giro escudo elegible
+		//	ul 	u 	ur 	ru 	r 	rd 	dr 	d 	dl ld  	l 	lu 	c	tipo  cantidad[normal conEscudo]  
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','f','f','f','r','f','f','f','f', 'm'],
@@ -643,6 +643,50 @@ Partida.prototype.getPuntos = function(){
     return this.puntosJugs;
 }
 
+var Jugador = function(idJugador){
+    this.idJugador = idJugador;
+    this.campos = [];
+    this.ciudades = [];
+    this.caminos = [];
+    this.monasterios = [];
+    this.puntos = 0;
+}
+
+var Campo = function(idCampo){
+    this.idCampo = idCampo;
+    this.content = []; //contiene los componentes de pdata de las fichas que lo forman
+    this.numFichas = 0;
+    this.propietarios = [];
+    this.ciudadesIncluidas = [];
+    this.ciudadesCerradas = 0; //preguntar a alvaro si se cuenta por fichas o como.
+}
+
+var Ciudad = function(idCiudad){
+    this.idCiudad = idCiudad;
+    this.content = []; //contiene los componentes de pdata de las fichas que lo forman
+    this.numFichas = 0;
+    this.isClosed = false;
+    this.propietarios = [];
+    this.numEscudos = 0;
+}
+
+var Camino = function(idCamino){
+    this.idCamino = idCamino;
+    this.content = []; //contiene los componentes de pdata de las fichas que lo forman
+    this.numFichas = 0;
+    this.puntas = [];
+    this.isClosed = false;
+    this.propietarios = []; 
+}
+
+//solo crear el monasterio cuando se ponga monigote en el monasterio
+var Monasterio = function(idMonasterio, pos, propietario){
+    this.idMonasterio = idMonasterio;
+    this.propietario = propietario;
+    this.isClosed = false;
+    this.pos = pos;
+}
+
 //******* para todas las partidas *********
 partidas = [];
 addPartida  = function(partida){
@@ -673,31 +717,6 @@ getPartida = function(id_partida){
 	});
 }
 
-
-/*
-
-probarlos con meteor, por consola dice Error: no se puede acceder al objeto partida
-
-
-dameFicha = function(){
-	return partida.tablero.dameFicha();
-}
-
-ponerFicha = function(x, y, giro, posSeguidor,IdPropietario){
-	var pos={x:x,y:y};
-	partida.tablero.ponerFicha(pos, giro, posSeguidor,IdPropietario)
-}
-
-ponerSeguidor = function(posantSeguidor){
-	//Nota: se aplica el giro a la posición del seguidor para que no lo tengan que hacer los de iu
-
-	//recuperar la ultima celda puesta y añadir el seguidor
-	var CellEnJuego = partida.tablero.cellSet[partida.tablero.cellSet.length-1];
-	
-	var nuevoSeguidor=new Seguidor(posact, CellEnJuego.ficha.data[posSeguidor], partida.turno));
-	CellEnJuego.addSeguidor(nuevoSeguidor);
-}
-*/
 
 
 
