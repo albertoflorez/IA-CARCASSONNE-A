@@ -24,7 +24,7 @@ Meteor.methods ({
         console.log("se ha generado la partida");
         console.log(partidas);
 	},
-	
+	/*
     generarMazo: function(){
     	//aqui se ha puesto la ficha madre al generar el Mazo.
         mazo = generarMazo();
@@ -36,7 +36,7 @@ Meteor.methods ({
 
     generarTablero: function(){
         tablero = generarTablero();
-    },
+    },*/
 
     //********************************************************************//
     //                      Interfaz con IU                               //
@@ -50,7 +50,9 @@ Meteor.methods ({
     }, 
 
     buscaPartida: function(id_partida){
+        console.log("han llamado a buscar partida.");
         var partida = getPartida(id_partida);
+        console.log("partida: "+ partida);
         return partida;
     },
     //pre: id_partida, id_jugador; post: fichaIU (tipo, escudo y numFicha)

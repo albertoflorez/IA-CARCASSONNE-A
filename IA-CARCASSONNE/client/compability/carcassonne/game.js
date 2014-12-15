@@ -1,5 +1,5 @@
 var play = function (){
-	Meteor.call("generarMazo",function(error){
+/*	Meteor.call("generarMazo",function(error){
 		if(error){
 			console.log("error al generar el mazo");
 		}else{
@@ -7,7 +7,7 @@ var play = function (){
 		}
 	})
     
-/*
+
 	Meteor.call("dameFichaMadre",function(error,ficha){
 		if (error){
 			console.log("error en el servidor al devolver la ficha madre");
@@ -15,7 +15,7 @@ var play = function (){
 			console.log(ficha);
 		}
 	});
-*/
+
 
     Meteor.call("generarTablero",function(error){
             if(error){
@@ -24,7 +24,7 @@ var play = function (){
 				console.log("se ha generado el tablero");
 			}
     });
-/*
+
     for (i=1; i<72; i++){
 		Meteor.call("dameFicha",function(error,ficha){
 			if(error){
@@ -34,9 +34,7 @@ var play = function (){
 			}
 		});
 	};
-*/
 
-/*
     Meteor.call ("crearPartida","aajkejeijeie",[1,2], 4, function(error){
         if(error){
 				console.log("error al crear la partida");
@@ -91,7 +89,7 @@ var play = function (){
 
 
 
-
+/*
 //**************************************************************************
 //ahora se tiene que escribir de aqui para arriba que sino no hay partida
 
@@ -109,7 +107,7 @@ var play = function (){
             }
     });
 //
-    
+   */ 
 }
 
 $(play());

@@ -441,8 +441,9 @@ Mazo.prototype.dameFichaMazo = function(){
 
 //******* tablero *********
 //el tablero tendrá dim 100 x 100. La ficha madre estará en la posición (50,50). //esto se podrá cambiar.
-var Tablero = function (){
+var Tablero = function (partida){
 	//el array estará formado por celdas en el que se almacena (ficha : {es necesario el tipo de la ficha}, pos: {x,y}).
+    this.partida = partida; 
     this.fichaActual;
     this.mazo = new Mazo();
 	this.cellSet = [];    
@@ -458,7 +459,65 @@ Tablero.prototype.generate = function(){
 	var fichaMadre = this.mazo.dameFichaMadre();
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
+    this.generarAreasFM(fichaMadre);
 };
+
+Tablero.prototype.generarAreasFM = function(ficha){
+    var cr = 0;
+    var cf = 0;
+    var cc = 0;
+    var cm = 0;
+    console.log("la partida: " + this.partida);
+    for(i = 0; i<11; i++){
+        var auxData = ficha.dato[i]; 
+        var auxPdata = ficha.pdato[i];          
+        switch (auxData){
+            case 'f':
+                if (cf<auxPdata){
+                    //como he encontrado un campo nuevo
+                    //guardo el numero del campo para poder consultarlo luego.
+                    cf = auxPdata;
+                    //creo un nuevo campo
+                    var nuevoCampo = new Campo(cf);
+                    nuevoCampo.add(cf);
+                    this.partida.listaCampos[cf] = nuevoCampo;  
+                    console.log("nuevoCampos contenido: " + nuevoCampo.content);                  
+                }
+                break;
+            case 'r':
+                if (cr<auxPdata){
+                    //como he encontrado un campo nuevo
+                    //guardo el numero del campo para poder consultarlo luego.
+                    cr = auxPdata;
+                    //creo un nuevo campo
+                    var nuevoCamino = new Camino(cr);
+                    nuevoCamino.add(cr); 
+                    this.partida.listaCaminos[cr] = nuevoCamino;  
+                    console.log("nuevoCamino contenido: " + nuevoCamino.content);                  
+                }
+                break;
+            case 'c':
+                if (cc<auxPdata){
+                    //como he encontrado un campo nuevo
+                    //guardo el numero del campo para poder consultarlo luego.
+                    cc = auxPdata;
+                    //creo un nuevo campo
+                    var nuevoCiudad = new Ciudad(cc);
+                    nuevoCiudad.add(cc);
+                    
+                    this.partida.listaCiudades[cc] = nuevoCiudad;  
+                    console.log("nuevoCiudad contenido: " + nuevoCiudad.content);                  
+                }
+                break;
+        }   
+    }
+    var lF =  _(this.partida.listaCampos).filter(function(elem){return elem != undefined;});
+    var lC =  _(this.partida.listaCiudades).filter(function(elem){return elem != undefined;});
+    var lR =  _(this.partida.listaCaminos).filter(function(elem){return elem != undefined;});
+    console.log("el tamaño de listaCampos es: " + lF.length);
+    console.log("el tamaño de listaCiudades es: " + lC.length);
+    console.log("el tamaño de listaCaminos es: " + lR.length);
+}
 
 //coloca una ficha en una posicion.
 Tablero.prototype.put = function (ficha,pos){
@@ -593,7 +652,11 @@ var Partida = function(idPartida,jugs,numJugs){
 
 Partida.prototype.initialize = function(jugs,numJugs){
     //iran las cosas de jugadores y ia etcetc
-    this.tablero = new Tablero();    
+    this.listaCampos = [];
+    this.listaCiudades = [];
+    this.listaCaminos = [];
+    this.listaMonasterios = [];
+    this.tablero = new Tablero(this);   
     this.jugs = [];
     this.puntosJugs = [];
     this.jugs.forEach(function(jug){
@@ -661,6 +724,10 @@ var Campo = function(idCampo){
     this.ciudadesCerradas = 0; //preguntar a alvaro si se cuenta por fichas o como.
 }
 
+Campo.prototype.add = function(numSubcelda){
+    this.content.push(numSubcelda);
+}
+
 var Ciudad = function(idCiudad){
     this.idCiudad = idCiudad;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
@@ -670,6 +737,10 @@ var Ciudad = function(idCiudad){
     this.numEscudos = 0;
 }
 
+Ciudad.prototype.add = function(numSubcelda){
+    this.content.push(numSubcelda);
+}
+
 var Camino = function(idCamino){
     this.idCamino = idCamino;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
@@ -677,6 +748,10 @@ var Camino = function(idCamino){
     this.puntas = [];
     this.isClosed = false;
     this.propietarios = []; 
+}
+
+Camino.prototype.add = function(numSubcelda){
+    this.content.push(numSubcelda);
 }
 
 //solo crear el monasterio cuando se ponga monigote en el monasterio
