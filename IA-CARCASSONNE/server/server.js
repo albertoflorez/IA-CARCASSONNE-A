@@ -3,7 +3,9 @@ var tablero;
 var partidaPrueba;
 
 //generamos una partida para que el cliente pueda probar la interfaz sin problemas de sincronía
+console.log("server: voy a generar una partida");
 generarPartida(0,[1,2,3],3);
+console.log("server: he generado la partida");
 
 /*
 authenticate = function (partida){
@@ -49,16 +51,19 @@ Meteor.methods ({
         return partida.getTurno();
     }, 
 
+    /* Comneto este método porque no funcionaba.
+    No funcionaba puesto que devolviamos un objeto que tiene dependencia circular. 
+    Puesto que este método no lo vamos a utilizar... Se borrará en un futuro.
     buscaPartida: function(id_partida){
         console.log("han llamado a buscar partida.");
         var partida = getPartida(id_partida);
-        console.log("partida: "+ partida);
-        return partida;
+        console.log("partida: "+ partida.idPartida);
+        //return partida;
     },
+    */
     //pre: id_partida, id_jugador; post: fichaIU (tipo, escudo y numFicha)
     dameFicha: function(id_partida){
         var partida = getPartida (id_partida);
-        console.log(partida);
         var fichaIU;
         if (authenticate(partida)){
              var ficha = partida.tablero.dameFicha();

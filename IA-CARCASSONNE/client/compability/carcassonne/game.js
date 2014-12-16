@@ -43,10 +43,13 @@ var play = function (){
 			}
     })
 */
-    Meteor.call("buscaPartida",0,function(error,partida){
+
+
+    /*Meteor.call("buscaPartida",0,function(error,partida){
         var comment =  (error) ? "No se ha generado la partida" : partida;
         console.log (comment);
-    });
+    });*/
+
     //el id_partida es 0
     Meteor.call("dameFicha",0,function(error,ficha){
         if(error){
@@ -55,6 +58,7 @@ var play = function (){
             console.log(ficha);
         }
     });
+
     Meteor.call("ponerFicha",0,0,{x:48,y:49},function(error,result){
         if (!error){
             var comment =  (result) ? "Encaja la ficha" : "No encaja";
@@ -64,7 +68,7 @@ var play = function (){
         }
     });
     
-    Meteor.call("ponerSeguidor",0,12,function(error,result){
+    /*Meteor.call("ponerSeguidor",0,12,function(error,result){
         if(error){
             console.log("error a poner seguidor");
         }else{
@@ -83,7 +87,7 @@ var play = function (){
     }
     
 
-
+*/
 
 
 
