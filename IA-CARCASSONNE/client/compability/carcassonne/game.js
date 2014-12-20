@@ -51,7 +51,12 @@ var play = function (){
     });*/
 
     //el id_partida es 0
-    Meteor.call("dameFicha",0,function(error,ficha){
+
+
+
+
+
+    /*Meteor.call("dameFicha",0,function(error,ficha){
         if(error){
             console.log("error a devolverme una ficha");
         }else{
@@ -66,7 +71,12 @@ var play = function (){
         }else{
             console.log("no funciona ponerficha");
         }
-    });
+    });*/
+
+
+
+
+
     
     /*Meteor.call("ponerSeguidor",0,12,function(error,result){
         if(error){
@@ -89,6 +99,14 @@ var play = function (){
 
 */
 
+
+    Meteor.call("probarPropagacionDePdato",0,function(error){
+        if(error){
+                console.log("error al probar propagacion del pdato");
+            }else{
+                console.log("ha funcionado el probar propagacion del pdato");
+            }
+    });
 
 
 

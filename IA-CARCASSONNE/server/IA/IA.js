@@ -465,61 +465,8 @@ Tablero.prototype.generate = function(){
 	var fichaMadre = this.mazo.dameFichaMadre();
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
-    this.generarAreasFM(fichaMadre);
+    this.generarAreas(fichaMadre);
 };
-
-Tablero.prototype.generarAreasFM = function(ficha){
-    var cr = 0;
-    var cf = 0;
-    var cc = 0;
-    var cm = 0;
-    console.log("la partida: " + this.partida.idPartida);
-    for(i = 0; i<11; i++){
-        var auxData = ficha.dato[i]; 
-        var auxPdata = ficha.pdato[i];          
-        switch (auxData){
-            case 'f':
-                if (cf<auxPdata){
-                    //como he encontrado un campo nuevo
-                    //guardo el numero del campo para poder consultarlo luego.
-                    cf = auxPdata;
-                    //creo un nuevo campo
-                    var nuevoCampo = new Campo(cf);
-                    nuevoCampo.add(cf);
-                    this.partida.listaCampos.push(nuevoCampo);  
-                    console.log("nuevoCampos contenido: " + nuevoCampo.content);                  
-                }
-                break;
-            case 'r':
-                if (cr<auxPdata){
-                    //como he encontrado un campo nuevo
-                    //guardo el numero del campo para poder consultarlo luego.
-                    cr = auxPdata;
-                    //creo un nuevo campo
-                    var nuevoCamino = new Camino(cr);
-                    nuevoCamino.add(cr); 
-                    this.partida.listaCaminos.push(nuevoCamino);  
-                    console.log("nuevoCamino contenido: " + nuevoCamino.content);                  
-                }
-                break;
-            case 'c':
-                if (cc<auxPdata){
-                    //como he encontrado un campo nuevo
-                    //guardo el numero del campo para poder consultarlo luego.
-                    cc = auxPdata;
-                    //creo un nuevo campo
-                    var nuevoCiudad = new Ciudad(cc);
-                    nuevoCiudad.add(cc);
-                    this.partida.listaCiudades.push(nuevoCiudad);  
-                    console.log("nuevoCiudad contenido: " + nuevoCiudad.content);                  
-                }
-                break;
-        }   
-    }
-    console.log("el tamaño de listaCampos es: " + this.partida.listaCampos.length);
-    console.log("el tamaño de listaCiudades es: " + this.partida.listaCiudades.length);
-    console.log("el tamaño de listaCaminos es: " + this.partida.listaCaminos.length);
-}
 
 //coloca una ficha en una posicion.
 Tablero.prototype.put = function (ficha,pos){
@@ -534,6 +481,7 @@ Tablero.prototype.put = function (ficha,pos){
         this.asignarAreas(ficha,pos);
         console.log("llamamos a generarAreas");
         this.generarAreas(ficha);
+        this.unificarAreas();
 		return true;
     }else{
         console.log("la ficha NO encaja!");
@@ -546,7 +494,7 @@ Tablero.prototype.put = function (ficha,pos){
 //tenido aún en cuenta a la hora de asignar. 
 //Nota: para todas las fichas a excepción de la madre.
 Tablero.prototype.generarAreas = function(ficha){
-    console.log("la partida: " + this.partida);
+    //console.log("la partida: " + this.partida);
     for(i = 0; i<11; i++){
         var auxData = ficha.dato[i]; 
         var auxPdata = ficha.pdato[i];          
@@ -613,7 +561,7 @@ Tablero.prototype.asignarCaminoAFicha = function(pdatoady,pdatoficha){
            return subCelda == pdatoady;
         });
     });
-    console.log("el campo con id: " + camino.idCamino);
+    console.log("el camino con id: " + camino.idCamino);
     if(!_(camino.content).contains(pdatoficha)){
     	console.log("asignamos el pdato");
         camino.add(pdatoficha);
@@ -628,7 +576,7 @@ Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha){
            return subCelda == pdatoady;
         });
     });
-    console.log("el campo con id: " + ciudad.idCiudad);
+    console.log("el ciudad con id: " + ciudad.idCiudad);
     if(!_(ciudad.content).contains(pdatoficha)){
     	console.log("asignamos el pdato");
         ciudad.add(pdatoficha);
@@ -722,6 +670,47 @@ Tablero.prototype.asignarAreas = function(ficha,pos){
     },this);
 }
 
+Tablero.prototype.unificarAreas = function(){
+    this.unificarCampos();
+    this.unificarCiudades();
+    this.unificarCaminos();
+}
+Tablero.prototype.isTheSame (c1,c2){
+    var is = false;
+    var i = 0;
+    while (!is || i >= c1.content.length){
+        var d1 = c1.content[i];
+        is = _(c2.content).any(function(d2){
+            return d2 == d1;
+        });
+        i++;
+    };
+
+    return is;
+}
+Talero.prototype.unificarCampos = function(){
+    _(this.listaCampos).each(function(c1){
+        var listaCamposAUnir = [];
+        listaCamposAUnir =  _(this.listaCampos).filter(function(c2){
+                    return this.isTheSame(c1,c2);
+               });
+             if (listaCamposAUnir.length >1){
+                listaCamposAUnir[0].unificar(listaCamposAUnir.slice(1));
+             }        
+        },this);
+        
+    },this);
+}
+
+Talero.prototype.unificarCiudades = function(){
+    
+}
+
+Talero.prototype.unificarCaminos = function(){
+    
+}
+
+//nos devuelve el array empezando por la de arriba en sentido horario
 Tablero.prototype.getPosAdyacentes = function(pos){
 	// ************* u,r,d,l ************* //
 	//si pos == esquina ==> array long 2,

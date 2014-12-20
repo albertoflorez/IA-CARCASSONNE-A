@@ -18,8 +18,71 @@ authenticate = function (partida){
     return true;
 }
 
-
 Meteor.methods ({    
+    
+    probarPropagacionDePdato: function(idPartida){
+        var ficha1 = {
+                        dato: ['f','f','f','f','r','f','f','f','f','f','r','f', 'r'],
+	                    pdato: [3,3,3,3,2,4,4,4,4,4,2,3, 2],
+                        aplicarGiro: function(){}
+                     }
+        var ficha2 = {
+                        dato: ['f','f','f','f','r','f','f','r','f','f','f','f', 'r'],
+	                    pdato: [5,5,5,5,3,6,6,3,5,5,5,5, 3],
+                        aplicarGiro: function(){}
+                     }
+        var ficha3 = {
+                        dato: ['f','r','f','f','r','f','c','c','c','f','r','f', 'x'],
+	                    pdato: [7,4,8,8,5,9,2,2,2,9,6,7, 1],
+                        aplicarGiro: function(){}
+                     }
+        var ficha4 = {
+                        dato: ['f','r','f','f','r','f','f','r','f','f','r','f', 'x'],
+	                    pdato: [10,7,11,11,8,12,12,9,13,13,10,10, 2],
+                        aplicarGiro: function(){}
+                     }
+        var ficha5 = {
+                        dato: ['f','f','f','f','f','f','f','f','f','f','r','f', 'm'],
+	                    pdato: [14,14,14,14,14,14,14,14,14,14,11,14, 1],
+                        aplicarGiro: function(){}
+                     }
+        var ficha6 = {
+                        dato:  ['c','c','c','f','f','f','f','f','f','c','c','c', 'f'],
+	                    pdato: [3,3,3,15,15,15,15,15,15,3,3,3, 15],
+                        aplicarGiro: function(){}
+                     }
+        var fichaPoner = {
+                        dato:  ['f','f','f','c','c','c','f','r','f','f','r','f', 'r'],
+	                    pdato: [16,16,16,4,4,4,16,12,17,17,12,16, 12],
+                        aplicarGiro: function(){}
+                     }
+        var partida = getPartida(idPartida);
+        if (authenticate(partida)){
+            partida.tablero.fichaActual = ficha1;
+            success = partida.tablero.ponerFicha({x:48,y:49},0);
+            partida.tablero.fichaActual = ficha2;
+            success = partida.tablero.ponerFicha({x:48,y:50},0);
+            partida.tablero.fichaActual = ficha3;
+            success = partida.tablero.ponerFicha({x:48,y:51},0);
+            partida.tablero.fichaActual = ficha4;
+            success = partida.tablero.ponerFicha({x:49,y:51},0);
+            partida.tablero.fichaActual = ficha5;
+            success = partida.tablero.ponerFicha({x:50,y:51},0);
+            partida.tablero.fichaActual = ficha6;
+            success = partida.tablero.ponerFicha({x:50,y:50},0);
+            partida.tablero.fichaActual = fichaPoner;
+            success = partida.tablero.ponerFicha({x:49,y:50},0);
+        };
+        _(partida.listaCampos).each(function(c){
+            console.log("campo" + c.idCampo + ":" + c.content);
+        });
+        _(partida.listaCiudades).each(function(c){
+            console.log("ciudad" + c.idCiudad + ":" + c.content);
+        });
+        _(partida.listaCaminos).each(function(c){
+            console.log("camino" + c.idCamino + ":" + c.content);
+        })    
+    },
     
 	crearPartida: function(id,jugs,num){
 		partidaPrueba = generarPartida(id,jugs,num);

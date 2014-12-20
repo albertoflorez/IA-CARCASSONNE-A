@@ -1,5 +1,5 @@
 var play = function (){
-	Meteor.call("generarMazo",function(error){
+/*	Meteor.call("generarMazo",function(error){
 		if(error){
 			console.log("error al generar el mazo");
 		}else{
@@ -7,7 +7,7 @@ var play = function (){
 		}
 	})
     
-/*
+
 	Meteor.call("dameFichaMadre",function(error,ficha){
 		if (error){
 			console.log("error en el servidor al devolver la ficha madre");
@@ -15,7 +15,7 @@ var play = function (){
 			console.log(ficha);
 		}
 	});
-*/
+
 
     Meteor.call("generarTablero",function(error){
             if(error){
@@ -24,7 +24,7 @@ var play = function (){
 				console.log("se ha generado el tablero");
 			}
     });
-/*
+
     for (i=1; i<72; i++){
 		Meteor.call("dameFicha",function(error,ficha){
 			if(error){
@@ -34,9 +34,7 @@ var play = function (){
 			}
 		});
 	};
-*/
 
-/*
     Meteor.call ("crearPartida","aajkejeijeie",[1,2], 4, function(error){
         if(error){
 				console.log("error al crear la partida");
@@ -45,18 +43,27 @@ var play = function (){
 			}
     })
 */
-    Meteor.call("buscaPartida",0,function(error,partida){
+
+
+    /*Meteor.call("buscaPartida",0,function(error,partida){
         var comment =  (error) ? "No se ha generado la partida" : partida;
         console.log (comment);
-    });
+    });*/
+
     //el id_partida es 0
-    Meteor.call("dameFicha",0,function(error,ficha){
+
+
+
+
+
+    /*Meteor.call("dameFicha",0,function(error,ficha){
         if(error){
             console.log("error a devolverme una ficha");
         }else{
             console.log(ficha);
         }
     });
+
     Meteor.call("ponerFicha",0,0,{x:48,y:49},function(error,result){
         if (!error){
             var comment =  (result) ? "Encaja la ficha" : "No encaja";
@@ -64,9 +71,14 @@ var play = function (){
         }else{
             console.log("no funciona ponerficha");
         }
-    });
+    });*/
+
+
+
+
+
     
-    Meteor.call("ponerSeguidor",0,12,function(error,result){
+    /*Meteor.call("ponerSeguidor",0,12,function(error,result){
         if(error){
             console.log("error a poner seguidor");
         }else{
@@ -85,8 +97,16 @@ var play = function (){
     }
     
 
+*/
 
 
+    Meteor.call("probarPropagacionDePdato",0,function(error)){
+        if(error){
+                console.log("error al probar propagacion del pdato");
+            }else{
+                console.log("ha funcionado el probar propagacion del pdato");
+            }
+    });
 
 
 

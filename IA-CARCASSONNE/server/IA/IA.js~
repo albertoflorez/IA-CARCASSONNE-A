@@ -224,7 +224,7 @@ var entrada=[
 		//	0 	1 	2 	3	4 	5 	6 	7 	8	9	10	11	12
 	{
 	dato:  ['f','f','f','f','r','f','f','r','f','f','r','f', 'x'],
-	pdato: [1,1,1,1,1,2,2,2,3,4,3,1, 1],
+	pdato: [1,1,1,1,1,2,2,2,3,3,3,1, 1],
 	tipo: 16,
 	cantidad:[4,0]
 	},
@@ -465,85 +465,44 @@ Tablero.prototype.generate = function(){
 	var fichaMadre = this.mazo.dameFichaMadre();
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
-    this.generarAreasFM(fichaMadre);
+    this.generarAreas(fichaMadre);
 };
-
-Tablero.prototype.generarAreasFM = function(ficha){
-    var cr = 0;
-    var cf = 0;
-    var cc = 0;
-    var cm = 0;
-    console.log("la partida: " + this.partida);
-    for(i = 0; i<11; i++){
-        var auxData = ficha.dato[i]; 
-        var auxPdata = ficha.pdato[i];          
-        switch (auxData){
-            case 'f':
-                if (cf<auxPdata){
-                    //como he encontrado un campo nuevo
-                    //guardo el numero del campo para poder consultarlo luego.
-                    cf = auxPdata;
-                    //creo un nuevo campo
-                    var nuevoCampo = new Campo(cf);
-                    nuevoCampo.add(cf);
-                    this.partida.listaCampos.push(nuevoCampo);  
-                    console.log("nuevoCampos contenido: " + nuevoCampo.content);                  
-                }
-                break;
-            case 'r':
-                if (cr<auxPdata){
-                    //como he encontrado un campo nuevo
-                    //guardo el numero del campo para poder consultarlo luego.
-                    cr = auxPdata;
-                    //creo un nuevo campo
-                    var nuevoCamino = new Camino(cr);
-                    nuevoCamino.add(cr); 
-                    this.partida.listaCaminos.push(nuevoCamino);  
-                    console.log("nuevoCamino contenido: " + nuevoCamino.content);                  
-                }
-                break;
-            case 'c':
-                if (cc<auxPdata){
-                    //como he encontrado un campo nuevo
-                    //guardo el numero del campo para poder consultarlo luego.
-                    cc = auxPdata;
-                    //creo un nuevo campo
-                    var nuevoCiudad = new Ciudad(cc);
-                    nuevoCiudad.add(cc);
-                    this.partida.listaCiudades.push(nuevoCiudad);  
-                    console.log("nuevoCiudad contenido: " + nuevoCiudad.content);                  
-                }
-                break;
-        }   
-    }
-    console.log("el tamaño de listaCampos es: " + this.partida.listaCampos.length);
-    console.log("el tamaño de listaCiudades es: " + this.partida.listaCiudades.length);
-    console.log("el tamaño de listaCaminos es: " + this.partida.listaCaminos.length);
-}
 
 //coloca una ficha en una posicion.
 Tablero.prototype.put = function (ficha,pos){
-    //console.log("se ha llamado a put y la ficha act es: " + ficha.numFicha);
+    console.log("se ha llamado a put y la ficha act es: " + ficha.numFicha);
+    console.log("ficha act(tipo): " + ficha.tipo);
+    console.log("ficha act (dato): " + ficha.dato);
+    console.log("ficha act (pdato): " + ficha.pdato);
     if(this.encaja(ficha,pos)){
-    	//console.log("la ficha encaja! y se añade al tablero");
+    	console.log("la ficha encaja! y se añade al tablero");
 		this.cellSet.push(new Cell(ficha,pos));
+		console.log("llamamos a asignarAreas");
         this.asignarAreas(ficha,pos);
+        console.log("llamamos a generarAreas");
         this.generarAreas(ficha);
+        this.unificarAreas();
 		return true;
     }else{
-        //console.log("la ficha NO encaja!");
+        console.log("la ficha NO encaja!");
     	return false;
 	}
 }
 
+//Este método genera las áreas libres de la ficha que se ha colocado en el tablero
+//Areas libres: zonas de no unión entre fichas adyacentes a la dada. Zonas que no se han
+//tenido aún en cuenta a la hora de asignar. 
+//Nota: para todas las fichas a excepción de la madre.
 Tablero.prototype.generarAreas = function(ficha){
-    console.log("la partida: " + this.partida);
+    //console.log("la partida: " + this.partida);
     for(i = 0; i<11; i++){
         var auxData = ficha.dato[i]; 
         var auxPdata = ficha.pdato[i];          
         switch (auxData){
-            case 'f':
-                if (_(this.partida.listaCampos).any(function(f){
+        	//comprobamos si el dato ya estaba propagado, es decir, ya formaba parte de algún área.
+        	//si no, creamos un nuevo área.
+            case 'f': 
+                if (!_(this.partida.listaCampos).any(function(f){
                     return _(f.content).contains(auxPdata);
                 })){
                     var nuevoCampo = new Campo(auxPdata);
@@ -553,7 +512,7 @@ Tablero.prototype.generarAreas = function(ficha){
                 }
                 break;
             case 'r':
-               if (_(this.partida.listaCaminos).any(function(r){
+               if (!_(this.partida.listaCaminos).any(function(r){
                     return _(r.content).contains(auxPdata);
                 })){
                     var nuevoCamino = new Camino(auxPdata);
@@ -563,7 +522,7 @@ Tablero.prototype.generarAreas = function(ficha){
                 }
                 break;
             case 'c':
-                if (_(this.partida.listaCiudades).any(function(c){
+                if (!_(this.partida.listaCiudades).any(function(c){
                     return _(c.content).contains(auxPdata);
                 })){
                     var nuevoCiudad = new Ciudad(auxPdata);
@@ -579,66 +538,87 @@ Tablero.prototype.generarAreas = function(ficha){
     console.log("el tamaño de listaCaminos es: " + this.partida.listaCaminos.length);
 }
 
+//Almacena en el content del campo correspondiente los pdatos que pasan a formar parte 
+//de él.
 Tablero.prototype.asignarCampoAFicha = function(pdatoady,pdatoficha){
     var campo = _(this.partida.listaCampos).find(function(elem){
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
         });
     });
+    console.log("el campo con id: " + campo.idCampo);
     if(!_(campo.content).contains(pdatoficha)){
+    	console.log("asignamos el pdato");
         campo.add(pdatoficha);
     }
 }
 
+//Almacena en el content del Camino correspondietne los pdatos que pasan a formar parte
+//de él.
 Tablero.prototype.asignarCaminoAFicha = function(pdatoady,pdatoficha){
     var camino = _(this.partida.listaCaminos).find(function(elem){
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
         });
     });
+    console.log("el camino con id: " + camino.idCamino);
     if(!_(camino.content).contains(pdatoficha)){
+    	console.log("asignamos el pdato");
         camino.add(pdatoficha);
     }
 }
 
+//Almacena en el content de la Cuidad correspondiente los pdatos que pasan a formar parte
+//de ella.
 Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha){
     var ciudad = _(this.partida.listaCiudades).find(function(elem){
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
         });
     });
+    console.log("el ciudad con id: " + ciudad.idCiudad);
     if(!_(ciudad.content).contains(pdatoficha)){
+    	console.log("asignamos el pdato");
         ciudad.add(pdatoficha);
     }
 }
 
-Tablero.prototype.propagarDerecha = function(pdatosAdy, pdatosFicha, datosCell){
+//Se encarga de propagar las áreas hacia la ficha que hemos puesto.
+Tablero.prototype.propagar = function(pdatosAdy, pdatosFicha, datosCell){
     for (var i = 0; i< 3; i++){
         var pdatoAdy = pdatosAdy[i];
         var pdatoFicha = pdatosFicha [i];
         switch(datosCell[i]){
             case 'f':
+          		console.log("asignamos a un campo");
                 this.asignarCampoAFicha(pdatoAdy,pdatoFicha);
                 break;
             case 'r':
+            	console.log("asignamos a un camino");
                 this.asignarCaminoAFicha(pdatoAdy,pdatoFicha);
                 break;
             case 'c':
+            	console.log("asignamos a una ciudad");
                 this.asignarCiudadAFicha(pdatoAdy,pdatoFicha);
                 break;
         }
     }
 }
 
-Tablero.prototype.asignarAreas(ficha,pos){
+//Este método se encarga de asignar las áreas a la ficha que hemos puesto.
+//Dependiendo de las fichas ya colocadas que tenga adyacentes y de su posicion con respecto
+//a ellas asigna a las áreas los pdatos correspondientes de la ficha en cuestión.
+Tablero.prototype.asignarAreas = function(ficha,pos){
+	//cogemos las cellAdyacentes para tener las fichas con las que ha encajado la ficha que hemos puesto.
+	//ahora necesitamos asignar los pdatos de la ficha a las areas ya creadas.
     var cellAdyacentes = this.getCellAdyacentes(pos);
     cellAdyacentes.forEach(function(cell){
         var ub = this.conocerUb(cell.pos,pos);
-        var pdatosAdy;
-        var pdatosFicha;
-        var datosCell;
+        var pdatosAdy; //los pdatos de la ficha adyacente correspondientes al lado de unión con la ficha.
+        var pdatosFicha; //los pdatos de la ficha correspondietnes al lado de unión con la ficha adyacente.
+        var datosCell; //los datos de la ficha adyacente correspondientes al lado de unión con la ficha.
         switch(ub){
-            case 'r':
+            case 'r': //la ficha está a la derecha de la adyacente.
                 pdatosAdy = [cell.ficha.pdato[3],
                              cell.ficha.pdato[4],
                              cell.ficha.pdato[5]];
@@ -650,7 +630,7 @@ Tablero.prototype.asignarAreas(ficha,pos){
                              cell.ficha.dato[5]];
                 
                 break;
-            case 'l':
+            case 'l': //la ficha está a la izq de la adyacente.
                 pdatosAdy = [cell.ficha.pdato[11],
                              cell.ficha.pdato[10],
                              cell.ficha.pdato[9]];
@@ -661,7 +641,7 @@ Tablero.prototype.asignarAreas(ficha,pos){
                              cell.ficha.dato[10],
                              cell.ficha.dato[9]];
                 break;
-            case 'u':
+            case 'u': //la ficha está arriba de la adyacente.
                 pdatosAdy = [cell.ficha.pdato[0],
                              cell.ficha.pdato[1],
                              cell.ficha.pdato[2]];
@@ -672,7 +652,7 @@ Tablero.prototype.asignarAreas(ficha,pos){
                              cell.ficha.dato[1],
                              cell.ficha.dato[2]];
                 break;
-            case 'd':
+            case 'd': //la ficha está abajo de la adyacente.
                 pdatosAdy = [cell.ficha.pdato[8],
                              cell.ficha.pdato[7],
                              cell.ficha.pdato[6]];
@@ -684,10 +664,53 @@ Tablero.prototype.asignarAreas(ficha,pos){
                              cell.ficha.dato[6]];
                 break;
         }
+        //propagamos los datos.
+        console.log("propagamos los datos");
         this.propagar (pdatosAdy,pdatosFicha,datosCell);
-    });
+    },this);
 }
 
+Tablero.prototype.unificarAreas = function(){
+    this.unificarCampos();
+    this.unificarCiudades();
+    this.unificarCaminos();
+}
+Tablero.prototype.isTheSame (c1,c2){
+    var is = false;
+    var i = 0;
+    while (!is || i >= c1.content.length){
+        var d1 = c1.content[i];
+        is = _(c2.content).any(function(d2){
+            return d2 == d1;
+        });
+        i++;
+    };
+
+    return is;
+}
+Talero.prototype.unificarCampos = function(){
+    _(this.listaCampos).each(function(c1){
+        var listaCamposAUnir = [];
+        listaCamposAUnir =  _(this.listaCampos).filter(function(c2){
+                    return this.isTheSame(c1,c2);
+               });
+             if (listaCamposAUnir.length >1){
+                listaCamposAUnir[0].unificar (listaCamposAUnir.slice(1));
+             }        
+        },this);
+        
+    },this);
+}
+
+Talero.prototype.unificarCiudades = function(){
+    
+}
+
+Talero.prototype.unificarCaminos = function(){
+    
+}
+
+//nos devuelve el array empezando por la de arriba en sentido horario
 Tablero.prototype.getPosAdyacentes = function(pos){
 	// ************* u,r,d,l ************* //
 	//si pos == esquina ==> array long 2,
@@ -718,15 +741,16 @@ Tablero.prototype.getCellAdyacentes = function(pos){
 //p2 esta a la "ub" de p1
 //de coordenadas se encuentra en la esquina superior izquierda).
 Tablero.prototype.conocerUb = function(p1,p2){
-		var ub;
-		//la ficha adyacente está a la izq o derecha de la ficha a colocar.
-		if (p1.y == p2.y){ //es vertical
-			ub = (p1.x < p2.x && p1.y == p2.y) ? "r" : "l"; 
-		}else{ //es horizontal
-			ub = (p1.y < p2.y && p1.x == p2.x) ? "d" : "u";
-		}
-		return ub;
-	};
+	var ub;
+	//la ficha adyacente está a la izq o derecha de la ficha a colocar.
+	if (p1.y == p2.y){ //es vertical
+		ub = (p1.x < p2.x && p1.y == p2.y) ? "r" : "l"; 
+	}else{ //es horizontal
+		ub = (p1.y < p2.y && p1.x == p2.x) ? "d" : "u";
+	}
+	return ub;
+};
+
 //este método permite saber si dos fichas coinciden o no.
 Tablero.prototype.coinciden = function (f1,f2,p1,p2){
 	//console.log("comparo con: " + f2.dato);
@@ -783,6 +807,7 @@ Tablero.prototype.ponerFicha = function(pos, giro){
 	this.fichaActual.giroIU = giro;
     this.fichaActual.aplicarGiro(giro);
     //console.log("ficha actual girada: ",this.fichaActual.dato);
+    console.log("vamos a colocar la ficha");
 	return this.put(this.fichaActual,pos);
 }
 
@@ -808,7 +833,10 @@ Tablero.prototype.dameFicha = function(){
 var Partida = function(idPartida,jugs,numJugs){
     
     this.idPartida = idPartida;
+    console.log("he añadido la partida");
     addPartida(this);
+    console.log("he añadido la partida");
+    console.log("num partidas: " + partidas.length);
     this.initialize(jugs,numJugs);
 }
 
@@ -868,14 +896,7 @@ Partida.prototype.getPuntos = function(){
     return this.puntosJugs;
 }
 
-var Jugador = function(idJugador){
-    this.idJugador = idJugador;
-    this.campos = [];
-    this.ciudades = [];
-    this.caminos = [];
-    this.monasterios = [];
-    this.puntos = 0;
-}
+
 
 var Campo = function(idCampo){
     this.idCampo = idCampo;
@@ -923,6 +944,66 @@ var Monasterio = function(idMonasterio, pos, propietario){
     this.pos = pos;
 }
 
+//JUGADORES
+
+//el jugador real.
+var Jugador = function(idJugador){
+    this.idJugador = idJugador;
+    this.campos = [];
+    this.ciudades = [];
+    this.caminos = [];
+    this.monasterios = [];
+    this.puntos = 0;
+}
+
+//el jugador IA hereda del jugador real. Puesto que debe tener los mismos métodos que se 
+//deberán llamar desde partida y las mismas colecciones.
+//Este jugador tendrá la habilidad de tomar decisiones de forma automata.
+//será llamado para jugar su turno desde partida.
+//partida tendrá una forma de saber que ya ha terminado. 
+//Por ejemplo puede la IA llamar al pasarTurno de partida.
+//esto es código secuencial por lo que cuando la partida llame a playTurn de la IA, el 
+//server sigue escuchando peticiones y llamadas a metodos remotos de los demás clientes, 
+//a los que bloquea puesto que no es su turno.
+
+var IAPlayer = function(idIA){
+	this.super = Jugador;
+	this.super (idIA);
+	this.finish = false;
+}
+
+IAPlayer.prototype = new Jugador();
+
+IAPlayer.prototype.playTurn = function(){
+	//Aquí jugara su turno la IA. Se la llamará desde partida.
+	this.partida.tablero.dameFicha(); //se almacena en tablero.fichaActual.
+	//¿donde la ponemos?
+	//Ahora necesitamos saber las posiciones libres.
+	//Necesitamos un método en tablero que nos diga las posiciones libres
+	//Nota: posiciones libres son las posiciones adyacentes a las fichas colocadas. 
+	//posiciones donde es posible colocar cualquier ficha. Luego encajara o no.
+	//si lo hemos hecho bien nos devolverá las posiciones que ha ido almacenando a la hora
+	//de poner las fichas.
+	var freePositions = this.partida.tablero.getFreePositions ();
+	//una vez que tenemos las posiciones libres elegimos una. De momento al azar.
+	//entramos en un bucle hasta que conseguimos colocarla.
+	for (var i=0; i<freePositions.length; i++){
+		var success = false;
+		success = this.partida.tablero.ponerFicha(freePositions[i]);
+		if (success) break;
+	}
+	//¿si la ficha que hemos sacado no encaja en ninguna parte?
+	//¿volemos a pedir otra?
+	//¿o pasamos el turno?
+	//si es lo primero entonces hasta success hay que estar pidiendo ficha.
+	//si es lo segundo: ...
+	if(!success){
+		this.partida.pasarTurno();
+	}
+	//Ahora partida habrá cambiado el turno y le tocará al jugador correspondiente que podría 
+	//ser otra IA perfectamente.
+}
+
 
 
 
@@ -948,6 +1029,7 @@ getTodasLasPartidas = function(){
 //******* para meteor *********
 
 generarPartida = function(id,jugs,num){
+	console.log("IA: he llamado a generar partida");
     return new Partida(id,jugs,num);
 }
 
