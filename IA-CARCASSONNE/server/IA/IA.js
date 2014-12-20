@@ -670,44 +670,37 @@ Tablero.prototype.asignarAreas = function(ficha,pos){
     },this);
 }
 
+//se encarga de llamar a unificarArea para cada tipo de area (campo, camino, ciudad) a partir de las listas
+//pertenecientes a la partida.
 Tablero.prototype.unificarAreas = function(){
-    this.unificarCampos();
-    this.unificarCiudades();
-    this.unificarCaminos();
+    this.unificarArea(this.partida.listaCampos);
+    this.unificarArea(this.partida.listaCiudades);
+    this.unificarArea(this.partia.listaCaminos);
 }
-Tablero.prototype.isTheSame (c1,c2){
-    var is = false;
-    var i = 0;
-    while (!is || i >= c1.content.length){
-        var d1 = c1.content[i];
-        is = _(c2.content).any(function(d2){
-            return d2 == d1;
-        });
-        i++;
-    };
 
-    return is;
-}
-Talero.prototype.unificarCampos = function(){
-    _(this.listaCampos).each(function(c1){
-        var listaCamposAUnir = [];
-        listaCamposAUnir =  _(this.listaCampos).filter(function(c2){
-                    return this.isTheSame(c1,c2);
-               });
-             if (listaCamposAUnir.length >1){
-                listaCamposAUnir[0].unificar(listaCamposAUnir.slice(1));
-             }        
-        },this);
-        
+Talero.prototype.unificarArea = function(listaAreas){
+	var listaAreasABorrar = [];
+    _(listaAreas).each(function(a1){
+    	//si el area no ha sido unificada en otra la considero.
+    	if (!_(listaAreasABorrar).contains(a1)){
+        	var listaAreasAUnir = [];
+        	listaAreasAUnir =  _(listaAreas).filter(function(a2){
+        	            return a1.isTheSame(a2);
+        			});
+        	if (listaAreasAUnir.length >1){
+        		//llamo al método unificar del area y le paso el resto de areas que pasan a formar parte de ella.
+        	    a1.unificar(listaAreasAUnir.slice(1));
+        	    //actualizamos la lista de las areas a borrar.
+        	    listaAreasABorrar.push (listaAreasAUnir.slice(1));
+        	    //unificamos la lista en un array de areas.
+        	    _(listaAreasABorrar).flatten();
+        	}
+       	}
     },this);
-}
-
-Talero.prototype.unificarCiudades = function(){
-    
-}
-
-Talero.prototype.unificarCaminos = function(){
-    
+    //borramos las areas que han pasado a formar parte de otras.
+    _(listaAreasABorrar).each (function(a){
+    	listaAreas.splice(_(listaAreas).indexOf(a),1);
+    },this)
 }
 
 //nos devuelve el array empezando por la de arriba en sentido horario
@@ -909,6 +902,33 @@ var Campo = function(idCampo){
 Campo.prototype.add = function(numSubcelda){
     this.content.push(numSubcelda);
 }
+//************************************************************************
+//NOTA: ESTOS DOS METODOS DEBERAN FORMAR PARTE DE TODOS LOS TIPOS DE AREAS.
+//devuelve si un campo tiene algun pdato igual que el campo en cuestion, 
+//por lo que pasarian a formar parte del mismo campo.
+Campo.prototype.isTheSame = function(c2){
+    var is = false;
+    var i = 0;
+    while (!is || i >= this.content.length){
+        var d1 = this.content[i];
+        is = _(c2.content).any(function(d2){
+            return d2 == d1;
+        });
+        i++;
+    };
+    return is;
+}
+//Metodo para unificar los contents de otros campos con el campo en cuestion.
+Campo.prototype.unificar = function (camposAIntegrar){
+	var contenido = [];
+	contenido.push (this.content);
+	_(camposAIntegrar).each(function(c){
+		contenido.push(c.content);
+	});
+	//en content tenemos los contents de todos los campos, los unimos en un solo array y eliminamos los duplicados.
+	this.content = _(contenido).flatten().uniq();
+}
+//**********************************************************
 
 var Ciudad = function(idCiudad){
     this.idCiudad = idCiudad;
