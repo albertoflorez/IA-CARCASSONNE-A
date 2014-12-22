@@ -21,6 +21,7 @@ authenticate = function (partida){
 Meteor.methods ({    
     
     probarPropagacionDePdato: function(idPartida){
+        console.log("se van a generar las fichas.");
         var ficha1 = {
                         dato: ['f','f','f','f','r','f','f','f','f','f','r','f', 'r'],
 	                    pdato: [3,3,3,3,2,4,4,4,4,4,2,3, 2],
@@ -53,26 +54,22 @@ Meteor.methods ({
                      }
         var fichaPoner = {
                         dato:  ['f','f','f','c','c','c','f','r','f','f','r','f', 'r'],
-	                    pdato: [16,16,16,4,4,4,16,12,17,17,12,16, 12],
+	                    pdato: [16, 16, 16,  4,  4,  4,  16, 12, 17, 17, 12, 16,  12],
                         aplicarGiro: function(){}
                      }
+        var fichaCiudad = {
+                        dato:  ['f','f','f','f','r','f','c','c','c','f','r','f', 'r'],
+	                    pdato: [18,  18, 18, 18, 13, 19, 5,  5,  5,  19, 13, 18, 13],
+                        aplicarGiro: function(){}
+                     }
+        console.log("se han generado las fichas.");
         var partida = getPartida(idPartida);
         if (authenticate(partida)){
             partida.tablero.fichaActual = ficha1;
+            console.log("se va a poner la ficha1");
             success = partida.tablero.ponerFicha({x:48,y:49},0);
-            partida.tablero.fichaActual = ficha2;
-            success = partida.tablero.ponerFicha({x:48,y:50},0);
-            partida.tablero.fichaActual = ficha3;
-            success = partida.tablero.ponerFicha({x:48,y:51},0);
-            partida.tablero.fichaActual = ficha4;
-            success = partida.tablero.ponerFicha({x:49,y:51},0);
-            partida.tablero.fichaActual = ficha5;
-            success = partida.tablero.ponerFicha({x:50,y:51},0);
-            partida.tablero.fichaActual = ficha6;
-            success = partida.tablero.ponerFicha({x:50,y:50},0);
-            partida.tablero.fichaActual = fichaPoner;
-            success = partida.tablero.ponerFicha({x:49,y:50},0);
-        };
+            console.log("se ha puesto la ficha1");
+        console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.idCampo + ":" + c.content);
         });
@@ -81,7 +78,114 @@ Meteor.methods ({
         });
         _(partida.listaCaminos).each(function(c){
             console.log("camino" + c.idCamino + ":" + c.content);
-        })    
+        }) 
+            partida.tablero.fichaActual = ficha2;
+            console.log("se va a poner la ficha2");
+            success = partida.tablero.ponerFicha({x:48,y:50},0);
+            console.log("se ha puesto la ficha2");
+        console.log("\n\n\n\n"); 
+        _(partida.listaCampos).each(function(c){
+            console.log("campo" + c.idCampo + ":" + c.content);
+        });
+        _(partida.listaCiudades).each(function(c){
+            console.log("ciudad" + c.idCiudad + ":" + c.content);
+        });
+        _(partida.listaCaminos).each(function(c){
+            console.log("camino" + c.idCamino + ":" + c.content);
+        }) 
+        console.log("\n\n\n\n"); 
+            partida.tablero.fichaActual = ficha3;
+            console.log("se va a poner la ficha3");
+            success = partida.tablero.ponerFicha({x:48,y:51},0);
+            console.log("se ha puesto la ficha3");
+        console.log("\n\n\n\n"); 
+        _(partida.listaCampos).each(function(c){
+            console.log("campo" + c.idCampo + ":" + c.content);
+        });
+        _(partida.listaCiudades).each(function(c){
+            console.log("ciudad" + c.idCiudad + ":" + c.content);
+        });
+        _(partida.listaCaminos).each(function(c){
+            console.log("camino" + c.idCamino + ":" + c.content);
+        }) 
+        console.log("\n\n\n\n"); 
+            partida.tablero.fichaActual = ficha4;
+            console.log("se va a poner la ficha4");
+            success = partida.tablero.ponerFicha({x:49,y:51},0);
+            console.log("se ha puesto la ficha4");
+        console.log("\n\n\n\n"); 
+        _(partida.listaCampos).each(function(c){
+            console.log("campo" + c.idCampo + ":" + c.content);
+        });
+        _(partida.listaCiudades).each(function(c){
+            console.log("ciudad" + c.idCiudad + ":" + c.content);
+        });
+        _(partida.listaCaminos).each(function(c){
+            console.log("camino" + c.idCamino + ":" + c.content);
+        }) 
+        console.log("\n\n\n\n"); 
+            partida.tablero.fichaActual = ficha5;
+            console.log("se va a poner la ficha5");
+            success = partida.tablero.ponerFicha({x:50,y:51},0);
+            console.log("se ha puesto la ficha5");
+        console.log("\n\n\n\n"); 
+        _(partida.listaCampos).each(function(c){
+            console.log("campo" + c.idCampo + ":" + c.content);
+        });
+        _(partida.listaCiudades).each(function(c){
+            console.log("ciudad" + c.idCiudad + ":" + c.content);
+        });
+        _(partida.listaCaminos).each(function(c){
+            console.log("camino" + c.idCamino + ":" + c.content);
+        }) 
+        console.log("\n\n\n\n"); 
+            partida.tablero.fichaActual = ficha6;
+            console.log("se va a poner la ficha6");
+            success = partida.tablero.ponerFicha({x:50,y:50},0);
+            console.log("se ha puesto la ficha6");
+        console.log("\n\n\n\n"); 
+        _(partida.listaCampos).each(function(c){
+            console.log("campo" + c.idCampo + ":" + c.content);
+        });
+        _(partida.listaCiudades).each(function(c){
+            console.log("ciudad" + c.idCiudad + ":" + c.content);
+        });
+        _(partida.listaCaminos).each(function(c){
+            console.log("camino" + c.idCamino + ":" + c.content);
+        }) 
+        console.log("\n\n\n\n"); 
+            partida.tablero.fichaActual = fichaPoner;
+            console.log("se va a poner la ficha7");
+            success = partida.tablero.ponerFicha({x:49,y:50},0);
+            console.log("se ha puesto la ficha7");
+        console.log("\n\n\n\n"); 
+        _(partida.listaCampos).each(function(c){
+            console.log("campo" + c.idCampo + ":" + c.content);
+        });
+        _(partida.listaCiudades).each(function(c){
+            console.log("ciudad" + c.idCiudad + ":" + c.content);
+        });
+        _(partida.listaCaminos).each(function(c){
+            console.log("camino" + c.idCamino + ":" + c.content );
+        })  
+        console.log("\n\n\n\n");  
+            partida.tablero.fichaActual = fichaCiudad;
+            console.log("se va a poner la ficha8");
+            success = partida.tablero.ponerFicha({x:50,y:49},0);
+            console.log("se ha puesto la ficha8");
+        console.log("\n\n\n\n"); 
+        _(partida.listaCampos).each(function(c){
+            console.log("campo" + c.idCampo + ":" + c.content);
+        });
+        _(partida.listaCiudades).each(function(c){
+            console.log("ciudad" + c.idCiudad + ":" + c.content);
+        });
+        _(partida.listaCaminos).each(function(c){
+            console.log("camino" + c.idCamino + ":" + c.content );
+        })  
+        console.log("\n\n\n\n");  
+        };
+        
     },
     
 	crearPartida: function(id,jugs,num){

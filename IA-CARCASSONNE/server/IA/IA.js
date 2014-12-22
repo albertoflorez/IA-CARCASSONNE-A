@@ -481,7 +481,9 @@ Tablero.prototype.put = function (ficha,pos){
         this.asignarAreas(ficha,pos);
         console.log("llamamos a generarAreas");
         this.generarAreas(ficha);
+        console.log("***** se va a unificar");
         this.unificarAreas();
+        console.log("***** se ha unificao");
 		return true;
     }else{
         console.log("la ficha NO encaja!");
@@ -542,11 +544,12 @@ Tablero.prototype.generarAreas = function(ficha){
 //de él.
 Tablero.prototype.asignarCampoAFicha = function(pdatoady,pdatoficha){
     var campo = _(this.partida.listaCampos).find(function(elem){
+        console.log("ELEEEEEEMMMMM!!!!!:" + elem.content);
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
         });
     });
-    console.log("el campo con id: " + campo.idCampo);
+    console.log("el campo con id: " + campo.id);
     if(!_(campo.content).contains(pdatoficha)){
     	console.log("asignamos el pdato");
         campo.add(pdatoficha);
@@ -561,7 +564,7 @@ Tablero.prototype.asignarCaminoAFicha = function(pdatoady,pdatoficha){
            return subCelda == pdatoady;
         });
     });
-    console.log("el camino con id: " + camino.idCamino);
+    console.log("el camino con id: " + camino.id);
     if(!_(camino.content).contains(pdatoficha)){
     	console.log("asignamos el pdato");
         camino.add(pdatoficha);
@@ -576,7 +579,7 @@ Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha){
            return subCelda == pdatoady;
         });
     });
-    console.log("el ciudad con id: " + ciudad.idCiudad);
+    console.log("el ciudad con id: " + ciudad.id);
     if(!_(ciudad.content).contains(pdatoficha)){
     	console.log("asignamos el pdato");
         ciudad.add(pdatoficha);
@@ -675,32 +678,37 @@ Tablero.prototype.asignarAreas = function(ficha,pos){
 Tablero.prototype.unificarAreas = function(){
     this.unificarArea(this.partida.listaCampos);
     this.unificarArea(this.partida.listaCiudades);
-    this.unificarArea(this.partia.listaCaminos);
+    this.unificarArea(this.partida.listaCaminos);
 }
 
-Talero.prototype.unificarArea = function(listaAreas){
+Tablero.prototype.unificarArea = function(listaAreas){
 	var listaAreasABorrar = [];
     _(listaAreas).each(function(a1){
     	//si el area no ha sido unificada en otra la considero.
     	if (!_(listaAreasABorrar).contains(a1)){
         	var listaAreasAUnir = [];
         	listaAreasAUnir =  _(listaAreas).filter(function(a2){
+                    if ( (!_(listaAreasABorrar).contains(a2)) && (a2.id != a1.id)){
         	            return a1.isTheSame(a2);
-        			});
-        	if (listaAreasAUnir.length >1){
+                    }else{
+                        return false;   
+                    }
+            });
+        	if (listaAreasAUnir.length >0){
         		//llamo al método unificar del area y le paso el resto de areas que pasan a formar parte de ella.
-        	    a1.unificar(listaAreasAUnir.slice(1));
+        	    a1.unificar(listaAreasAUnir);
         	    //actualizamos la lista de las areas a borrar.
-        	    listaAreasABorrar.push (listaAreasAUnir.slice(1));
+        	    listaAreasABorrar.push (listaAreasAUnir);
         	    //unificamos la lista en un array de areas.
-        	    _(listaAreasABorrar).flatten();
+                listaAreasABorrar = _(listaAreasABorrar).flatten();
+                console.log("los campos a borrar: " + listaAreasABorrar.length);
         	}
        	}
-    },this);
+    });
     //borramos las areas que han pasado a formar parte de otras.
     _(listaAreasABorrar).each (function(a){
     	listaAreas.splice(_(listaAreas).indexOf(a),1);
-    },this)
+    })
 }
 
 //nos devuelve el array empezando por la de arriba en sentido horario
@@ -892,7 +900,7 @@ Partida.prototype.getPuntos = function(){
 
 
 var Campo = function(idCampo){
-    this.idCampo = idCampo;
+    this.id = idCampo;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
     this.numFichas = 0;
     this.propietarios = [];
@@ -909,7 +917,7 @@ Campo.prototype.add = function(numSubcelda){
 Campo.prototype.isTheSame = function(c2){
     var is = false;
     var i = 0;
-    while (!is || i >= this.content.length){
+    while (!is && i <= this.content.length){
         var d1 = this.content[i];
         is = _(c2.content).any(function(d2){
             return d2 == d1;
@@ -918,20 +926,26 @@ Campo.prototype.isTheSame = function(c2){
     };
     return is;
 }
+
 //Metodo para unificar los contents de otros campos con el campo en cuestion.
 Campo.prototype.unificar = function (camposAIntegrar){
 	var contenido = [];
 	contenido.push (this.content);
+    console.log("contenido es: "+this.content);
 	_(camposAIntegrar).each(function(c){
+        console.log("el content en campos a integrar es"+c.content);
 		contenido.push(c.content);
 	});
 	//en content tenemos los contents de todos los campos, los unimos en un solo array y eliminamos los duplicados.
-	this.content = _(contenido).flatten().uniq();
+	this.content = _(contenido).flatten();
+    console.log("el content antes de hacer el uniq: "+this.content);
+    this.content = _(this.content).uniq();
+    console.log("el content despues de hacer el uniq: "+this.content);
 }
 //**********************************************************
 
 var Ciudad = function(idCiudad){
-    this.idCiudad = idCiudad;
+    this.id = idCiudad;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
     this.numFichas = 0;
     this.isClosed = false;
@@ -943,8 +957,37 @@ Ciudad.prototype.add = function(numSubcelda){
     this.content.push(numSubcelda);
 }
 
+Ciudad.prototype.isTheSame = function(c2){
+    var is = false;
+    var i = 0;
+    while (!is && i <= this.content.length){
+        var d1 = this.content[i];
+        is = _(c2.content).any(function(d2){
+            return d2 == d1;
+        });
+        i++;
+    };
+    return is;
+}
+
+//Metodo para unificar los contents de otras ciudades con la ciudad en cuestion.
+Ciudad.prototype.unificar = function (ciudadesAIntegrar){
+	var contenido = [];
+	contenido.push (this.content);
+	_(ciudadesAIntegrar).each(function(c){
+		contenido.push(c.content);
+	});
+	//en content tenemos los contents de todos las ciudades, los unimos en un solo array y eliminamos los duplicados.
+	this.content = _(contenido).flatten();
+    console.log("el content antes de hacer el uniq: "+this.content);
+    this.content = _(this.content).uniq();
+    console.log("el content despues de hacer el uniq: "+this.content);
+}
+
+//**********************************************************
+
 var Camino = function(idCamino){
-    this.idCamino = idCamino;
+    this.id = idCamino;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
     this.numFichas = 0;
     this.puntas = [];
@@ -956,9 +999,37 @@ Camino.prototype.add = function(numSubcelda){
     this.content.push(numSubcelda);
 }
 
+
+Camino.prototype.isTheSame = function(c2){
+    var is = false;
+    var i = 0;
+    while (!is && i <= this.content.length){
+        var d1 = this.content[i];
+        is = _(c2.content).any(function(d2){
+            return d2 == d1;
+        });
+        i++;
+    };
+    return is;
+}
+
+//Metodo para unificar los contents de otras caminos con el camino en cuestion.
+Camino.prototype.unificar = function (caminosAIntegrar){
+	var contenido = [];
+	contenido.push (this.content);
+	_(caminosAIntegrar).each(function(c){
+		contenido.push(c.content);
+	});
+	//en content tenemos los contents de todos los caminos, los unimos en un solo array y eliminamos los duplicados.
+	this.content = _(contenido).flatten();
+    console.log("el content antes de hacer el uniq: "+this.content);
+    this.content = _(this.content).uniq();
+    console.log("el content despues de hacer el uniq: "+this.content);
+}
+
 //solo crear el monasterio cuando se ponga monigote en el monasterio
 var Monasterio = function(idMonasterio, pos, propietario){
-    this.idMonasterio = idMonasterio;
+    this.id = idMonasterio;
     this.propietario = propietario;
     this.isClosed = false;
     this.pos = pos;
