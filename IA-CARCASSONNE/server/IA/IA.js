@@ -462,6 +462,8 @@ var Tablero = function (partida){
 Tablero.prototype.generate = function(){
 	//para inicializar
 	//llamar a poner ficha madre
+	this.posFree = [];
+	this.posFull = [];
 	var fichaMadre = this.mazo.dameFichaMadre();
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
@@ -722,6 +724,23 @@ Tablero.prototype.getPosAdyacentes = function(pos){
 			{x: pos.x+1,y: pos.y}, 
 			{x: pos.x , y: pos.y + 1}, 
 			{x: pos.x -1,y: pos.y}];
+}
+
+Tablero.prototype.updatePosFree = function(pos){
+	var pAd = this.getPosAdyacentes(pos);
+	_(pAd).each (function(pA){
+		if (!_(this.posFull).any(function(pF){
+			return pA.x == pF.x && pA.y == pF.y;
+		})){
+			this.posFree.push(pA);
+		};
+	});
+}
+
+Tablero.prototype.esPosFree = function(pos){
+	return _(this.posFree).any(function(pF){
+		return pos.x == pF.x && pos.y == pF.y;
+	});
 }
 
 Tablero.prototype.getCellAdyacentes = function(pos){
@@ -1068,29 +1087,23 @@ IAPlayer.prototype = new Jugador();
 IAPlayer.prototype.playTurn = function(){
 	//Aquí jugara su turno la IA. Se la llamará desde partida.
 	this.partida.tablero.dameFicha(); //se almacena en tablero.fichaActual.
-	//¿donde la ponemos?
-	//Ahora necesitamos saber las posiciones libres.
-	//Necesitamos un método en tablero que nos diga las posiciones libres
-	//Nota: posiciones libres son las posiciones adyacentes a las fichas colocadas. 
-	//posiciones donde es posible colocar cualquier ficha. Luego encajara o no.
-	//si lo hemos hecho bien nos devolverá las posiciones que ha ido almacenando a la hora
-	//de poner las fichas.
-	var freePositions = this.partida.tablero.getFreePositions ();
-	//una vez que tenemos las posiciones libres elegimos una. De momento al azar.
-	//entramos en un bucle hasta que conseguimos colocarla.
-	for (var i=0; i<freePositions.length; i++){
-		var success = false;
-		success = this.partida.tablero.ponerFicha(freePositions[i]);
-		if (success) break;
+	var posFree = this.partida.tablero.posFree;
+	var giro = 0;
+	var success = false;
+	//va probando en las posiciones libres con un giro inicial de 0, si no ha encajado en ninguna, se cambia el giro
+	//y se vuelve a probar en todas hasta que encaje. Esto es hasta que se hagan 3 giros. 
+	while (!success && giro<4){
+		var i = Math.floor (Math.random() * posFree.length)
+		var i_next = i;
+		do{
+			p = posFree[i_next];
+			success = this.partida.tablero.ponerFicha(p,giro);
+			var i_next = (i_next == posFree.length -1)?  0 : i_next ++;
+		}while(!success && i_next != i);
+		giro ++;
 	}
-	//¿si la ficha que hemos sacado no encaja en ninguna parte?
-	//¿volemos a pedir otra?
-	//¿o pasamos el turno?
-	//si es lo primero entonces hasta success hay que estar pidiendo ficha.
-	//si es lo segundo: ...
-	if(!success){
-		this.partida.pasarTurno();
-	}
+
+	this.partida.pasarTurno();
 	//Ahora partida habrá cambiado el turno y le tocará al jugador correspondiente que podría 
 	//ser otra IA perfectamente.
 }
