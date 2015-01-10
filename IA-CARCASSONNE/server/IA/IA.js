@@ -468,6 +468,7 @@ Tablero.prototype.generate = function(){
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
     this.generarAreas(fichaMadre);
+    this.completarAreas(fichaMadre,this.posCentral);
 };
 
 //coloca una ficha en una posicion.
@@ -482,10 +483,13 @@ Tablero.prototype.put = function (ficha,pos){
 		console.log("llamamos a asignarAreas");
         this.asignarAreas(ficha,pos);
         console.log("llamamos a generarAreas");
-        this.generarAreas(ficha);
+        this.generarAreas(ficha,pos);
         console.log("***** se va a unificar");
         this.unificarAreas();
         console.log("***** se ha unificao");
+        console.log("***** se va a completadoAreas");
+        this.completarAreas(ficha,pos);
+        console.log("***** se ha completadoAreas");
 		return true;
     }else{
         console.log("la ficha NO encaja!");
@@ -497,7 +501,7 @@ Tablero.prototype.put = function (ficha,pos){
 //Areas libres: zonas de no unión entre fichas adyacentes a la dada. Zonas que no se han
 //tenido aún en cuenta a la hora de asignar. 
 //Nota: para todas las fichas a excepción de la madre.
-Tablero.prototype.generarAreas = function(ficha){
+Tablero.prototype.generarAreas = function(ficha,pos){
     //console.log("la partida: " + this.partida);
     for(i = 0; i<11; i++){
         var auxData = ficha.dato[i]; 
@@ -535,6 +539,20 @@ Tablero.prototype.generarAreas = function(ficha){
                     console.log("nuevoCiudad contenido: " + nuevoCiudad.content);                  
                 }
                 break;
+			case 'm':
+				var nuevoMonasterio = new Monasterio (auxPdata,pos);
+				nuevoMonasterio.add(auxPdata);
+				this.partida.listaMonasterios.push(nuevoMonasterio);
+				var adyacentesFull = _(this.posFull).filter (function(p){
+					return _(nuevoMonasterio.posAdyacentes).any (function(pa){
+						return pa.x == p.x && pa.y == p.y;
+					});
+				});
+				_(adyacentesFull).each(function(pa){ 
+					nuevoMonasterio.updateAdyacentes(pa);
+				});
+				console.log("nuevoMonasterio contenido: " + nuevoMonasterio.content);
+				break;
         }   
     }
     console.log("el tamaño de listaCampos es: " + this.partida.listaCampos.length);
@@ -713,6 +731,71 @@ Tablero.prototype.unificarArea = function(listaAreas){
     })
 }
 
+
+Tablero.prototype.completarAreas(ficha,pos){
+    var cogerUbicacion = function(i){
+        var ub;
+        if (i == 1){    
+            ub = 'u';
+		}else if (i == 4){
+            ub = 'r';
+		}else if (i == 7){
+            ub = 'd';
+		}else{
+            ub = 'l';
+		}
+        return ub;
+    }
+
+    var terminar = function(ub,pdato,that,pos,area){
+        var ady = that.getPosAdByUb(ub,pos);
+        if(that.esPosFree(ady)){
+            area.ladosLibres++;
+        }else{
+            area.ladosLibres--;
+        }
+        
+    }
+
+    for(i=1;i<ficha.pdato.length-1;i+=3){
+        switch(ficha.dato[i]){
+            case 'r':
+                var camino = _(this.partida.listaCaminos).find(function(r){
+                    return _(r.content).contains(ficha.pdato(i));                    
+                })
+                terminar(cogerUbicacion(i),ficha.pdato(i),this,pos,camino);
+                camino.recuentoPuntos();
+                break;
+            case 'c': 
+                var ciudad = _(this.partida.listaCiudades).find(function(c){
+                    return _(c.content).contains(ficha.pdato(i));                    
+                })
+                terminar(cogerUbicacion(i),ficha.pdato(i),this,pos,ciudad);
+                ciudad.recuentoPuntos();
+                break;
+        }
+    }
+};
+
+//devuelve la posición adyacente a un lado dado por ub.
+Tablero.prototype.getPosAdByUb = function (ub,pos){
+	var p;
+	switch(ub){
+		case 'u':
+			p = {x: pos.x, y: pos.y -1};
+			break;
+		case 'r':
+			p = {x: pos.x +1, y: pos.y};
+			break;
+		case 'd':
+			p = {x: pos.x, y: pos.y +1};
+			break;
+		case 'l':
+			p= {x: pos.x -1, y: pos.y};
+	}
+	return p;
+};
+
 //nos devuelve el array empezando por la de arriba en sentido horario
 Tablero.prototype.getPosAdyacentes = function(pos){
 	// ************* u,r,d,l ************* //
@@ -832,12 +915,47 @@ Tablero.prototype.ponerFicha = function(pos, giro){
 }
 
 Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
-	this.fichaActual.actualizarSeguidor(posSeguidor,IdPropietario);
-	////console.log(this.fichaActual.seguidor);
-    //este return hay que cambiarlo cuando se compruebe si se puede o no poner seguidor
-    console.log("el seguidor se ha puesto en la posición: " + this.fichaActual.seguidor.posSeguidor);
-    return true;
+	var success = true;
+    if (posSeguidor && IdPropietario){ //se ha llamado a ponerSeguidor y se quiere poner un seguidor.
+		success = false;
+		var  dato = this.fichaActual.dato[posSeguidor];
+		var area;
+		switch(dato){
+			case 'r':
+				area = _(this.partida.listaCaminos).find(function(r){
+					return _(r.content).contains (this.fichaActual.pdato[posSeguidor]);
+				});
+            	break;
+         	case 'c':
+				area = _(this.partida.listaCiudades).find(function(c){
+					return _(c.content).contains (this.fichaActual.pdato[posSeguidor]);
+				});
+				break;
+        	case 'm':
+				area = _(this.partida.listaMonasterios).find(function(m){
+					return _(m.content).contains (this.fichaActual.pdato[posSeguidor]);
+				});
+				break;
+        	case 'f':
+				area = _(this.partida.listaCampo).find(function(f){
+					return _(f.content).contains (this.fichaActual.pdato[posSeguidor]);
+				});
+				break;
+    	}
+		if (area && area.seguidores.length == 0){ //para que no se pueda poner en un cruce.
+			success = true;
+			var seguidor = new Seguidor (posSeguidor,IdPropietario,this.fichaActual.numFicha);
+			area.ponerSeguidor (seguidor);
+		}
+	}
+
+	if (success) this.completarAreas(this.fichaActual);
+
+	return success;
+	
 }
+
+
 Tablero.prototype.dameFicha = function(){
 	this.fichaActual = this.mazo.dameFichaMazo();
     //console.log("la ficha actual en tablero.dameficha es: "+ this.fichaActual.numFicha);
@@ -961,6 +1079,15 @@ Campo.prototype.unificar = function (camposAIntegrar){
     this.content = _(this.content).uniq();
     console.log("el content despues de hacer el uniq: "+this.content);
 }
+
+
+Campo.prototype.ponerSeguidor = function (seguidor){
+    this.seguidores.push(seguidor.idJugador);
+}
+
+Campo.prototype.quitarSeguidor = function(idJugador){
+    this.seguidores.splice (_(this.seguidores).indexOf(idJugador),1);
+}
 //**********************************************************
 
 var Ciudad = function(idCiudad){
@@ -968,8 +1095,9 @@ var Ciudad = function(idCiudad){
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
     this.numFichas = 0;
     this.isClosed = false;
-    this.propietarios = [];
+    this.seguidores = [];
     this.numEscudos = 0;
+    this.ladosLibres = 0;
 }
 
 Ciudad.prototype.add = function(numSubcelda){
@@ -1003,15 +1131,29 @@ Ciudad.prototype.unificar = function (ciudadesAIntegrar){
     console.log("el content despues de hacer el uniq: "+this.content);
 }
 
+Ciudad.prototype.recuentoPuntos(){
+    if(!this.ladosLibres){
+        
+    }
+}
+
+Ciudad.prototype.ponerSeguidor = function (seguidor){
+    this.seguidores.push(seguidor.idJugador);
+}
+
+Ciudad.prototype.quitarSeguidor = function(idJugador){
+    this.seguidores.splice (_(this.seguidores).indexOf(idJugador),1);
+}
+
 //**********************************************************
 
 var Camino = function(idCamino){
     this.id = idCamino;
-    this.content = []; //contiene los componentes de pdata de las fichas que lo forman
+    this.content = []; //contiene los componentes de pdato de las fichas que lo forman
     this.numFichas = 0;
-    this.puntas = [];
+    this.ladosLibres = 0;
     this.isClosed = false;
-    this.propietarios = []; 
+    this.seguidores = []; 
 }
 
 Camino.prototype.add = function(numSubcelda){
@@ -1046,12 +1188,51 @@ Camino.prototype.unificar = function (caminosAIntegrar){
     console.log("el content despues de hacer el uniq: "+this.content);
 }
 
+Camino.prototype.recuentoPuntos = function(){
+    if(!this.ladosLibres){
+        this.seguidores
+    }
+}
+
+Camino.prototype.ponerSeguidor = function (seguidor){
+    this.seguidores.push(seguidor.idJugador);
+}
+
+Camino.prototype.quitarSeguidor = function(idJugador){
+    this.seguidores.splice (_(this.seguidores).indexOf(idJugador),1);
+}
+
+//*************************************************************************
 //solo crear el monasterio cuando se ponga monigote en el monasterio
-var Monasterio = function(idMonasterio, pos, propietario){
+var Monasterio = function(idMonasterio,pos){
     this.id = idMonasterio;
-    this.propietario = propietario;
     this.isClosed = false;
-    this.pos = pos;
+	this.setPosAdyacentes(pos);
+}
+
+Monasterio.prototype.setPosAdyacentes(pos){
+	this.posAdyacentes = [{x: pos.x -1 ,y: pos.y -1},
+						  {x: pos.x,y: pos.y -1},
+						  {x: pos.x +1,y: pos.y-1},
+						  {x:pos.x +1,y: pos.y},
+						  {x:pos.x + 1,y: pos.y +1},
+						  {x:pos.x,y:pos.y+1},
+						  {x:pos.x-1,y: pos.y +1},
+				       	  {x:pos.x-1,y: pos.y}];
+}
+
+Monasterio.prototype.updateAdyacentes = function(pos){
+	this.posAdyacentes = _(this.posAdyacentes).filter (function(p){
+		return p.x != pos.x && p.y != pos.y;
+	});
+}
+
+Monasterio.prototype.ponerSeguidor = function (seguidor){
+    this.seguidores.push(seguidor.idJugador);
+}
+
+Monasterio.prototype.quitarSeguidor = function(idJugador){
+    this.seguidores.splice (_(this.seguidores).indexOf(idJugador),1);
 }
 
 //JUGADORES
