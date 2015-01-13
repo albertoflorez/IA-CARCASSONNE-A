@@ -454,7 +454,7 @@ var Tablero = function (partida){
     this.mazo = new Mazo();
 	this.cellSet = [];    
 	this.maxDim = 100;
-	this.posCentral = {x: Math.floor((this.maxDim -1)/2),y: Math.floor((this.maxDim -1)/2)};
+	this.posCentral = {x: this.maxDim /2,y: this.maxDim /2};
     this.generate();
 };
 
@@ -465,8 +465,13 @@ Tablero.prototype.generate = function(){
 	this.posFree = [];
 	this.posFull = [];
 	var fichaMadre = this.mazo.dameFichaMadre();
+	//creo que es mejor llamar a this.put(fichaMadre,this.posCentral) AsignarAreas no hara nada, 
+	//pero generar y completar si.
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
+    this.updatePosFree(this.posCentral);
+    this.posFull.push(this.posCentral);
+    console.log(this.posFree);
     this.generarAreas(fichaMadre);
     this.completarAreas(fichaMadre,this.posCentral);
 };
@@ -480,6 +485,9 @@ Tablero.prototype.put = function (ficha,pos){
     if(this.encaja(ficha,pos)){
     	console.log("la ficha encaja! y se añade al tablero");
 		this.cellSet.push(new Cell(ficha,pos));
+		this.updatePosFree(pos);
+		this.posFull.push(pos);
+		console.log(this.posFree);
 		console.log("llamamos a asignarAreas");
         this.asignarAreas(ficha,pos);
         console.log("llamamos a generarAreas");
@@ -487,9 +495,6 @@ Tablero.prototype.put = function (ficha,pos){
         console.log("***** se va a unificar");
         this.unificarAreas();
         console.log("***** se ha unificao");
-        console.log("***** se va a completadoAreas");
-        this.completarAreas(ficha,pos);
-        console.log("***** se ha completadoAreas");
 		return true;
     }else{
         console.log("la ficha NO encaja!");
@@ -503,6 +508,7 @@ Tablero.prototype.put = function (ficha,pos){
 //Nota: para todas las fichas a excepción de la madre.
 Tablero.prototype.generarAreas = function(ficha,pos){
     //console.log("la partida: " + this.partida);
+	var contieneCiudad = false;
     for(i = 0; i<11; i++){
         var auxData = ficha.dato[i]; 
         var auxPdata = ficha.pdato[i];          
@@ -533,7 +539,8 @@ Tablero.prototype.generarAreas = function(ficha,pos){
                 if (!_(this.partida.listaCiudades).any(function(c){
                     return _(c.content).contains(auxPdata);
                 })){
-                    var nuevoCiudad = new Ciudad(auxPdata);
+					contieneCiudad = true;
+                    var nuevoCiudad = new Ciudad(auxPdata, ficha.escudo);
                     nuevoCiudad.add(auxPdata);
                     this.partida.listaCiudades.push(nuevoCiudad);  
                     console.log("nuevoCiudad contenido: " + nuevoCiudad.content);                  
@@ -543,7 +550,7 @@ Tablero.prototype.generarAreas = function(ficha,pos){
 				var nuevoMonasterio = new Monasterio (auxPdata,pos);
 				nuevoMonasterio.add(auxPdata);
 				this.partida.listaMonasterios.push(nuevoMonasterio);
-				var adyacentesFull = _(this.posFull).filter (function(p){
+				var adyacentesFull = _(this.posFull).filter (function(p){  /////REVISAR!!!
 					return _(nuevoMonasterio.posAdyacentes).any (function(pa){
 						return pa.x == p.x && pa.y == p.y;
 					});
@@ -553,8 +560,11 @@ Tablero.prototype.generarAreas = function(ficha,pos){
 				});
 				console.log("nuevoMonasterio contenido: " + nuevoMonasterio.content);
 				break;
-        }   
+		}   
     }
+	if (contieneCiudad){
+		this.asignarCampoACiudad(ficha);
+	}
     console.log("el tamaño de listaCampos es: " + this.partida.listaCampos.length);
     console.log("el tamaño de listaCiudades es: " + this.partida.listaCiudades.length);
     console.log("el tamaño de listaCaminos es: " + this.partida.listaCaminos.length);
@@ -593,7 +603,7 @@ Tablero.prototype.asignarCaminoAFicha = function(pdatoady,pdatoficha){
 
 //Almacena en el content de la Cuidad correspondiente los pdatos que pasan a formar parte
 //de ella.
-Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha){
+Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha,escudo){
     var ciudad = _(this.partida.listaCiudades).find(function(elem){
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
@@ -603,17 +613,19 @@ Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha){
     if(!_(ciudad.content).contains(pdatoficha)){
     	console.log("asignamos el pdato");
         ciudad.add(pdatoficha);
+		if (escudo) ciudad.numEscudo++;
     }
 }
 
 //Se encarga de propagar las áreas hacia la ficha que hemos puesto.
-Tablero.prototype.propagar = function(pdatosAdy, pdatosFicha, datosCell){
+Tablero.prototype.propagar = function(ficha, pdatosAdy, pdatosFicha, datosCell){
+	var escudo = ficha.escudo;
     for (var i = 0; i< 3; i++){
         var pdatoAdy = pdatosAdy[i];
         var pdatoFicha = pdatosFicha [i];
         switch(datosCell[i]){
             case 'f':
-          		console.log("asignamos a un campo");
+          	console.log("asignamos a un campo");
                 this.asignarCampoAFicha(pdatoAdy,pdatoFicha);
                 break;
             case 'r':
@@ -622,7 +634,9 @@ Tablero.prototype.propagar = function(pdatosAdy, pdatosFicha, datosCell){
                 break;
             case 'c':
             	console.log("asignamos a una ciudad");
-                this.asignarCiudadAFicha(pdatoAdy,pdatoFicha);
+                this.asignarCiudadAFicha(escudo,pdatoAdy,pdatoFicha);
+				//escudo se pone a false para que solo se cuente una vez.
+				escudo = false;
                 break;
         }
     }
@@ -689,7 +703,7 @@ Tablero.prototype.asignarAreas = function(ficha,pos){
         }
         //propagamos los datos.
         console.log("propagamos los datos");
-        this.propagar (pdatosAdy,pdatosFicha,datosCell);
+        this.propagar (ficha,pdatosAdy,pdatosFicha,datosCell);
     },this);
 }
 
@@ -732,7 +746,7 @@ Tablero.prototype.unificarArea = function(listaAreas){
 }
 
 
-Tablero.prototype.completarAreas(ficha,pos){
+Tablero.prototype.completarAreas = function(ficha,pos){
     var cogerUbicacion = function(i){
         var ub;
         if (i == 1){    
@@ -749,33 +763,40 @@ Tablero.prototype.completarAreas(ficha,pos){
 
     var terminar = function(ub,pdato,that,pos,area){
         var ady = that.getPosAdByUb(ub,pos);
-        if(that.esPosFree(ady)){
-            area.ladosLibres++;
-        }else{
-            area.ladosLibres--;
-        }
-        
+        area.updateLibres(that.esPosFree(ady));
     }
 
     for(i=1;i<ficha.pdato.length-1;i+=3){
         switch(ficha.dato[i]){
             case 'r':
                 var camino = _(this.partida.listaCaminos).find(function(r){
-                    return _(r.content).contains(ficha.pdato(i));                    
+                    return _(r.content).contains(ficha.pdato[i]);                    
                 })
-                terminar(cogerUbicacion(i),ficha.pdato(i),this,pos,camino);
+                terminar(cogerUbicacion(i),ficha.pdato[i],this,pos,camino);
                 camino.recuentoPuntos();
                 break;
             case 'c': 
                 var ciudad = _(this.partida.listaCiudades).find(function(c){
-                    return _(c.content).contains(ficha.pdato(i));                    
+                    return _(c.content).contains(ficha.pdato[i]);                    
                 })
-                terminar(cogerUbicacion(i),ficha.pdato(i),this,pos,ciudad);
-                ciudad.recuentoPuntos();
+                terminar(cogerUbicacion(i),ficha.pdato[i],this,pos,ciudad);
+                //ciudad.recuentoPuntos();
                 break;
         }
     }
+    this.completarMonasterios (pos);
 };
+
+Tablero.prototype.completarMonasterios = function(pos){
+	_(this.listaMonasterios).each(function(m){
+		if (_(m.posAdyacentes).any(function(pA){
+			return pos.x == pA.x && pos.y == pA.y;
+		})){
+			m.updateAdyacentes (pos);
+		}
+	})
+
+}
 
 //devuelve la posición adyacente a un lado dado por ub.
 Tablero.prototype.getPosAdByUb = function (ub,pos){
@@ -811,13 +832,20 @@ Tablero.prototype.getPosAdyacentes = function(pos){
 
 Tablero.prototype.updatePosFree = function(pos){
 	var pAd = this.getPosAdyacentes(pos);
+	//buscamos las pos adyacentes y añadimos solo las que no estan llenas.
 	_(pAd).each (function(pA){
 		if (!_(this.posFull).any(function(pF){
 			return pA.x == pF.x && pA.y == pF.y;
 		})){
 			this.posFree.push(pA);
 		};
+	},this);
+
+	this.posFree = _(this.posFree).reject(function(pF){
+		return pos.x == pF.x && pos.y == pF.y;
 	});
+
+
 }
 
 Tablero.prototype.esPosFree = function(pos){
@@ -949,7 +977,7 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 		}
 	}
 
-	if (success) this.completarAreas(this.fichaActual);
+	if (success) this.completarAreas(this.fichaActual); //preguntar. Yo creo que esta condicion no es valida. Se debe llamar siempre.
 
 	return success;
 	
@@ -962,6 +990,34 @@ Tablero.prototype.dameFicha = function(){
 	return this.fichaActual;
 }
 
+Tablero.prototype.asignarCampoACiudad = function(ficha){
+	var esquinas = [{prev: 11, next: 0}, 
+				   {prev: 2 , next: 3}, 
+				   {prev: 5 , next: 6}, 
+				   {prev: 8 , next: 9}];
+	var ciudadesDistintas = 0;
+	var ultCiudad;
+	var ciudadPdato;
+	var campoPdato;
+
+	_(esquinas).each(function(e){
+		if (ficha.dato[e.prev] == 'c' && ficha.dato[e.next] == 'f'){
+			ciudadPdato = ficha.pdato[e.prev];
+			campoPdato = ficha.pdato[e.next];
+		}else if (ficha.dato[e.next] == 'c' && ficha.dato[e.prev] == 'f'){
+			ciudadPdato = ficha.pdato[e.prev];
+			campoPdato = ficha.pdato[e.next];
+		}
+		if (ciudadPdato && ciudadPdato != ultCiudad){
+			ultCiudad = ciudadPdato;
+			ciudadesDistintas ++;
+			var city = _(this.partida.listaCiudades).find (function(c){
+				return _(c.content).contains (ciudadPdato);			
+			});
+			city.camposAdyacentes.push(campoPdato);
+		}
+	},this);
+}
 
 //****************************************************************************//
 //************************************ PARTIDA *******************************//
@@ -1067,17 +1123,24 @@ Campo.prototype.isTheSame = function(c2){
 //Metodo para unificar los contents de otros campos con el campo en cuestion.
 Campo.prototype.unificar = function (camposAIntegrar){
 	var contenido = [];
+	var ciudades = [];
 	contenido.push (this.content);
+	ciudades.push (this.ciudadesIncluidas);
     console.log("contenido es: "+this.content);
 	_(camposAIntegrar).each(function(c){
         console.log("el content en campos a integrar es"+c.content);
 		contenido.push(c.content);
+		ciudades.push(c.ciudadesIncluidas);
 	});
 	//en content tenemos los contents de todos los campos, los unimos en un solo array y eliminamos los duplicados.
 	this.content = _(contenido).flatten();
     console.log("el content antes de hacer el uniq: "+this.content);
     this.content = _(this.content).uniq();
     console.log("el content despues de hacer el uniq: "+this.content);
+	this.ciudadesIncluidas = _(ciudades).flatten();
+	console.log("el ciudadesIncluidas antes de hacer el uniq: "+this.ciudadesIncluidas);
+	this.ciudadesIncluidas = _(this.ciudadesIncluidas).uniq();
+	console.log("el ciudadesIncluidas despues de hacer el uniq: "+this.ciudadesIncluidas);
 }
 
 
@@ -1088,16 +1151,19 @@ Campo.prototype.ponerSeguidor = function (seguidor){
 Campo.prototype.quitarSeguidor = function(idJugador){
     this.seguidores.splice (_(this.seguidores).indexOf(idJugador),1);
 }
+
 //**********************************************************
 
-var Ciudad = function(idCiudad){
+var Ciudad = function(idCiudad,tieneEscudo){
     this.id = idCiudad;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
     this.numFichas = 0;
     this.isClosed = false;
     this.seguidores = [];
-    this.numEscudos = 0;
+	this.numEscudos = 0;
+    if (tieneEscudo) this.numEscudos++;
     this.ladosLibres = 0;
+	this.camposAdyacentes = [];
 }
 
 Ciudad.prototype.add = function(numSubcelda){
@@ -1121,20 +1187,22 @@ Ciudad.prototype.isTheSame = function(c2){
 Ciudad.prototype.unificar = function (ciudadesAIntegrar){
 	var contenido = [];
 	contenido.push (this.content);
+	var campos = [];
+	campos.push (this.camposAdyacentes);
 	_(ciudadesAIntegrar).each(function(c){
 		contenido.push(c.content);
+		campos.push (c.camposAdyacentes);
+		this.numEscudos += c.numEscudos;
+		this.ladosLibres += c.ladosLibres;
+		
 	});
 	//en content tenemos los contents de todos las ciudades, los unimos en un solo array y eliminamos los duplicados.
 	this.content = _(contenido).flatten();
     console.log("el content antes de hacer el uniq: "+this.content);
     this.content = _(this.content).uniq();
     console.log("el content despues de hacer el uniq: "+this.content);
-}
-
-Ciudad.prototype.recuentoPuntos(){
-    if(!this.ladosLibres){
-        
-    }
+	this.camposAdyacentes = _(campos).flatten();
+	this.camposAdyacentes = _(this.camposAdyacentes).uniq();
 }
 
 Ciudad.prototype.ponerSeguidor = function (seguidor){
@@ -1143,6 +1211,28 @@ Ciudad.prototype.ponerSeguidor = function (seguidor){
 
 Ciudad.prototype.quitarSeguidor = function(idJugador){
     this.seguidores.splice (_(this.seguidores).indexOf(idJugador),1);
+}
+
+Ciudad.prototype.close = function(){
+	//devolver los seguidores a los jugadores correspondientes (¡***Y*AVISAR*A*IU***!)
+	_(this.camposAdyacentes).each (function(cA){
+		var campo = _(this.partida.listaCampos).find(function(c){
+				return _(c.content).contains(cA);
+			});
+		campo.ciudadesIncluidas.push(this.id);
+		campo.ciudadesIncluidas = _(campo.ciudadesIncluidas).uniq();
+	},this);
+}
+
+Ciudad.prototype.updateLibres = function(bool){
+	if (bool){
+		this.ladosLibres++;
+	}else{
+		this.ladosLibres--;
+	} 
+	if (this.ladosLibres == 0){
+		this.close();
+	}
 }
 
 //**********************************************************
@@ -1180,7 +1270,8 @@ Camino.prototype.unificar = function (caminosAIntegrar){
 	contenido.push (this.content);
 	_(caminosAIntegrar).each(function(c){
 		contenido.push(c.content);
-	});
+		this.ladosLibres += c.ladosLibres;
+	},this);
 	//en content tenemos los contents de todos los caminos, los unimos en un solo array y eliminamos los duplicados.
 	this.content = _(contenido).flatten();
     console.log("el content antes de hacer el uniq: "+this.content);
@@ -1202,6 +1293,22 @@ Camino.prototype.quitarSeguidor = function(idJugador){
     this.seguidores.splice (_(this.seguidores).indexOf(idJugador),1);
 }
 
+Camino.prototype.close = function(){
+
+}
+
+
+Camino.prototype.updateLibres = function(bool){
+	if (bool){
+		this.ladosLibres++;
+	}else{
+		this.ladosLibres--;
+	}
+	if (this.ladosLibres == 0){
+		this.close();
+	}
+}
+
 //*************************************************************************
 //solo crear el monasterio cuando se ponga monigote en el monasterio
 var Monasterio = function(idMonasterio,pos){
@@ -1210,7 +1317,7 @@ var Monasterio = function(idMonasterio,pos){
 	this.setPosAdyacentes(pos);
 }
 
-Monasterio.prototype.setPosAdyacentes(pos){
+Monasterio.prototype.setPosAdyacentes = function(pos){
 	this.posAdyacentes = [{x: pos.x -1 ,y: pos.y -1},
 						  {x: pos.x,y: pos.y -1},
 						  {x: pos.x +1,y: pos.y-1},
@@ -1225,6 +1332,13 @@ Monasterio.prototype.updateAdyacentes = function(pos){
 	this.posAdyacentes = _(this.posAdyacentes).filter (function(p){
 		return p.x != pos.x && p.y != pos.y;
 	});
+	if (this.posAdyacentes.length == 0){
+		this.close();
+	} 
+}
+
+Monasterio.prototype.close = function(){
+	//aqui se hará el recuento de puntos.
 }
 
 Monasterio.prototype.ponerSeguidor = function (seguidor){
