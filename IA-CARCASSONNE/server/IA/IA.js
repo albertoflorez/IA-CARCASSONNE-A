@@ -454,7 +454,7 @@ var Tablero = function (partida){
     this.mazo = new Mazo();
 	this.cellSet = [];    
 	this.maxDim = 100;
-	this.posCentral = {x: Math.floor((this.maxDim -1)/2),y: Math.floor((this.maxDim -1)/2)};
+	this.posCentral = {x: this.maxDim /2,y: this.maxDim /2};
     this.generate();
 };
 
@@ -465,8 +465,13 @@ Tablero.prototype.generate = function(){
 	this.posFree = [];
 	this.posFull = [];
 	var fichaMadre = this.mazo.dameFichaMadre();
+	//creo que es mejor llamar a this.put(fichaMadre,this.posCentral) AsignarAreas no hara nada, 
+	//pero generar y completar si.
 	var cellFichaMadre = new Cell(fichaMadre,this.posCentral);
     this.cellSet.push(cellFichaMadre);
+    this.updatePosFree(this.posCentral);
+    this.posFull.push(this.posCentral);
+    console.log(this.posFree);
     this.generarAreas(fichaMadre);
     this.completarAreas(fichaMadre,this.posCentral);
 };
@@ -480,6 +485,9 @@ Tablero.prototype.put = function (ficha,pos){
     if(this.encaja(ficha,pos)){
     	console.log("la ficha encaja! y se añade al tablero");
 		this.cellSet.push(new Cell(ficha,pos));
+		this.updatePosFree(pos);
+		this.posFull.push(pos);
+		console.log(this.posFree);
 		console.log("llamamos a asignarAreas");
         this.asignarAreas(ficha,pos);
         console.log("llamamos a generarAreas");
@@ -488,7 +496,7 @@ Tablero.prototype.put = function (ficha,pos){
         this.unificarAreas();
         console.log("***** se ha unificao");
         console.log("***** se va a completadoAreas");
-        this.completarAreas(ficha,pos);
+        this.completarAreas(ficha,pos); 
         console.log("***** se ha completadoAreas");
 		return true;
     }else{
@@ -543,7 +551,7 @@ Tablero.prototype.generarAreas = function(ficha,pos){
 				var nuevoMonasterio = new Monasterio (auxPdata,pos);
 				nuevoMonasterio.add(auxPdata);
 				this.partida.listaMonasterios.push(nuevoMonasterio);
-				var adyacentesFull = _(this.posFull).filter (function(p){
+				var adyacentesFull = _(this.posFull).filter (function(p){  /////REVISAR!!!
 					return _(nuevoMonasterio.posAdyacentes).any (function(pa){
 						return pa.x == p.x && pa.y == p.y;
 					});
@@ -732,7 +740,7 @@ Tablero.prototype.unificarArea = function(listaAreas){
 }
 
 
-Tablero.prototype.completarAreas(ficha,pos){
+Tablero.prototype.completarAreas = function(ficha,pos){
     var cogerUbicacion = function(i){
         var ub;
         if (i == 1){    
@@ -761,21 +769,33 @@ Tablero.prototype.completarAreas(ficha,pos){
         switch(ficha.dato[i]){
             case 'r':
                 var camino = _(this.partida.listaCaminos).find(function(r){
-                    return _(r.content).contains(ficha.pdato(i));                    
+                    return _(r.content).contains(ficha.pdato[i]);                    
                 })
-                terminar(cogerUbicacion(i),ficha.pdato(i),this,pos,camino);
+                terminar(cogerUbicacion(i),ficha.pdato[i],this,pos,camino);
                 camino.recuentoPuntos();
                 break;
             case 'c': 
                 var ciudad = _(this.partida.listaCiudades).find(function(c){
-                    return _(c.content).contains(ficha.pdato(i));                    
+                    return _(c.content).contains(ficha.pdato[i]);                    
                 })
-                terminar(cogerUbicacion(i),ficha.pdato(i),this,pos,ciudad);
+                terminar(cogerUbicacion(i),ficha.pdato[i],this,pos,ciudad);
                 ciudad.recuentoPuntos();
                 break;
         }
     }
+    this.completarMonasterios (pos);
 };
+
+Tablero.prototype.completarMonasterios = function(pos){
+	_(this.listaMonasterios).each(function(m){
+		if (_(m.posAdyacentes).any(function(pA){
+			return pos.x == pA.x && pos.y == pA.y;
+		})){
+			m.updateAdyacentes (pos);
+		}
+	})
+
+}
 
 //devuelve la posición adyacente a un lado dado por ub.
 Tablero.prototype.getPosAdByUb = function (ub,pos){
@@ -811,13 +831,20 @@ Tablero.prototype.getPosAdyacentes = function(pos){
 
 Tablero.prototype.updatePosFree = function(pos){
 	var pAd = this.getPosAdyacentes(pos);
+	//buscamos las pos adyacentes y añadimos solo las que no estan llenas.
 	_(pAd).each (function(pA){
 		if (!_(this.posFull).any(function(pF){
 			return pA.x == pF.x && pA.y == pF.y;
 		})){
 			this.posFree.push(pA);
 		};
+	},this);
+
+	this.posFree = _(this.posFree).reject(function(pF){
+		return pos.x == pF.x && pos.y == pF.y;
 	});
+
+
 }
 
 Tablero.prototype.esPosFree = function(pos){
@@ -949,7 +976,7 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 		}
 	}
 
-	if (success) this.completarAreas(this.fichaActual);
+	if (success) this.completarAreas(this.fichaActual); //preguntar. Yo creo que esta condicion no es valida. Se debe llamar siempre.
 
 	return success;
 	
@@ -1123,6 +1150,7 @@ Ciudad.prototype.unificar = function (ciudadesAIntegrar){
 	contenido.push (this.content);
 	_(ciudadesAIntegrar).each(function(c){
 		contenido.push(c.content);
+		this.ladosLibres += c.ladosLibres;
 	});
 	//en content tenemos los contents de todos las ciudades, los unimos en un solo array y eliminamos los duplicados.
 	this.content = _(contenido).flatten();
@@ -1131,7 +1159,7 @@ Ciudad.prototype.unificar = function (ciudadesAIntegrar){
     console.log("el content despues de hacer el uniq: "+this.content);
 }
 
-Ciudad.prototype.recuentoPuntos(){
+Ciudad.prototype.recuentoPuntos = function(){
     if(!this.ladosLibres){
         
     }
@@ -1180,7 +1208,8 @@ Camino.prototype.unificar = function (caminosAIntegrar){
 	contenido.push (this.content);
 	_(caminosAIntegrar).each(function(c){
 		contenido.push(c.content);
-	});
+		this.ladosLibres += c.ladosLibres;
+	},this
 	//en content tenemos los contents de todos los caminos, los unimos en un solo array y eliminamos los duplicados.
 	this.content = _(contenido).flatten();
     console.log("el content antes de hacer el uniq: "+this.content);
@@ -1210,7 +1239,7 @@ var Monasterio = function(idMonasterio,pos){
 	this.setPosAdyacentes(pos);
 }
 
-Monasterio.prototype.setPosAdyacentes(pos){
+Monasterio.prototype.setPosAdyacentes = function(pos){
 	this.posAdyacentes = [{x: pos.x -1 ,y: pos.y -1},
 						  {x: pos.x,y: pos.y -1},
 						  {x: pos.x +1,y: pos.y-1},
@@ -1225,6 +1254,13 @@ Monasterio.prototype.updateAdyacentes = function(pos){
 	this.posAdyacentes = _(this.posAdyacentes).filter (function(p){
 		return p.x != pos.x && p.y != pos.y;
 	});
+	if (this.posAdyacentes.length == 0){
+		this.close();
+	} 
+}
+
+Monasterio.prototype.close = function(){
+	//aqui se hará el recuento de puntos.
 }
 
 Monasterio.prototype.ponerSeguidor = function (seguidor){

@@ -79,7 +79,8 @@ Meteor.methods ({
         _(partida.listaCaminos).each(function(c){
             console.log("camino" + c.idCamino + ":" + c.content);
         }) 
-            partida.tablero.fichaActual = ficha2;
+
+           partida.tablero.fichaActual = ficha2;
             console.log("se va a poner la ficha2");
             success = partida.tablero.ponerFicha({x:48,y:50},0);
             console.log("se ha puesto la ficha2");
@@ -175,15 +176,15 @@ Meteor.methods ({
             console.log("se ha puesto la ficha8");
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
-            console.log("campo" + c.idCampo + ":" + c.content);
+            console.log("campo" + c.id + ":" + c.content);
         });
         _(partida.listaCiudades).each(function(c){
-            console.log("ciudad" + c.idCiudad + ":" + c.content);
+            console.log("ciudad" + c.id + ":" + c.content + "ladoslibres: " + c.ladosLibres);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content );
+            console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres);
         })  
-        console.log("\n\n\n\n");  
+        console.log("\n\n\n\n"); 
         };
         
     },
