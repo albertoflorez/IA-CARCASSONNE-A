@@ -588,7 +588,7 @@ Tablero.prototype.asignarCampoAFicha = function(pdatoady,pdatoficha){
 
 //Almacena en el content del Camino correspondietne los pdatos que pasan a formar parte
 //de él.
-Tablero.prototype.asignarCaminoAFicha = function(pdatoady,pdatoficha){
+Tablero.prototype.asignarCaminoAFicha = function(idFicha,pdatoady,pdatoficha){
     var camino = _(this.partida.listaCaminos).find(function(elem){
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
@@ -599,11 +599,15 @@ Tablero.prototype.asignarCaminoAFicha = function(pdatoady,pdatoficha){
     	console.log("asignamos el pdato");
         camino.add(pdatoficha);
     }
+	if(!_(camino.idFichas).contains(idFicha)){
+    	console.log("asignamos el pdato");
+        camino.idFichas.push(idFicha);
+    }
 }
 
 //Almacena en el content de la Cuidad correspondiente los pdatos que pasan a formar parte
 //de ella.
-Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha,escudo){
+Tablero.prototype.asignarCiudadAFicha = function(idFicha,escudo,pdatoady,pdatoficha){
     var ciudad = _(this.partida.listaCiudades).find(function(elem){
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
@@ -614,6 +618,10 @@ Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha,escudo){
     	console.log("asignamos el pdato");
         ciudad.add(pdatoficha);
 		if (escudo) ciudad.numEscudo++;
+    }
+	if(!_(ciudad.idFichas).contains(idFicha)){
+    	console.log("asignamos el pdato");
+        ciudad.idFichas.push(idFicha);
     }
 }
 
@@ -630,11 +638,11 @@ Tablero.prototype.propagar = function(ficha, pdatosAdy, pdatosFicha, datosCell){
                 break;
             case 'r':
             	console.log("asignamos a un camino");
-                this.asignarCaminoAFicha(pdatoAdy,pdatoFicha);
+                this.asignarCaminoAFicha(ficha.numFicha,pdatoAdy,pdatoFicha);
                 break;
             case 'c':
             	console.log("asignamos a una ciudad");
-                this.asignarCiudadAFicha(escudo,pdatoAdy,pdatoFicha);
+                this.asignarCiudadAFicha(ficha.numFicha,escudo,pdatoAdy,pdatoFicha);
 				//escudo se pone a false para que solo se cuente una vez.
 				escudo = false;
                 break;
@@ -1095,7 +1103,6 @@ Partida.prototype.getPuntos = function(){
 var Campo = function(idCampo){
     this.id = idCampo;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
-    this.numFichas = 0;
     this.propietarios = [];
     this.ciudadesIncluidas = [];
 }
@@ -1157,7 +1164,7 @@ Campo.prototype.quitarSeguidor = function(idJugador){
 var Ciudad = function(idCiudad,tieneEscudo){
     this.id = idCiudad;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
-    this.numFichas = 0;
+    this.idFichas = [];
     this.isClosed = false;
     this.seguidores = [];
 	this.numEscudos = 0;
@@ -1240,7 +1247,7 @@ Ciudad.prototype.updateLibres = function(bool){
 var Camino = function(idCamino){
     this.id = idCamino;
     this.content = []; //contiene los componentes de pdato de las fichas que lo forman
-    this.numFichas = 0;
+	this.idFichas = [];
     this.ladosLibres = 0;
     this.isClosed = false;
     this.seguidores = []; 
@@ -1412,6 +1419,8 @@ IAPlayer.prototype.playTurn = function(){
 			}
 			i--;
 		}
+	}else{
+		this.partida.tablero.ponerSeguidor();
 	}
 	this.partida.pasarTurno();
 	//Ahora partida habrá cambiado el turno y le tocará al jugador correspondiente que podría 

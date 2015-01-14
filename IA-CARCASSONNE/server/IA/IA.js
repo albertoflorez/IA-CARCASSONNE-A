@@ -588,7 +588,7 @@ Tablero.prototype.asignarCampoAFicha = function(pdatoady,pdatoficha){
 
 //Almacena en el content del Camino correspondietne los pdatos que pasan a formar parte
 //de él.
-Tablero.prototype.asignarCaminoAFicha = function(pdatoady,pdatoficha){
+Tablero.prototype.asignarCaminoAFicha = function(idFicha,pdatoady,pdatoficha){
     var camino = _(this.partida.listaCaminos).find(function(elem){
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
@@ -599,11 +599,15 @@ Tablero.prototype.asignarCaminoAFicha = function(pdatoady,pdatoficha){
     	console.log("asignamos el pdato");
         camino.add(pdatoficha);
     }
+	if(!_(camino.idFichas).contains(idFicha)){
+    	console.log("asignamos el pdato");
+        camino.idFichas.push(idFicha);
+    }
 }
 
 //Almacena en el content de la Cuidad correspondiente los pdatos que pasan a formar parte
 //de ella.
-Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha,escudo){
+Tablero.prototype.asignarCiudadAFicha = function(idFicha,escudo,pdatoady,pdatoficha){
     var ciudad = _(this.partida.listaCiudades).find(function(elem){
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
@@ -614,6 +618,10 @@ Tablero.prototype.asignarCiudadAFicha = function(pdatoady,pdatoficha,escudo){
     	console.log("asignamos el pdato");
         ciudad.add(pdatoficha);
 		if (escudo) ciudad.numEscudo++;
+    }
+	if(!_(ciudad.idFichas).contains(idFicha)){
+    	console.log("asignamos el pdato");
+        ciudad.idFichas.push(idFicha);
     }
 }
 
@@ -630,11 +638,11 @@ Tablero.prototype.propagar = function(ficha, pdatosAdy, pdatosFicha, datosCell){
                 break;
             case 'r':
             	console.log("asignamos a un camino");
-                this.asignarCaminoAFicha(pdatoAdy,pdatoFicha);
+                this.asignarCaminoAFicha(ficha.numFicha,pdatoAdy,pdatoFicha);
                 break;
             case 'c':
             	console.log("asignamos a una ciudad");
-                this.asignarCiudadAFicha(escudo,pdatoAdy,pdatoFicha);
+                this.asignarCiudadAFicha(ficha.numFicha,escudo,pdatoAdy,pdatoFicha);
 				//escudo se pone a false para que solo se cuente una vez.
 				escudo = false;
                 break;
@@ -1095,7 +1103,6 @@ Partida.prototype.getPuntos = function(){
 var Campo = function(idCampo){
     this.id = idCampo;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
-    this.numFichas = 0;
     this.propietarios = [];
     this.ciudadesIncluidas = [];
 }
@@ -1157,7 +1164,7 @@ Campo.prototype.quitarSeguidor = function(idJugador){
 var Ciudad = function(idCiudad,tieneEscudo){
     this.id = idCiudad;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
-    this.numFichas = 0;
+    this.idFichas = [];
     this.isClosed = false;
     this.seguidores = [];
 	this.numEscudos = 0;
@@ -1186,15 +1193,17 @@ Ciudad.prototype.isTheSame = function(c2){
 //Metodo para unificar los contents de otras ciudades con la ciudad en cuestion.
 Ciudad.prototype.unificar = function (ciudadesAIntegrar){
 	var contenido = [];
+	var fichas = [];
 	contenido.push (this.content);
+	fichas.push (this.idFichas);
 	var campos = [];
 	campos.push (this.camposAdyacentes);
 	_(ciudadesAIntegrar).each(function(c){
 		contenido.push(c.content);
 		campos.push (c.camposAdyacentes);
+		fichas.push (c.idFichas);
 		this.numEscudos += c.numEscudos;
 		this.ladosLibres += c.ladosLibres;
-		
 	});
 	//en content tenemos los contents de todos las ciudades, los unimos en un solo array y eliminamos los duplicados.
 	this.content = _(contenido).flatten();
@@ -1203,6 +1212,8 @@ Ciudad.prototype.unificar = function (ciudadesAIntegrar){
     console.log("el content despues de hacer el uniq: "+this.content);
 	this.camposAdyacentes = _(campos).flatten();
 	this.camposAdyacentes = _(this.camposAdyacentes).uniq();
+	this.idFichas = _(fichas).flatten();
+	this.idFichas = _(this.idFichas).uniq();
 }
 
 Ciudad.prototype.ponerSeguidor = function (seguidor){
@@ -1240,7 +1251,7 @@ Ciudad.prototype.updateLibres = function(bool){
 var Camino = function(idCamino){
     this.id = idCamino;
     this.content = []; //contiene los componentes de pdato de las fichas que lo forman
-    this.numFichas = 0;
+	this.idFichas = [];
     this.ladosLibres = 0;
     this.isClosed = false;
     this.seguidores = []; 
@@ -1267,9 +1278,12 @@ Camino.prototype.isTheSame = function(c2){
 //Metodo para unificar los contents de otras caminos con el camino en cuestion.
 Camino.prototype.unificar = function (caminosAIntegrar){
 	var contenido = [];
+	var fichas = [];
 	contenido.push (this.content);
+	fichas.push (this.idFichas);
 	_(caminosAIntegrar).each(function(c){
 		contenido.push(c.content);
+		fichas.push(c.idFichas);
 		this.ladosLibres += c.ladosLibres;
 	},this);
 	//en content tenemos los contents de todos los caminos, los unimos en un solo array y eliminamos los duplicados.
@@ -1277,6 +1291,8 @@ Camino.prototype.unificar = function (caminosAIntegrar){
     console.log("el content antes de hacer el uniq: "+this.content);
     this.content = _(this.content).uniq();
     console.log("el content despues de hacer el uniq: "+this.content);
+	this.idFichas = _(fichas).flatten();
+	this.idFichas = _(this.idFichas).uniq();
 }
 
 Camino.prototype.recuentoPuntos = function(){
