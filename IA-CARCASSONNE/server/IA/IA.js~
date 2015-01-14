@@ -1359,6 +1359,7 @@ var Jugador = function(idJugador){
     this.caminos = [];
     this.monasterios = [];
     this.puntos = 0;
+	this.numSeguidores = 7;
 }
 
 //el jugador IA hereda del jugador real. Puesto que debe tener los mismos métodos que se 
@@ -1397,7 +1398,21 @@ IAPlayer.prototype.playTurn = function(){
 		}while(!success && i_next != i);
 		giro ++;
 	}
-
+	// aqui se ve si se quiere poner seguidor o no, y se hacen los intentos para ponerlo
+	var probPonerS = this.numSeguidores*(1/7);
+	if(Math.random() < probPonerS){
+		success = false;
+		var i = 13;
+		var posAProbar = _.range(0,12);
+		while (!success && i > 0){
+			var aux = Math.floor (Math.random() * (posAProbar.length - 1) );
+			success = this.partida.tablero.ponerSeguidor(posAProbar[aux],this.idJugador);
+			if(!success){
+				posAProbar.splice(aux,1);
+			}
+			i--;
+		}
+	}
 	this.partida.pasarTurno();
 	//Ahora partida habrá cambiado el turno y le tocará al jugador correspondiente que podría 
 	//ser otra IA perfectamente.
