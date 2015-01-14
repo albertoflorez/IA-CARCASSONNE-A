@@ -94,7 +94,7 @@ Meteor.methods ({
         _(partida.listaCaminos).each(function(c){
             console.log("camino" + c.idCamino + ":" + c.content);
         }) 
-        console.log("\n\n\n\n"); /*
+        console.log("\n\n\n\n"); 
             partida.tablero.fichaActual = ficha3;
             console.log("se va a poner la ficha3");
             success = partida.tablero.ponerFicha({x:48,y:51},0);
@@ -183,7 +183,7 @@ Meteor.methods ({
         });
         _(partida.listaCaminos).each(function(c){
             console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres);
-        }) */ 
+        }) 
         console.log("\n\n\n\n"); 
         };
         
