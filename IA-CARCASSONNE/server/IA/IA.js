@@ -553,7 +553,8 @@ Tablero.prototype.generarAreas = function(ficha,pos){
                     nuevoCamino.add(auxPdata); 
 					nuevoCamino.partida = this.partida;
                     this.partida.listaCaminos.push(nuevoCamino);  
-                    console.log("nuevoCamino contenido: " + nuevoCamino.content);                  
+                    console.log("nuevoCamino contenido: " + nuevoCamino.content);
+                    nuevoCamino.idFichas.push(ficha.numFicha);          
                 }
                 break;
             case 'c':
@@ -565,7 +566,8 @@ Tablero.prototype.generarAreas = function(ficha,pos){
                     nuevoCiudad.add(auxPdata);
 					nuevoCiudad.partida = this.partida;
                     this.partida.listaCiudades.push(nuevoCiudad);  
-                    console.log("nuevoCiudad contenido: " + nuevoCiudad.content);                  
+                    console.log("nuevoCiudad contenido: " + nuevoCiudad.content); 
+                    nuevoCiudad.idFichas.push(ficha.numFicha);             
                 }
                 break;
 			case 'm':
@@ -585,9 +587,9 @@ Tablero.prototype.generarAreas = function(ficha,pos){
 				break;
 		}   
     }
-	/*if (contieneCiudad){
+	if (contieneCiudad){
 		this.asignarCampoACiudad(ficha);
-	}*/
+	}
     console.log("el tamaño de listaCampos es: " + this.partida.listaCampos.length);
     console.log("el tamaño de listaCiudades es: " + this.partida.listaCiudades.length);
     console.log("el tamaño de listaCaminos es: " + this.partida.listaCaminos.length);
@@ -622,8 +624,15 @@ Tablero.prototype.asignarCaminoAFicha = function(idFicha,pdatoady,pdatoficha){
     	console.log("asignamos el pdato");
         camino.add(pdatoficha);
     }
+    //           *****************                ******************                **********************
+    //           *****************                ******************                **********************
+    //           *****************                ******************                **********************
+    //SI ENCONTRAMOS UN FALLO EN SEGUIDOR SABEMOS QUE ES PORQUE ESTA CONDICIÓN NO TIENE PORQUE HACER FALTA 
+    //           *****************                ******************                **********************
+    //           *****************                ******************                **********************
+    //           *****************                ******************                **********************
 	if(!_(camino.idFichas).contains(idFicha)){
-    	console.log("asignamos el pdato");
+    	console.log("9999999999999999999999999   el idFicha en camino: " + idFicha);
         camino.idFichas.push(idFicha);
     }
 }
@@ -642,8 +651,15 @@ Tablero.prototype.asignarCiudadAFicha = function(idFicha,escudo,pdatoady,pdatofi
         ciudad.add(pdatoficha);
 		if (escudo) ciudad.numEscudo++;
     }
+    //           *****************                ******************                **********************
+    //           *****************                ******************                **********************
+    //           *****************                ******************                **********************
+    //SI ENCONTRAMOS UN FALLO EN SEGUIDOR SABEMOS QUE ES PORQUE ESTA CONDICIÓN NO TIENE PORQUE HACER FALTA 
+    //           *****************                ******************                **********************
+    //           *****************                ******************                **********************
+    //           *****************                ******************                **********************
 	if(!_(ciudad.idFichas).contains(idFicha)){
-    	console.log("asignamos el pdato");
+    	console.log("9999999999999999999999999   el idFicha en ciudad: " + idFicha);
         ciudad.idFichas.push(idFicha);
     }
 }
@@ -999,7 +1015,7 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 	var objetoResumen;
 	console.log("-------------------- pos seguidor: " + posSeguidor + "idpropietarioes: " + IdPropietario);
 	console.log("++++++++++++++++++++ la ficha actual es: " + this.fichaActual);
-    if (posSeguidor && IdPropietario){ //se ha llamado a ponerSeguidor y se quiere poner un seguidor.
+    if (posSeguidor != undefined && IdPropietario != undefined){ //se ha llamado a ponerSeguidor y se quiere poner un seguidor.
         console.log("***********************************************************************************************************************");
 		success = false;
 		var  dato = this.fichaActual.dato[posSeguidor];
@@ -1033,6 +1049,10 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 			console.log("en ponerSeguidor de tablero: esta es la ficha en la que se pone: " + this.fichaActual.numFicha);
 			var seguidor = new Seguidor (posSeguidor,IdPropietario,this.fichaActual.numFicha);
 			area.ponerSeguidor (seguidor);
+			var jugad = _(this.partida.jugs).find(function(j){
+                return j.idJugador == IdPropietario;			
+			});
+			jugad.numSeguidores--;
 		}
 	}
 
@@ -1099,9 +1119,8 @@ Tablero.prototype.asignarCampoACiudad = function(ficha){
 
 
 var Partida = function(idPartida,jugs,numJugs){
-    
+    //ahora jugs es un array de objetos jugador...(lo que hablamos con PL) hay que parsear
     this.idPartida = idPartida;
-    console.log("he añadido la partida");
     addPartida(this);
     console.log("he añadido la partida");
     console.log("num partidas: " + partidas.length);
@@ -1115,8 +1134,7 @@ Partida.prototype.initialize = function(jugs,numJugs){
     this.listaCaminos = [];
     this.listaMonasterios = [];
     this.tablero = new Tablero(this);   
-    this.jugs = []
-    this.puntosJugs = [];
+    this.jugs = [];
     
     var idIA = 0;
     for (var i = 0; i<numJugs; i++){
@@ -1125,7 +1143,7 @@ Partida.prototype.initialize = function(jugs,numJugs){
             this.jugs [i] = jug;
             idIA ++;
         }else{
-            var jug = new Jugador (jugs[i]);
+            var jug = new Jugador (jugs[i].idJugador, jugs[i].nombreJugador);
             this.jugs[i] = jug;
         }
     }
@@ -1152,6 +1170,8 @@ Partida.prototype.finalizarPartida = function(){
     //actualizar en la base de datos los puntos de los jugadores
     //borrar la partida actual
     //hablar con plataforma
+    this.recuentoPuntosFinal();
+    //this.resumenPartida()
     console.log("partidas antes de finalizar: "+partidas.length);
     var p = partidas.splice(this.idPartida,1);
     console.log("la partida que se ha borrado es: " + p.idPartida);
@@ -1160,8 +1180,29 @@ Partida.prototype.finalizarPartida = function(){
     //llamar a plataforma y a IU
 }
 
-Partida.prototype.getPuntos = function(){
-    return this.puntosJugs;
+Partida.prototype.recuentoPuntosFinal = function(){
+    var ciudadesNoCerradas = _(this.listaCiudades).filter(function(c){
+        return !c.isClosed;
+    });
+    var caminosNoCerrados = _(this.listaCaminos).filter(function(r){
+        return !r.isClosed;
+    });
+    var monasteriosNoCerrados = _(this.listaMonasterios).filter(function(m){
+        return !m.isClosed;
+    });
+    //tenemos que hacer el metodo en partida para contar los puntos para acceder a los jugadores
+    _(this.listaCampos).each(function(f){
+        f.close();
+    });
+    _(ciudadesNoCerradas).each(function(c){
+        c.close();
+    });
+    _(caminosNoCerrados).each(function(r){
+        r.close();
+    });
+    _(monasteriosNoCerrados).each(function(m){
+        m.close();
+    });
 }
 
 
@@ -1179,6 +1220,7 @@ var Campo = function(idCampo){
     this.ciudadesIncluidas = [];
 	this.seguidores = [];
 	this.propSeguidores = [];
+	this.isClosed = false;
 }
 
 Campo.prototype.add = function(numSubcelda){
@@ -1234,6 +1276,14 @@ Campo.prototype.unificar = function (camposAIntegrar){
 Campo.prototype.ponerSeguidor = function (seguidor){
     this.propSeguidores.push(seguidor.idJugador);
 	this.seguidores.push(seguidor);
+}
+Campo.prototype.calcularPuntos = function(){
+    return 3 * this.ciudadesIncluidas.length;
+}
+
+//esto no creo que nos haga falta
+Campo.prototype.close = function(){
+ 	
 }
 
 //Campo.prototype.quitarSeguidor = function(idJugador){
@@ -1330,6 +1380,7 @@ Ciudad.prototype.calcularPuntos = function(){
 
 
 Ciudad.prototype.close = function(){
+    this.isClosed = true;
 	//devolver los seguidores a los jugadores correspondientes (¡***Y*AVISAR*A*IU***!)
 	_(this.camposAdyacentes).each (function(cA){
 		var campo = _(this.partida.listaCampos).find(function(c){
@@ -1342,35 +1393,47 @@ Ciudad.prototype.close = function(){
 		var puntos = this.calcularPuntos();
 		var dicNumSeg = _(this.propSeguidores).countBy (function(idJug){
 			for (i = 0; i<this.partida.jugs.length; i++){
-				if (idJug == this.partida.jugs[i]){
-					return "'" + idJug + "'";
+				if (idJug == this.partida.jugs[i].idJugador){
+				console.log("------------------------BBBBBBBBBBBBBBBBBBB    idjug " + idJug + "   this.partida.jugs[i].idJugador    " + this.partida.jugs[i].idJugador);
+					return ("#"+idJug);
 				}
 			}
 		},this);
+		
+		console.log("22222222222222222 los seguidores de la ciudad son: " + this.seguidores);
+		console.log("3333333333333333333333 el propietrario de lso seguidores es "+ this.propSeguidores)
 		var seguidoresJug = [];
 		console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm la partida es: " + this.partida);
-		_(this.partida.jugs).each(function(idjug){
-			var obj;
-			var numSeg = dicNumSeg ["'" + idjug + "'"];
-			if(numSeg && !_(seguidoresJug).any(function(j){ return j.id == idjug;})){
-				obj.id = idjug;
+		_(this.partida.jugs).each(function(jug){
+			var obj={};
+			console.log("rrrrrrrrrrrrrrrrrrrrrrr      diccionario con los seguidores es: " + dicNumSeg.toString());
+			var numSeg = dicNumSeg ["#"+jug.idJugador];
+			console.log("eeeeeeeeeee el numSeg es: " + numSeg)
+			if(numSeg && !_(seguidoresJug).any(function(j){ return j.id == jug.idJugador;})){
+				obj.id = jug.idJugador;
 				obj.cont = numSeg;
+				console.log("oooooooooooooooooooooooooooo   EXISTE obj??: "+ obj);
 				seguidoresJug.push(obj);
 			}
 		});
+		console.log("111111111111111111111111111111111111111       SeguidoresJug es: " + seguidoresJug);
 		var maxim = _(seguidoresJug).max(function(s){ return s.cont;});
+        console.log("00000000000000000000000          MAXIM ES: " + maxim);
 		seguidoresJug = _(seguidoresJug).filter(function(s){
 			return s.cont == maxim.cont;
 		});
-
+        console.log("------------------LOS PUNTOS SON: " + puntos)
 		_(seguidoresJug).each(function(s){
 			var jug = _(this.partida.jugs).find(function(j){
-				j.idJugador == s.id;			
+				return j.idJugador == s.id;
 			});
+			console.log("=================================== le sumamos los puntos al jugador: " + jug.idJugador);
 			jug.puntos += puntos;
 			jug.numSeguidores += s.cont;
-			
-		});
+		},this);
+		_(this.partida.jugs).each(function(j){
+		    console.log("$$$$$$$$$$$$$$$$      jugador: " + j.idJugador + " puntos: " + j.puntos );
+		})
 		_(this.seguidores).each(function(seg){
 			var cell = _(this.partida.tablero.cellSet).find(function(c){
 				return c.ficha.numFicha == seg.numFicha;
@@ -1466,25 +1529,27 @@ Camino.prototype.ponerSeguidor = function (seguidor){
 //}
 
 Camino.prototype.calcularPuntos = function(){
+    console.log("kkkkkkkkkkkkkkkkkkkkkkkkk       el idfichas es: " + this.idFichas);
 	return this.idFichas.length; 
 }
 
 Camino.prototype.close = function(){
+    this.isClosed = true;
 	if(this.propSeguidores.length != 0){
 		var puntos = this.calcularPuntos();
 		var dicNumSeg = _(this.propSeguidores).countBy (function(idJug){
 			for (i = 0; i<this.partida.jugs.length; i++){
-				if (idJug == this.partida.jugs[i]){
+				if (idJug == this.partida.jugs[i].idJugador){
 					return "'" + idJug + "'";
 				}
 			}
 		},this);
 		var seguidoresJug = [];
-		_(this.partida.jugs).each(function(idjug){
+		_(this.partida.jugs).each(function(jug){
 			var obj = {};
-			var numSeg = dicNumSeg ["'" + idjug + "'"];
-			if(numSeg && !_(seguidoresJug).any(function(j){ return j.id == idjug;})){
-				obj.id = idjug;
+			var numSeg = dicNumSeg ["'" + jug.idJugador + "'"];
+			if(numSeg && !_(seguidoresJug).any(function(j){ return j.id == jug.idJugador;})){
+				obj.id = jug.idJugador;
 				obj.cont = numSeg;
 				seguidoresJug.push(obj);
 			}
@@ -1499,7 +1564,7 @@ Camino.prototype.close = function(){
 		    
 			var jug = _(this.partida.jugs).find(function(j){
 			    console.log("************ idJugador: " + j.idJugador);
-				j.idJugador == s.id;			
+				return j.idJugador == s.id;			
 			});
 			jug.puntos += puntos;
 			jug.numSeguidores += s.cont;
@@ -1565,10 +1630,17 @@ Monasterio.prototype.updateAdyacentes = function(pos){
 	} 
 }
 
+//Hay que cambiar este metodo para que tenga en cuenta los no cerrados.
+Monasterio.prototype.calcularPuntos = function(){
+    return 9;
+}
+
 Monasterio.prototype.close = function(){
 	//aqui se hará el recuento de puntos.
+	this.isClosed = true;
 	if (this.propSeguidores.length > 0){ //si hay alguien a quien dar puntos.
-		var puntos = 9;
+		//var puntos = 9;
+		var puntos = this.calcularPuntos();
 		var jugador = _(this.partida.jugs).find(function(jug){
 			return jug.idJugador == this.propSeguidores[0];
 		});
@@ -1630,7 +1702,7 @@ ObjetoResumen.prototype.dameResumen = function(){
 //*************************************************************************
 
 //el jugador real.
-var Jugador = function(idJugador){
+var Jugador = function(idJugador, nombreJugador){
     this.idJugador = idJugador;
     this.campos = [];
     this.ciudades = [];
@@ -1638,6 +1710,7 @@ var Jugador = function(idJugador){
     this.monasterios = [];
     this.puntos = 0;
 	this.numSeguidores = 7;
+	this.nombre = nombreJugador;
 }
 
 

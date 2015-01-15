@@ -4,7 +4,7 @@ var partidaPrueba;
 
 //generamos una partida para que el cliente pueda probar la interfaz sin problemas de sincronía
 console.log("server: voy a generar una partida");
-generarPartida(0,[1,2,3],3);
+generarPartida(0,[{idJugador:1,nombreJugador:'a'},{idJugador:2,nombreJugador:'b'},{idJugador:3,nombreJugador:'c'}],3);
 console.log("server: he generado la partida");
 
 /*
@@ -86,15 +86,21 @@ Meteor.methods ({
             console.log("se ha puesto seguidor en a ficha 1");
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
-            console.log("campo" + c.idCampo + ":" + c.content);
+            console.log("campo" + c.id + ":" + c.content);
         });
         _(partida.listaCiudades).each(function(c){
-            console.log("ciudad" + c.idCiudad + ":" + c.content);
+            console.log("ciudad" + c.id + ":" + c.content + " id fichas: " + c.idFichas);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content);
+            console.log("camino" + c.id + ":" + c.content + " id fichas: " + c.idFichas);
         }) 
-
+        
+        console.log("##################### RESUMEN DE PUNTOS ######################");
+        _(partida.jugs).each(function(j){
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
+            }) 
+        
             partida.tablero.fichaActual = ficha2;
             console.log("se va a poner la ficha2");
             success = partida.tablero.ponerFicha({x:48,y:50},0);
@@ -111,9 +117,15 @@ Meteor.methods ({
             console.log("ciudad" + c.idCiudad + ":" + c.content);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content);
+            console.log("camino" + c.idCamino + ":" + c.content + "idFichas: " + c.idFichas);
         }) 
         console.log("\n\n\n\n"); 
+         console.log("##################### RESUMEN DE PUNTOS ######################");
+        _(partida.jugs).each(function(j){
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
+            }) 
+   
             partida.tablero.fichaActual = ficha3;
             console.log("se va a poner la ficha3");
             success = partida.tablero.ponerFicha({x:48,y:51},0);
@@ -130,15 +142,21 @@ Meteor.methods ({
             console.log("ciudad" + c.idCiudad + ":" + c.content);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content);
+            console.log("camino" + c.idCamino + ":" + c.content + "idFichas: " + c.idFichas);
         }) 
         console.log("\n\n\n\n"); 
+         console.log("##################### RESUMEN DE PUNTOS ######################");
+        _(partida.jugs).each(function(j){
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
+            }) 
+   
             partida.tablero.fichaActual = ficha4;
             console.log("se va a poner la ficha4");
             success = partida.tablero.ponerFicha({x:49,y:51},0);
             console.log("se ha puesto la ficha4");
             
-            partida.tablero.ponerSeguidor();
+            partida.tablero.ponerSeguidor(1,1);
             console.log("no se ha puesto seguidor en a ficha 4");
             
         console.log("\n\n\n\n"); 
@@ -149,28 +167,40 @@ Meteor.methods ({
             console.log("ciudad" + c.idCiudad + ":" + c.content);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content);
+            console.log("camino" + c.idCamino + ":" + c.content + "idFichas: " + c.idFichas);
         }) 
         console.log("\n\n\n\n"); 
+         console.log("##################### RESUMEN DE PUNTOS ######################");
+        _(partida.jugs).each(function(j){
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
+            }) 
+        
             partida.tablero.fichaActual = ficha5;
             console.log("se va a poner la ficha5");
             success = partida.tablero.ponerFicha({x:50,y:51},0);
             console.log("se ha puesto la ficha5");
             
-            partida.tablero.ponerSeguidor();
-            console.log("no se ha puesto seguidor en a ficha 5");
+            partida.tablero.ponerSeguidor(0,2);
+            console.log("se ha puesto seguidor en a ficha 5");
             
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.idCampo + ":" + c.content);
         });
         _(partida.listaCiudades).each(function(c){
-            console.log("ciudad" + c.idCiudad + ":" + c.content);
+            console.log("ciudad" + c.id + ":" + c.content + "ladoslibres: " + c.ladosLibres + " CAMPOS DE CIUDAD: " + c.camposAdyacentes);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content);
-        }) 
+            console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres + "idFichas: " + c.idFichas);
+        })  
         console.log("\n\n\n\n"); 
+         console.log("##################### RESUMEN DE PUNTOS ######################");
+        _(partida.jugs).each(function(j){
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
+            }) 
+      
             partida.tablero.fichaActual = ficha6;
             console.log("se va a poner la ficha6");
             success = partida.tablero.ponerFicha({x:50,y:50},0);
@@ -183,12 +213,18 @@ Meteor.methods ({
             console.log("campo" + c.idCampo + ":" + c.content);
         });
         _(partida.listaCiudades).each(function(c){
-            console.log("ciudad" + c.idCiudad + ":" + c.content);
+            console.log("ciudad" + c.id + ":" + c.content + "ladoslibres: " + c.ladosLibres + " CAMPOS DE CIUDAD: " + c.camposAdyacentes);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content);
-        }) 
+            console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres + "idFichas: " + c.idFichas );
+        })  
         console.log("\n\n\n\n"); 
+         console.log("##################### RESUMEN DE PUNTOS ######################");
+        _(partida.jugs).each(function(j){
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
+            }) 
+        
             partida.tablero.fichaActual = fichaPoner;
             console.log("se va a poner la ficha7");
             success = partida.tablero.ponerFicha({x:49,y:50},0);
@@ -202,12 +238,18 @@ Meteor.methods ({
             console.log("campo" + c.idCampo + ":" + c.content);
         });
         _(partida.listaCiudades).each(function(c){
-            console.log("ciudad" + c.idCiudad + ":" + c.content);
+            console.log("ciudad" + c.id + ":" + c.content + "ladoslibres: " + c.ladosLibres + " CAMPOS DE CIUDAD: " + c.camposAdyacentes);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content );
+            console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres + "idFichas: " + c.idFichas);
         })  
         console.log("\n\n\n\n");  
+         console.log("##################### RESUMEN DE PUNTOS ######################");
+        _(partida.jugs).each(function(j){
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
+            }) 
+       
             partida.tablero.fichaActual = fichaCiudad;
             console.log("se va a poner la ficha8");
             success = partida.tablero.ponerFicha({x:50,y:49},0);
@@ -224,9 +266,17 @@ Meteor.methods ({
             console.log("ciudad" + c.id + ":" + c.content + "ladoslibres: " + c.ladosLibres + " CAMPOS DE CIUDAD: " + c.camposAdyacentes);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres);
+            console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres + "idFichas: " + c.idFichas);
         }) 
-        console.log("\n\n\n\n"); 
+        console.log("\n\n\n\n");
+        
+        console.log("##################### RESUMEN DE PUNTOS ######################");
+        _(partida.jugs).each(function(j){
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
+            }) 
+            
+        partida.
         };
         
     },
@@ -322,6 +372,10 @@ Meteor.methods ({
         //var partidas = getTodasLasPartidas();
         console.log("tiene que dar 0 porque se ha borrado la partida: " + partidas.length);
     },
+    
+    generarPartidaPL: function(objetoPartidaPL){
+        generarPartida(objetoPartidaPL.idPartida, objetoPartidaPL.arrayJugadores, objetoPartidaPL.numJugadores);
+    }
 
 });
 
