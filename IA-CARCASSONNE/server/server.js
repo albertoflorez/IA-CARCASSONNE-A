@@ -25,42 +25,54 @@ Meteor.methods ({
         var ficha1 = {
                         dato: ['f','f','f','f','r','f','f','f','f','f','r','f', 'r'],
 	                    pdato: [3,3,3,3,2,4,4,4,4,4,2,3, 2],
-                        aplicarGiro: function(){}
+                        aplicarGiro: function(){},
+                        numFicha: 2
                      }
         var ficha2 = {
                         dato: ['f','f','f','f','r','f','f','r','f','f','f','f', 'r'],
 	                    pdato: [5,5,5,5,3,6,6,3,5,5,5,5, 3],
-                        aplicarGiro: function(){}
+                        aplicarGiro: function(){},
+                        numFicha: 3
                      }
         var ficha3 = {
                         dato: ['f','r','f','f','r','f','c','c','c','f','r','f', 'x'],
 	                    pdato: [7,4,8,8,5,9,2,2,2,9,6,7, 1],
-                        aplicarGiro: function(){}
+                        aplicarGiro: function(){},
+                        numFicha: 4,
+                        escudo: false
                      }
         var ficha4 = {
                         dato: ['f','r','f','f','r','f','f','r','f','f','r','f', 'x'],
 	                    pdato: [10,7,11,11,8,12,12,9,13,13,10,10, 2],
-                        aplicarGiro: function(){}
+                        aplicarGiro: function(){},
+                        numFicha: 5
                      }
         var ficha5 = {
                         dato: ['f','f','f','f','f','f','f','f','f','f','r','f', 'm'],
 	                    pdato: [14,14,14,14,14,14,14,14,14,14,11,14, 1],
-                        aplicarGiro: function(){}
+                        aplicarGiro: function(){},
+                        numFicha: 6
                      }
         var ficha6 = {
                         dato:  ['c','c','c','f','f','f','f','f','f','c','c','c', 'f'],
 	                    pdato: [3,3,3,15,15,15,15,15,15,3,3,3, 15],
-                        aplicarGiro: function(){}
+                        aplicarGiro: function(){},
+                        numFicha: 7,
+                        escudo: false
                      }
         var fichaPoner = {
                         dato:  ['f','f','f','c','c','c','f','r','f','f','r','f', 'r'],
 	                    pdato: [16, 16, 16,  4,  4,  4,  16, 12, 17, 17, 12, 16,  12],
-                        aplicarGiro: function(){}
+                        aplicarGiro: function(){},
+                        numFicha: 8,
+                        escudo: false
                      }
         var fichaCiudad = {
                         dato:  ['f','f','f','f','r','f','c','c','c','f','r','f', 'r'],
 	                    pdato: [18,  18, 18, 18, 13, 19, 5,  5,  5,  19, 13, 18, 13],
-                        aplicarGiro: function(){}
+                        aplicarGiro: function(){},
+                        numFicha: 9,
+                        escudo: false
                      }
         console.log("se han generado las fichas.");
         var partida = getPartida(idPartida);
@@ -69,6 +81,9 @@ Meteor.methods ({
             console.log("se va a poner la ficha1");
             success = partida.tablero.ponerFicha({x:48,y:49},0);
             console.log("se ha puesto la ficha1");
+            
+            partida.tablero.ponerSeguidor(6,1);
+            console.log("se ha puesto seguidor en a ficha 1");
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.idCampo + ":" + c.content);
@@ -84,6 +99,10 @@ Meteor.methods ({
             console.log("se va a poner la ficha2");
             success = partida.tablero.ponerFicha({x:48,y:50},0);
             console.log("se ha puesto la ficha2");
+            
+            partida.tablero.ponerSeguidor(4,2);
+            console.log("se ha puesto seguidor en a ficha 2");
+            
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.idCampo + ":" + c.content);
@@ -99,6 +118,10 @@ Meteor.methods ({
             console.log("se va a poner la ficha3");
             success = partida.tablero.ponerFicha({x:48,y:51},0);
             console.log("se ha puesto la ficha3");
+            
+            partida.tablero.ponerSeguidor();
+            console.log("no se ha puesto seguidor en a ficha 3");
+            
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.idCampo + ":" + c.content);
@@ -114,6 +137,10 @@ Meteor.methods ({
             console.log("se va a poner la ficha4");
             success = partida.tablero.ponerFicha({x:49,y:51},0);
             console.log("se ha puesto la ficha4");
+            
+            partida.tablero.ponerSeguidor();
+            console.log("no se ha puesto seguidor en a ficha 4");
+            
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.idCampo + ":" + c.content);
@@ -129,51 +156,66 @@ Meteor.methods ({
             console.log("se va a poner la ficha5");
             success = partida.tablero.ponerFicha({x:50,y:51},0);
             console.log("se ha puesto la ficha5");
+            
+            partida.tablero.ponerSeguidor();
+            console.log("no se ha puesto seguidor en a ficha 5");
+            
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.idCampo + ":" + c.content);
         });
         _(partida.listaCiudades).each(function(c){
-            console.log("ciudad" + c.idCiudad + ":" + c.content);
+            console.log("ciudad" + c.id + ":" + c.content + "ladoslibres: " + c.ladosLibres + " CAMPOS DE CIUDAD: " + c.camposAdyacentes);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content);
-        }) 
+            console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres);
+        })  
         console.log("\n\n\n\n"); 
             partida.tablero.fichaActual = ficha6;
             console.log("se va a poner la ficha6");
             success = partida.tablero.ponerFicha({x:50,y:50},0);
             console.log("se ha puesto la ficha6");
+            
+            partida.tablero.ponerSeguidor(1,3);
+            console.log("se ha puesto seguidor en a ficha 6");
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.idCampo + ":" + c.content);
         });
         _(partida.listaCiudades).each(function(c){
-            console.log("ciudad" + c.idCiudad + ":" + c.content);
+            console.log("ciudad" + c.id + ":" + c.content + "ladoslibres: " + c.ladosLibres + " CAMPOS DE CIUDAD: " + c.camposAdyacentes);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content);
-        }) 
+            console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres);
+        })  
         console.log("\n\n\n\n"); 
             partida.tablero.fichaActual = fichaPoner;
             console.log("se va a poner la ficha7");
             success = partida.tablero.ponerFicha({x:49,y:50},0);
             console.log("se ha puesto la ficha7");
+            
+            partida.tablero.ponerSeguidor();
+            console.log("no se ha puesto seguidor en a ficha 7");
+            
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.idCampo + ":" + c.content);
         });
         _(partida.listaCiudades).each(function(c){
-            console.log("ciudad" + c.idCiudad + ":" + c.content);
+            console.log("ciudad" + c.id + ":" + c.content + "ladoslibres: " + c.ladosLibres + " CAMPOS DE CIUDAD: " + c.camposAdyacentes);
         });
         _(partida.listaCaminos).each(function(c){
-            console.log("camino" + c.idCamino + ":" + c.content );
+            console.log("camino" + c.id + ":" + c.content  + "ladoslibres: " + c.ladosLibres);
         })  
         console.log("\n\n\n\n");  
             partida.tablero.fichaActual = fichaCiudad;
             console.log("se va a poner la ficha8");
             success = partida.tablero.ponerFicha({x:50,y:49},0);
             console.log("se ha puesto la ficha8");
+            
+            partida.tablero.ponerSeguidor();
+            console.log("no se ha puesto seguidor en a ficha 8");
+            
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
             console.log("campo" + c.id + ":" + c.content);
