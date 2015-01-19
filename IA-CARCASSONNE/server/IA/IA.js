@@ -1111,6 +1111,23 @@ Tablero.prototype.asignarCampoACiudad = function(ficha){
 	},this);
 }
 
+Tablero.prototype.recuentoPuntosCampo = function(){	
+	_(this.partida.jugs).each(function(j){
+		_(this.partida.listaCampos).each(function(f){
+			if (_(f.jugsConPuntos).contains (j.idJugador)){
+				j.ciudadesIncluidas.push(f.ciudadesIncluidas);
+			}
+		});
+	},this);
+	_(this.partida.jugs).each(function(j){
+		if (j.ciudadesIncluidas.length!=0){
+			_(j.ciudadesIncluidas).flatten();
+			_(j.ciudadesIncluidas).uniq();
+			var puntos = 3 * j.ciudadesIncluidas.length;
+		}
+	});
+}
+
 //*************************************************************************
 //*                                                                       *
 //*                              PARTIDA                                  *
@@ -1180,6 +1197,8 @@ Partida.prototype.finalizarPartida = function(){
     //llamar a plataforma y a IU
 }
 
+
+
 Partida.prototype.recuentoPuntosFinal = function(){
     var ciudadesNoCerradas = _(this.listaCiudades).filter(function(c){
         return !c.isClosed;
@@ -1190,10 +1209,14 @@ Partida.prototype.recuentoPuntosFinal = function(){
     var monasteriosNoCerrados = _(this.listaMonasterios).filter(function(m){
         return !m.isClosed;
     });
+
     //tenemos que hacer el metodo en partida para contar los puntos para acceder a los jugadores
-    _(this.listaCampos).each(function(f){
-        f.close();
-    });
+	_(this.listaCampos).each(function(f){
+		f.close();
+	});
+
+    this.tablero.recuentoPuntosCampos();
+
     _(ciudadesNoCerradas).each(function(c){
         c.close();
     });
@@ -1221,6 +1244,7 @@ var Campo = function(idCampo){
 	this.seguidores = [];
 	this.propSeguidores = [];
 	this.isClosed = false;
+	this.jugsConPuntos = [];
 }
 
 Campo.prototype.add = function(numSubcelda){
@@ -1283,7 +1307,42 @@ Campo.prototype.calcularPuntos = function(){
 
 //esto no creo que nos haga falta
 Campo.prototype.close = function(){
- 	
+ 	if(this.propSeguidores.length != 0){
+		var dicNumSeg = _(this.propSeguidores).countBy (function(idJug){
+			for (i = 0; i<this.partida.jugs.length; i++){
+				if (idJug == this.partida.jugs[i].idJugador){
+				console.log("------------------------BBBBBBBBBBBBBBBBBBB    idjug " + idJug + "   this.partida.jugs[i].idJugador    " + this.partida.jugs[i].idJugador);
+					return ("#"+idJug);
+				}
+			}
+		},this);
+		
+		console.log("22222222222222222 los seguidores de la ciudad son: " + this.seguidores);
+		console.log("3333333333333333333333 el propietrario de lso seguidores es "+ this.propSeguidores)
+		var seguidoresJug = [];
+		
+		_(this.partida.jugs).each(function(jug){
+			var obj={};
+			console.log("rrrrrrrrrrrrrrrrrrrrrrr      diccionario con los seguidores es: " + dicNumSeg.toString());
+			var numSeg = dicNumSeg ["#"+jug.idJugador];
+			console.log("eeeeeeeeeee el numSeg es: " + numSeg)
+			if(numSeg && !_(seguidoresJug).any(function(j){ return j.id == jug.idJugador;})){
+				obj.id = jug.idJugador;
+				obj.cont = numSeg;
+				console.log("oooooooooooooooooooooooooooo   EXISTE obj??: "+ obj);
+				seguidoresJug.push(obj);
+			}
+		});
+		console.log("111111111111111111111111111111111111111       SeguidoresJug es: " + seguidoresJug);
+		var maxim = _(seguidoresJug).max(function(s){ return s.cont;});
+        console.log("00000000000000000000000          MAXIM ES: " + maxim);
+		seguidoresJug = _(seguidoresJug).filter(function(s){
+			return s.cont == maxim.cont;
+		});
+		//almacenamos en jugsConPUntos los ids de los jugadores que se van a llevar puntos.
+		_(seguidoresJug).each(function(s){
+			this.jugsConPuntos.push (s.id);
+		});
 }
 
 //Campo.prototype.quitarSeguidor = function(idJugador){
