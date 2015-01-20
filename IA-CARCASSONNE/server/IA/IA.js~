@@ -1009,10 +1009,8 @@ Tablero.prototype.ponerFicha = function(pos, giro){
 	return (posicionValida) ? this.put(this.fichaActual,pos) : posicionValida;
 }
 
-Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
+Tablero.prototype.ponerSeguidorJugador = function(poSeguidor, IdPropietario){
 	var success = true;
-	var idSiguiente;
-	var objetoResumen;
 	console.log("-------------------- pos seguidor: " + posSeguidor + "idpropietarioes: " + IdPropietario);
 	console.log("++++++++++++++++++++ la ficha actual es: " + this.fichaActual);
     if (posSeguidor != undefined && IdPropietario != undefined){ //se ha llamado a ponerSeguidor y se quiere poner un seguidor.
@@ -1055,27 +1053,35 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 			jugad.numSeguidores--;
 		}
 	}
+	return success;
+}
 
+Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
+	var objetoResumen = [];
+	var success = this.ponerSeguidorJugador(posSeguidor,IdPropietario);
 	if (success){
 		this.completarAreas(this.fichaActual,this.posFull[this.posFull.length - 1]); //preguntar. Yo creo que esta condicion no es valida. Se debe llamar siempre.
-
-		if(this.partida.pasarTurno()){
-			idSiguiente = this.partida.getJugadorActual();
-			this.objetoResumen.cambiarIdJug(idSiguiente)
-		}else{
-			//gestionar fin de partida
+		this.partida.pasarTurno();
+		var siguienteJugador = this.partida.getJugadorActual();
+		if(siguienteJugador){
+			this.objetoResumen.cambiarIdJug(siguienteJugador.idJugador)
+			objetoResumen.push(this.objetoResumen.dameResumen());
+			while( _(siguienteJugador.idJugador).isNumber() ){
+				var jugadorIA = this.partida.getJugadorActual();
+				jugadorIA.playTurn();
+				objetoResumen.push(this.objetoResumen);
+				this.partida.pasarTurno();
+				siguienteJugador = this.partida.getJugadorActual();
+			}
 		}
-		objetoResumen = this.objetoResumen.dameResumen();
-		this.objetoResumen = new ObjetoResumen();
 	}
-	
 	return [success, objetoResumen];
-	
 }
 
 
 Tablero.prototype.dameFicha = function(){
 	this.fichaActual = this.mazo.dameFichaMazo();
+	this.objetoResumen = new ObjetoResumen();
     //console.log("la ficha actual en tablero.dameficha es: "+ this.fichaActual.numFicha);
 	return this.fichaActual;
 }
@@ -1120,7 +1126,11 @@ Tablero.prototype.recuentoPuntosCampo = function(){
 		});
 	},this);
 	_(this.partida.jugs).each(function(j){
-
+		if (j.ciudadesIncluidas.length!=0){
+			_(j.ciudadesIncluidas).flatten();
+			_(j.ciudadesIncluidas).uniq();
+			var puntos = 3 * j.ciudadesIncluidas.length;
+		}
 	});
 }
 
@@ -1166,12 +1176,12 @@ Partida.prototype.initialize = function(jugs,numJugs){
 
 //aqui devuelvo el jugador que tiene el turno
 Partida.prototype.getJugadorActual = function(){
-    return this.jugs[this.turno];
+    return (this.turno) ? this.jugs[this.turno] : this.turno;
 }
 
 Partida.prototype.pasarTurno = function(){
     if(this.tablero.mazo.data.length == 0){
-        this.finalizarPartida();
+        this.turno = null;
         return false;
     }else{
         this.turno = (this.turno + 1 > this.jugs.length -1) ? 0 : this.turno +1;
@@ -1184,13 +1194,17 @@ Partida.prototype.finalizarPartida = function(){
     //borrar la partida actual
     //hablar con plataforma
     this.recuentoPuntosFinal();
-    //this.resumenPartida()
+	
+	var objFinal = this.crearObjetoFinal();
+    
+	//this.resumenPartida()
     console.log("partidas antes de finalizar: "+partidas.length);
     var p = partidas.splice(this.idPartida,1);
     console.log("la partida que se ha borrado es: " + p.idPartida);
     console.log("partidas despues de finalizar: "+partidas.length);
     //return this.getPuntos();
     //llamar a plataforma y a IU
+	return objFinal;
 }
 
 
@@ -1224,7 +1238,13 @@ Partida.prototype.recuentoPuntosFinal = function(){
     });
 }
 
-
+Partida.prototype.crearObjetoFinal = function(){
+	var objFinal = [];
+	_(this.jugs).each(function(j){
+		objFinal.push({nombre: j.nombre, puntos: j.puntos});
+	});
+	return objFinal;
+}
 
 //*************************************************************************
 //*                                                                       *
@@ -1752,6 +1772,25 @@ ObjetoResumen.prototype.dameResumen = function(){
 
 //*************************************************************************
 //*                                                                       *
+//*                             OBJETO RESUMEN IA                         *
+//*                                                                       *
+//*************************************************************************
+
+var ObjetoResumenIA = function(){
+	this.fichaPuesta = [];
+}
+ObjetoResumenIA.prototype = new ObjetoResumen;
+
+ObjetoResumenIA.prototype.addFicha = function(ficha, pos, giro){
+	this.fichaPuesta.push({tipo: ficha.tipo, escudo: ficha.escudo, numFicha: ficha.numFicha, giro: giro});
+	this.fichaPuesta.push(pos);
+}
+ObjetoResumenIA.prototype.addSeguidor = function(cuadrante){
+	this.fichaPuesta.push(cuadrante);	
+}
+
+//*************************************************************************
+//*                                                                       *
 //*                              JUGADORES                                *
 //*                                                                       *
 //*************************************************************************
@@ -1797,11 +1836,14 @@ var IAPlayer = function(idIA){
 IAPlayer.prototype = new Jugador();
 
 IAPlayer.prototype.playTurn = function(){
+	this.partida.tablero.objetoResumen = new ObjetoResumenIA();
 	//Aquí jugara su turno la IA. Se la llamará desde partida.
-	this.partida.tablero.dameFicha(); //se almacena en tablero.fichaActual.
+	var ficha = this.partida.tablero.dameFicha(); //se almacena en tablero.fichaActual.
 	var posFree = this.partida.tablero.posFree;
 	var giro = 0;
+	var p;
 	var success = false;
+	var posSeguidor = -1;
 	//va probando en las posiciones libres con un giro inicial de 0, si no ha encajado en ninguna, se cambia el giro
 	//y se vuelve a probar en todas hasta que encaje. Esto es hasta que se hagan 3 giros. 
 	while (!success && giro<4){
@@ -1814,6 +1856,7 @@ IAPlayer.prototype.playTurn = function(){
 		}while(!success && i_next != i);
 		giro ++;
 	}
+	this.partida.tablero.objetoResumen.addFicha(ficha, p, giro){
 	// aqui se ve si se quiere poner seguidor o no, y se hacen los intentos para ponerlo
 	var probPonerS = this.numSeguidores*(1/7);
 	if(Math.random() < probPonerS){
@@ -1822,16 +1865,18 @@ IAPlayer.prototype.playTurn = function(){
 		var posAProbar = _.range(0,12);
 		while (!success && i > 0){
 			var aux = Math.floor (Math.random() * (posAProbar.length - 1) );
-			success = this.partida.tablero.ponerSeguidor(posAProbar[aux],this.idJugador);
+			success = this.partida.tablero.ponerSeguidorJugador(posAProbar[aux],this.idJugador);
 			if(!success){
 				posAProbar.splice(aux,1);
+			}else{
+				posSeguidor = posAProbar[aux]
 			}
 			i--;
 		}
 	}else{
-		this.partida.tablero.ponerSeguidor();
+		this.partida.tablero.ponerSeguidorJugador();
 	}
-	this.partida.pasarTurno();
+	this.partida.tablero.objetoResumen.addSeguidor(posSeguidor){
 	//Ahora partida habrá cambiado el turno y le tocará al jugador correspondiente que podría 
 	//ser otra IA perfectamente.
 }

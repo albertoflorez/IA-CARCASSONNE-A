@@ -370,17 +370,19 @@ Meteor.methods ({
         return result;       
     },
 
+    generarPartidaPL: function(objetoPartidaPL){
+        generarPartida(objetoPartidaPL.idPartida, objetoPartidaPL.arrayJugadores, objetoPartidaPL.numJugadores);
+    },
+
 
     finalizarPartida: function(id_partida){ 
         var partida = getPartida(id_partida);
-        partida.finalizarPartida();
+        var objFinal = partida.finalizarPartida();
         //var partidas = getTodasLasPartidas();
         console.log("tiene que dar 0 porque se ha borrado la partida: " + partidas.length);
+		return objFinal;
     },
     
-    generarPartidaPL: function(objetoPartidaPL){
-        generarPartida(objetoPartidaPL.idPartida, objetoPartidaPL.arrayJugadores, objetoPartidaPL.numJugadores);
-    }
 
 });
 

@@ -276,7 +276,12 @@ Meteor.methods ({
                 console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
             }) 
             
-        partida.
+        partida.recuentoPuntosFinal();
+        console.log("##################### RESUMEN FINAL!!!!!! DE PUNTOS ######################");
+        _(partida.jugs).each(function(j){
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
+                console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
+            })
         };
         
     },
