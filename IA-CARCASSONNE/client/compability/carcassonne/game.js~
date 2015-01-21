@@ -100,7 +100,7 @@ var play = function (){
 */
 
 
-    Meteor.call("probarPropagacionDePdato",0,function(error)){
+    Meteor.call("probarPropagacionDePdato",0,function(error){
         if(error){
                 console.log("error al probar propagacion del pdato");
             }else{
