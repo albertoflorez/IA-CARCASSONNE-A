@@ -4,7 +4,7 @@ var partidaPrueba;
 
 //generamos una partida para que el cliente pueda probar la interfaz sin problemas de sincronía
 console.log("server: voy a generar una partida");
-generarPartida(0,[{idJugador:"J",nombreJugador:'a'},{idJugador:"A",nombreJugador:'b'}],3);
+generarPartida(0,[{idJugador:"J",nombreJugador:'a'},{idJugador:"A",nombreJugador:'b'}],4);
 console.log("server: he generado la partida");
 
 //nosotros no podemos comprobar si el usuario que ha hecho la llamada es el que está jugando así que devolvemos 

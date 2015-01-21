@@ -489,7 +489,9 @@ Tablero.prototype.put = function (ficha,pos){
     console.log("ficha act (dato): " + ficha.dato);
     console.log("ficha act (pdato): " + ficha.pdato);
     if(this.encaja(ficha,pos)){
-		if(!this.objetoResumen){
+		if ( !_(this.partida.getJugadorActual().idJugador).isNumber() ){
+		    console.log("oooooooooooooooooooooooooooooooooooooooooooooo                ESTOY CREANDO UN OBJETORESUMEN!!!!!!!");
+		    console.log("idJugadorActual: " + this.partida.getJugadorActual().idJugador);
 			this.objetoResumen = new ObjetoResumen();
 		}
     	console.log("la ficha encaja! y se añade al tablero");
@@ -1035,8 +1037,8 @@ Tablero.prototype.ponerSeguidorJugador = function(posSeguidor, IdPropietario){
 				},this);
 				break;
     	}
-    	console.log("area: " + area + "  cuantos seguidores hay en ese area: " + area.propSeguidores.length);
 		if (area && area.propSeguidores.length == 0){ //para que no se pueda poner en un cruce.
+		    console.log("area: " + area + "  cuantos seguidores hay en ese area: " + area.propSeguidores.length);
 			success = true;
 			console.log("en ponerSeguidor de tablero: esta es la ficha en la que se pone: " + this.fichaActual.numFicha);
 			var seguidor = new Seguidor (posSeguidor,IdPropietario,this.fichaActual.numFicha);
@@ -1047,6 +1049,7 @@ Tablero.prototype.ponerSeguidorJugador = function(posSeguidor, IdPropietario){
 			jugad.numSeguidores--;
 		}
 	}
+	console.log("SE HA PUESTO SEGUIDOR?????????:       " + success);
 	return success;
 }
 
@@ -1086,7 +1089,6 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 
 Tablero.prototype.dameFicha = function(){
 	this.fichaActual = this.mazo.dameFichaMazo();
-	this.objetoResumen = new ObjetoResumen();
     //console.log("la ficha actual en tablero.dameficha es: "+ this.fichaActual.numFicha);
 	return this.fichaActual;
 }
@@ -1142,9 +1144,9 @@ Tablero.prototype.recuentoPuntosCampos = function(){
 			j.ciudadesIncluidas = _(j.ciudadesIncluidas).uniq();
 			console.log("{[]}{[]}{[]}{[]}{[]}¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?{[]}{[]}{[]}{[]}{[]} pos-uniq  "+ j.ciudadesIncluidas + "longitud  "+ j.ciudadesIncluidas.length);
 			var puntos = 3 * j.ciudadesIncluidas.length;
-			console.log("{[]}{[]}{[]}{[]}{[]}¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?{[]}{[]}{[]}{[]}{[]} los putos puntos son  "+ puntos);
+			console.log("{[]}{[]}{[]}{[]}{[]}¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?{[]}{[]}{[]}{[]}{[]} los  puntos son  "+ puntos);
 			j.puntos += puntos;
-			console.log("{[]}{[]}{[]}{[]}{[]}¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?{[]}{[]}{[]}{[]}{[]} los putos puntos son  "+ j.puntos);
+			console.log("{[]}{[]}{[]}{[]}{[]}¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?¿?{[]}{[]}{[]}{[]}{[]} los  puntos son  "+ j.puntos);
 		}
 	});
 }
@@ -1239,9 +1241,10 @@ Partida.prototype.finalizarPartida = function(){
     
 	//this.resumenPartida()
     console.log("partidas antes de finalizar: "+partidas.length);
-    var p = partidas.splice(this.idPartida,1);
-    console.log("la partida que se ha borrado es: " + p.idPartida);
-    console.log("partidas despues de finalizar: "+partidas.length);
+    //var p = partidas.splice(this.idPartida,1);
+    borrarPartida(this.idPartida);
+    //console.log("la partida que se ha borrado es: " + p.idPartida);
+    //console.log("partidas despues de finalizar: "+partidas.length);
     //return this.getPuntos();
     //llamar a plataforma y a IU
 	return objFinal;
@@ -1269,12 +1272,15 @@ Partida.prototype.recuentoPuntosFinal = function(){
 
     _(ciudadesNoCerradas).each(function(c){
         c.close();
+        console.log("%%%%%%%%%%%se ha cerrado la ciudad con pdato: " + c.id);
     });
     _(caminosNoCerrados).each(function(r){
         r.close();
+        console.log("%%%%%%%%%%%se ha cerrado el camino con pdato: " + r.id);
     });
     _(monasteriosNoCerrados).each(function(m){
         m.close();
+        console.log("%%%%%%%%%%%se ha cerrado el monasterio con pdato: " + m.id);
     });
 }
 //__________________________
@@ -1897,8 +1903,34 @@ IAPlayer.prototype.playTurn = function(){
 	var posSeguidor = -1;
 	//va probando en las posiciones libres con un giro inicial de 0, si no ha encajado en ninguna, se cambia el giro
 	//y se vuelve a probar en todas hasta que encaje. Esto es hasta que se hagan 3 giros. 
-	while (!success && giro<4){
-		var i = Math.floor (Math.random() * (posFree.length-1) )
+	
+	while(!success && giro<4){
+	    var auxPosFree = _(posFree).clone(); 
+	    while(!success && (auxPosFree.length > 0) ){
+	        var i = Math.floor (Math.random() * (auxPosFree.length) );
+	        success = this.partida.tablero.ponerFicha(auxPosFree[i],giro);
+	        auxPosFree.splice(i,1);
+	    }
+	    giro++;
+	}
+	
+	
+	
+	
+	
+	//
+	//
+	//CONTROLAR QUE PASA SI NO PUEDE PONER SEGUIDOR EN NINGUN CUADRANTE
+	//
+	//
+	
+	
+	
+	
+	
+	
+	/*while (!success && giro<4){
+		var i = Math.floor (Math.random() * (posFree.length-1) );
 		var i_next = i;
 		do{
 			p = posFree[i_next];
@@ -1906,9 +1938,10 @@ IAPlayer.prototype.playTurn = function(){
 			var i_next = (i_next == posFree.length -1)?  0 : i_next ++;
 		}while(!success && i_next != i);
 		giro ++;
-	}
+	}*/
 	console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx this.partida.tablero.objetoResumen " + this.partida.tablero.objetoResumen);
-	
+	console.log("El objeto resumen VALIDO es: " + this.partida.tablero.objetoResumen);
+	console.log(_(this.partida.tablero.objetoResumen).functions());
 	this.partida.tablero.objetoResumen.addFicha(ficha, p, giro);
 	// aqui se ve si se quiere poner seguidor o no, y se hacen los intentos para ponerlo
 	var probPonerS = this.numSeguidores*(1/7);
@@ -1917,7 +1950,7 @@ IAPlayer.prototype.playTurn = function(){
 		var i = 13;
 		var posAProbar = _.range(0,12);
 		while (!success && i > 0){
-			var aux = Math.floor (Math.random() * (posAProbar.length - 1) );
+			var aux = ( Math.floor ( Math.random() * (posAProbar.length) ) );
 			success = this.partida.tablero.ponerSeguidorJugador(posAProbar[aux],this.idJugador);
 			if(!success){
 				posAProbar.splice(aux,1);
@@ -1950,17 +1983,12 @@ IAPlayer.prototype.playTurn = function(){
 //******* para todas las partidas *********
 partidas = [];
 addPartida  = function(partida){
-    partidas[partida.idPartida] = partida;
+    partidas.push(partida);
 }
 
 getTodasLasPartidas = function(){
     return partidas;
 }
-
-
-
-
-
 
 
 
@@ -1983,6 +2011,12 @@ getPartida = function(id_partida){
 	return _(partidas).find(function (partida){
 		return partida.idPartida == id_partida;
 	});
+}
+
+borrarPartida = function(idPartida){
+    partidas = _(partidas).reject(function(p){
+        return p.idPartida == idPartida;
+    })
 }
 
 
