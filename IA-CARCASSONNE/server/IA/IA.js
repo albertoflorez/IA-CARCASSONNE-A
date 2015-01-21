@@ -300,6 +300,11 @@ Ficha.prototype.aplicarGiro = function(giro){
 	//this.seguidor.posSeguidor = (this.seguidor.posSeguidor(posant+(3*giro)) % 12);
 }
 
+Ficha.prototype.desaplicarGiro = function(giro){
+	this.dato=girarDato(this.dato, ((4-giro) % 4) );
+	this.pdato=girarDato(this.pdato, ((4-giro) % 4) );
+}
+
 Ficha.prototype.actualizarSeguidor = function(posSeguidor,IdPropietario){
 	this.seguidor.posSeguidor = posSeguidor;
 	this.seguidor.tipoSeguidor = this.dato[posSeguidor];
@@ -1006,7 +1011,11 @@ Tablero.prototype.ponerFicha = function(pos, giro){
             return pos.x == pF.x && pos.y == pF.y;
         }); 
     console.log("^^^^^^^^^^^^en ponerFicha: se puede ponerficha: " + posicionValida); 
-	return (posicionValida) ? this.put(this.fichaActual,pos) : posicionValida;
+	var success = (posicionValida) ? this.put(this.fichaActual,pos) : posicionValida;
+	if(!success){
+		this.fichaActual.desaplicarGiro(giro);
+	}
+	return success;
 }
 
 Tablero.prototype.ponerSeguidorJugador = function(poSeguidor, IdPropietario){
@@ -1065,14 +1074,25 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 		var siguienteJugador = this.partida.getJugadorActual();
 		if(siguienteJugador){
 			this.objetoResumen.cambiarIdJug(siguienteJugador.idJugador)
-			objetoResumen.push(this.objetoResumen.dameResumen());
+			objetoResumen.push(this.objetoResumen);
 			while( _(siguienteJugador.idJugador).isNumber() ){
 				var jugadorIA = this.partida.getJugadorActual();
 				jugadorIA.playTurn();
-				objetoResumen.push(this.objetoResumen);
 				this.partida.pasarTurno();
 				siguienteJugador = this.partida.getJugadorActual();
+				if (!siguienteJugador){
+					//no hay siguiente jugador porque la partida termina. El id del siguiente es null.
+					this.objetoResumen.cambiarIdJug(siguienteJugador); //aqui siguienteJugador == null
+				}else{
+					//aqui el siguienteJugador es un objeto que tiene idJugador valido.
+					this.objetoResumen.cambiarIdJug(siguienteJugador.idJugador);
+				}
+				objetoResumen.push(this.objetoResumen); //actualizamos el resumenTotal.
+				if (!siguienteJugador) break; //si se acaba la partida salimos del bucle porque la condicion de entrada fallaria.
 			}
+		}else{ //aqui acaba la partida antes de que juegen las IAs. siguienteJugador = null;
+			this.objetoResumen.cambiarIdJug(siguienteJugador);
+			objetoResumen.push(this.objetoResumen);
 		}
 	}
 	return [success, objetoResumen];
@@ -1150,7 +1170,7 @@ var Partida = function(idPartida,jugs,numJugs){
     this.initialize(jugs,numJugs);
 }
 
-Partida.prototype.initialize = function(jugs,numJugs){
+Partida.prototype.initialize = function(jugadores,numJugs){
     //iran las cosas de jugadores y ia etcetc
     this.listaCampos = [];
     this.listaCiudades = [];
@@ -1166,12 +1186,28 @@ Partida.prototype.initialize = function(jugs,numJugs){
             this.jugs [i] = jug;
             idIA ++;
         }else{
-            var jug = new Jugador (jugs[i].idJugador, jugs[i].nombreJugador);
+            var jug = new Jugador (jugadores[i].idJugador, jugadores[i].nombreJugador);
             this.jugs[i] = jug;
         }
     }
     //el turno es el indice del array jugs
     this.turno = 0;
+    this.startCallIU();
+}
+
+Partida.prototype.startCallIU = function(){
+        var arrayJugs = [];
+        
+        _(this.jugs).each(function(j){
+                var obj = {};
+                obj.nombre = j.nombre;
+                obj.puntos = j.puntos;
+                obj.seguidores = 7;
+                arrayJugs.push(obj);
+        });
+		console.log("EN IA.JS this.idPartida es: " +this.idPartida);
+        empezarPartida (this.idPartida,arrayJugs,this.getJugadorActual().idJugador);
+
 }
 
 //aqui devuelvo el jugador que tiene el turno
@@ -1787,6 +1823,10 @@ ObjetoResumenIA.prototype.addFicha = function(ficha, pos, giro){
 }
 ObjetoResumenIA.prototype.addSeguidor = function(cuadrante){
 	this.fichaPuesta.push(cuadrante);	
+}
+
+ObjetoResumenIA.prototype.dameResumen = function(){
+	return [this.fichaPuesta,this.arrayResumenJugs,this.idSiguienteJug,this.arraySeguidoresQuitar];
 }
 
 //*************************************************************************
