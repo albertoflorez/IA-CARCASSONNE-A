@@ -1880,10 +1880,13 @@ var IAPlayer = function(idIA){
 IAPlayer.prototype = new Jugador();
 
 IAPlayer.prototype.playTurn = function(){
-    //var a = new ObjetoResumenIA();
-    //console.log("me he creado un objetoResumenIA para ver si se crea bien: " + a);
+    var a = new ObjetoResumenIA();
+    console.log("me he creado un objetoResumenIA para ver si se crea bien: " + a);
+    console.log(_(a).functions());
     console.log("HOLA CARACOLA")
 	this.partida.tablero.objetoResumen = new ObjetoResumenIA();
+	console.log("mElobjeto resumen VALIDO es: " + this.partida.tablero.objetoResumen);
+	console.log(_(this.partida.tablero.objetoResumen).functions());
 	console.log("ADIOS CARACOLA")
 	//Aquí jugara su turno la IA. Se la llamará desde partida.
 	var ficha = this.partida.tablero.dameFicha(); //se almacena en tablero.fichaActual.
