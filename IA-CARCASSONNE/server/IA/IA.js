@@ -313,9 +313,9 @@ function girarDato(dato, giro){
 
 //******* seguidor *******
 var Seguidor = function(pos, idJug, numFicha){
-	this.posSeguidor = pos || -1;
-	this.idJugador = idJug || -1;
-	this.numFicha = numFicha || -1;
+	this.posSeguidor = pos;
+	this.idJugador = idJug;
+	this.numFicha = numFicha;
 	console.log("se va a crear un seguidor: pos: " + this.posSeguidor +  ", idJugador: " + this.idJugador + ", numficha: " + this.numFicha);
 }
 
@@ -1823,8 +1823,6 @@ ObjetoResumen.prototype.cambiarIdJug = function(id){
 //*************************************************************************
 
 var ObjetoResumenIA = function(){
-    this.base = ObjetoResumen;
-    this.base();
 	this.fichaPuesta = [];
 }
 ObjetoResumenIA.prototype = new ObjetoResumen();
@@ -1966,6 +1964,15 @@ IAPlayer.prototype.playTurn = function(){
 	console.log("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIICHA: {tipo:" + ficha.tipo + ", giro: " + giro + ", posSeguidor: " + posSeguidor);
 	//Ahora partida habrá cambiado el turno y le tocará al jugador correspondiente que podría 
 	//ser otra IA perfectamente.
+	_(this.partida.listaCampos).each(function(c){
+            console.log("campo" + c.id + ":" + c.content + " CIUDADES IIIIIIIIIIIIIIIIIIIIINCLUIDAS: " + c.ciudadesIncluidas);
+    });
+    _(this.partida.listaCiudades).each(function(c){
+            console.log("ciudad" + c.id + ":" + c.content + " id fichas: " + c.idFichas);
+    });
+    _(this.partida.listaCaminos).each(function(c){
+            console.log("camino" + c.id + ":" + c.content + " id fichas: " + c.idFichas);
+    }) 
 }
 
 
