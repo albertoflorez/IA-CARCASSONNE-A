@@ -521,7 +521,7 @@ Tablero.prototype.put = function (ficha,pos){
 Tablero.prototype.generarAreas = function(ficha,pos){
     //console.log("la partida: " + this.partida);
 	var contieneCiudad = false;
-    for(i = 0; i<11; i++){
+    for(i = 0; i<13; i++){
         var auxData = ficha.dato[i]; 
         var auxPdata = ficha.pdato[i];          
         switch (auxData){
@@ -565,8 +565,8 @@ Tablero.prototype.generarAreas = function(ficha,pos){
                 break;
 			case 'm':
 				var nuevoMonasterio = new Monasterio (auxPdata,pos);
-				nuevoMonasterio.add(auxPdata);
 				nuevoMonasterio.partida = this.partida;
+				console.log("QUE TE METAS MONASTEIO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 				this.partida.listaMonasterios.push(nuevoMonasterio);
 				var adyacentesFull = _(this.posFull).filter (function(p){  /////REVISAR!!!
 					return _(nuevoMonasterio.posAdyacentes).any (function(pa){
@@ -1028,9 +1028,12 @@ Tablero.prototype.ponerSeguidorJugador = function(posSeguidor, IdPropietario){
 				},this);
 				break;
         	case 'm':
+				console.log("QUIERO PONER SEEEEEEEGUIIIIIIDOOOOOOORRRR EN UN MOOOONAAAASTERIOOOOO!!!!");
+				
 				area = _(this.partida.listaMonasterios).find(function(m){
-					return _(m.content).contains (this.fichaActual.pdato[posSeguidor]);
+					return m.id ==  this.fichaActual.pdato[posSeguidor];
 				},this);
+				console.log("ELMONASTERIOOOOOOOOO ENNNN ELLL QUE VOOOOOYYY A PONER SEGUIDOOOOOOORR!!!: " + area);
 				break;
         	case 'f':
 				area = _(this.partida.listaCampos).find(function(f){
@@ -1261,6 +1264,7 @@ Partida.prototype.recuentoPuntosFinal = function(){
         return !r.isClosed;
     });
     var monasteriosNoCerrados = _(this.listaMonasterios).filter(function(m){
+		console.log("MONAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASTEIO: " + m);
         return !m.isClosed;
     });
 
@@ -1280,6 +1284,7 @@ Partida.prototype.recuentoPuntosFinal = function(){
         console.log("%%%%%%%%%%%se ha cerrado el camino con pdato: " + r.id);
     });
     _(monasteriosNoCerrados).each(function(m){
+	console.log("VAAAAAAAAAAAAAAAAAAAAAAMMMMMMMMMMMMMMMMMMOOOOOOOOOOOOOOOOOOOOOOSSSSSSSSSSSSSSSSSSSSS a cerrar los monasteios");
         m.close();
         console.log("%%%%%%%%%%%se ha cerrado el monasterio con pdato: " + m.id);
     });
@@ -1734,7 +1739,6 @@ var Monasterio = function(idMonasterio,pos){
 	this.setPosAdyacentes(pos);
 	this.seguidores = [];
 	this.propSeguidores = [];
-	this.numFichas = 1;
 }
 
 Monasterio.prototype.setPosAdyacentes = function(pos){
@@ -1749,12 +1753,10 @@ Monasterio.prototype.setPosAdyacentes = function(pos){
 }
 
 Monasterio.prototype.updateAdyacentes = function(pos){
-	var adyacentes = _(this.posAdyacentes).filter (function(p){
-		return p.x != pos.x && p.y != pos.y;
+	this.posAdyacentes = _(this.posAdyacentes).reject (function(p){
+		return p.x == pos.x && p.y == pos.y;
 	});
-	var n = this.posAdyacentes.length - adyacentes.length;
-	this.numFichas += n;
-	this.posAdyacentes = adyacentes;
+	
 	if (this.posAdyacentes.length == 0){
 		this.close();
 	} 
@@ -1762,29 +1764,32 @@ Monasterio.prototype.updateAdyacentes = function(pos){
 
 //Hay que cambiar este metodo para que tenga en cuenta los no cerrados.
 Monasterio.prototype.calcularPuntos = function(){
-    return this.numFichas;
-}
+    return 9 - this.posAdyacentes.length;
+};
 
 Monasterio.prototype.close = function(){
 	//aqui se hará el recuento de puntos.
 	this.isClosed = true;
+	console.log("tamaño de PROOOOOOOOOOOOOPSEGUIDOR: " + this.propSeguidores.length);
 	if (this.propSeguidores.length > 0){ //si hay alguien a quien dar puntos.
 		//var puntos = 9;
 		var puntos = this.calcularPuntos();
 		var jugador = _(this.partida.jugs).find(function(jug){
 			return jug.idJugador == this.propSeguidores[0];
-		});
+		},this);
+		console.log("********************LE VAMOS A SUMAR AL JUGADOR: " + puntos);
 		jugador.puntos += puntos;
 		jugador.numSeguidores++;
-		var cell = _(this.tablero.cellSet).find(function(c){
+		var cell = _(this.partida.tablero.cellSet).find(function(c){
 			return c.ficha.numFicha == this.seguidores[0].numFicha;
-		});
-		this.tablero.objetoResumen.addSeguidorQuitar(cell.pos);
+		},this);
+		this.partida.tablero.objetoResumen.addSeguidorQuitar(cell.pos);
 	}
 	_(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);	
 }
 
 Monasterio.prototype.ponerSeguidor = function (seguidor){
+	console.log("VOY A PONER EL SEGUIDOR O QUE!!!!!!!!!!!!!!");
     this.propSeguidores.push(seguidor.idJugador);
 	this.seguidores.push(seguidor);
 }

@@ -121,7 +121,6 @@ Meteor.methods ({
             console.log("se ha puesto la ficha3");
             
             partida.tablero.ponerSeguidor(12,"C");
-            console.log("no se ha puesto seguidor en a ficha 3");
             
         console.log("\n\n\n\n"); 
         _(partida.listaCampos).each(function(c){
