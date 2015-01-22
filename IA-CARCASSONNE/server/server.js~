@@ -50,7 +50,7 @@ Meteor.methods ({
                         aplicarGiro: function(){},
                         numFicha: 5
                      }*/
-		/*var fichaIA0 = {
+		var fichaIA0 = {
                         dato: ['f','f','f','f','f','f','f','r','f','f','f','f', 'm'],
 	                    pdato: [ 7, 7,  7,  7,  7,  7,  7,  4,  7,  7,  7,  7,  1],
                         aplicarGiro: function(){},
@@ -61,7 +61,7 @@ Meteor.methods ({
 	                    pdato: [3,  3,  3,  8,  5,  8,  8,  5,  8,  3,  3,  3,   8],
                         aplicarGiro: function(){},
                         numFicha: 4
-                     }*/
+                     }
         console.log("se han generado las fichas.");
         var partida = getPartida(idPartida);
         if (authenticate(partida)){
@@ -114,7 +114,7 @@ Meteor.methods ({
                 console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
             }) 
             
-   
+   /*
             partida.tablero.fichaActual = fichaIA0;
             console.log("se va a poner la ficha3");
             success = partida.tablero.ponerFicha({x:49,y:51},0);

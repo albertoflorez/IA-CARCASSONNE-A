@@ -506,6 +506,7 @@ Tablero.prototype.put = function (ficha,pos){
         console.log("***** se va a unificar");
         this.unificarAreas();
         console.log("***** se ha unificao");
+        
 		return true;
     }else{
         console.log("la ficha NO encaja!");
@@ -1201,7 +1202,7 @@ Partida.prototype.startCallIU = function(){
                 var obj = {};
                 obj.nombre = j.nombre;
                 obj.puntos = j.puntos;
-                obj.seguidores = 7;
+                obj.numSeguidores = 7;
                 arrayJugs.push(obj);
         });
 		console.log("EN IA.JS this.idPartida es: " +this.idPartida);
@@ -1733,6 +1734,7 @@ var Monasterio = function(idMonasterio,pos){
 	this.setPosAdyacentes(pos);
 	this.seguidores = [];
 	this.propSeguidores = [];
+	this.numFichas = 1;
 }
 
 Monasterio.prototype.setPosAdyacentes = function(pos){
@@ -1747,9 +1749,12 @@ Monasterio.prototype.setPosAdyacentes = function(pos){
 }
 
 Monasterio.prototype.updateAdyacentes = function(pos){
-	this.posAdyacentes = _(this.posAdyacentes).filter (function(p){
+	var adyacentes = _(this.posAdyacentes).filter (function(p){
 		return p.x != pos.x && p.y != pos.y;
 	});
+	var n = this.posAdyacentes.length - adyacentes.length;
+	this.numFichas += n;
+	this.posAdyacentes = adyacentes;
 	if (this.posAdyacentes.length == 0){
 		this.close();
 	} 
@@ -1757,7 +1762,7 @@ Monasterio.prototype.updateAdyacentes = function(pos){
 
 //Hay que cambiar este metodo para que tenga en cuenta los no cerrados.
 Monasterio.prototype.calcularPuntos = function(){
-    return 9;
+    return this.numFichas;
 }
 
 Monasterio.prototype.close = function(){
@@ -1777,7 +1782,6 @@ Monasterio.prototype.close = function(){
 		this.tablero.objetoResumen.addSeguidorQuitar(cell.pos);
 	}
 	_(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);	
-	//this.quitarSeguidor(jugador.idJugador);
 }
 
 Monasterio.prototype.ponerSeguidor = function (seguidor){

@@ -6,9 +6,9 @@ var partidaPrueba;
 console.log("server: voy a generar una partida");
 generarPartida(0,[{idJugador:"A",nombreJugador:'a'},
 				  {idJugador:"B",nombreJugador:'b'}
-				  //,{idJugador:"C",nombreJugador:'c'},
+				  ,{idJugador:"C",nombreJugador:'c'},
 				  //{idJugador:"D",nombreJugador:'d'}
-				],4);
+				],3);
 console.log("server: he generado la partida");
 
 //nosotros no podemos comprobar si el usuario que ha hecho la llamada es el que está jugando así que devolvemos 
@@ -32,13 +32,13 @@ Meteor.methods ({
                         aplicarGiro: function(){},
                         numFicha: 2
                      }
-        /*var ficha3 = {
-                        dato: ['f','f','f','c','c','c','f','f','f','f','f','f', 'f'],
-	                    pdato: [7 , 7 , 7 , 3 , 3 , 3 , 7 , 7 , 7 , 7 , 7 , 7 ,  7 ],
+        var ficha3 = {
+                        dato: ['f','f','f','f','f','f','f','f','f','f','f','f', 'm'],
+	                    pdato: [7 , 7 , 7 , 7 , 7 , 7 , 7 , 7 , 7 , 7 , 7 , 7 ,  1 ],
                         aplicarGiro: function(){},
                         numFicha: 3,
                      }
-        var ficha4 = {
+        /*var ficha4 = {
                         dato: ['f','f','f','c','c','c','c','c','c','f','f','f', 'f'],
 	                    pdato: [8 , 8 , 8 , 4 , 4 , 4 , 4 , 4 , 4 , 8 , 8 , 8 ,  8 ],
                         aplicarGiro: function(){},
@@ -49,7 +49,7 @@ Meteor.methods ({
 	                    pdato: [9 , 9 , 9 , 9 , 9 , 9 , 5 , 5 , 5 , 6 , 6 , 6 ,  9 ],
                         aplicarGiro: function(){},
                         numFicha: 5
-                     }*/
+                     }
 		var fichaIA0 = {
                         dato: ['f','f','f','f','f','f','f','r','f','f','f','f', 'm'],
 	                    pdato: [ 7, 7,  7,  7,  7,  7,  7,  4,  7,  7,  7,  7,  1],
@@ -61,7 +61,7 @@ Meteor.methods ({
 	                    pdato: [3,  3,  3,  8,  5,  8,  8,  5,  8,  3,  3,  3,   8],
                         aplicarGiro: function(){},
                         numFicha: 4
-                     }
+                     }*/
         console.log("se han generado las fichas.");
         var partida = getPartida(idPartida);
         if (authenticate(partida)){
@@ -114,13 +114,13 @@ Meteor.methods ({
                 console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
             }) 
             
-   /*
-            partida.tablero.fichaActual = fichaIA0;
+   
+            partida.tablero.fichaActual = ficha3;
             console.log("se va a poner la ficha3");
             success = partida.tablero.ponerFicha({x:49,y:51},0);
             console.log("se ha puesto la ficha3");
             
-            partida.tablero.ponerSeguidor(1,"C");
+            partida.tablero.ponerSeguidor(12,"C");
             console.log("no se ha puesto seguidor en a ficha 3");
             
         console.log("\n\n\n\n"); 
@@ -139,7 +139,7 @@ Meteor.methods ({
                 console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Jugador: " + j.idJugador + ": " + j.puntos);
                 console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% tiene " + j.numSeguidores +" seguidores:")
             }) 
-   
+   /*
             partida.tablero.fichaActual = fichaIA1;
             console.log("se va a poner la ficha4");
             success = partida.tablero.ponerFicha({x:48,y:50},0);
