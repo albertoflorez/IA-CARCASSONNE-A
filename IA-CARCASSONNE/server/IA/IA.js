@@ -506,7 +506,6 @@ Tablero.prototype.put = function (ficha,pos){
         console.log("***** se va a unificar");
         this.unificarAreas();
         console.log("***** se ha unificao");
-        
 		return true;
     }else{
         console.log("la ficha NO encaja!");
@@ -566,7 +565,6 @@ Tablero.prototype.generarAreas = function(ficha,pos){
 			case 'm':
 				var nuevoMonasterio = new Monasterio (auxPdata,pos);
 				nuevoMonasterio.partida = this.partida;
-				console.log("QUE TE METAS MONASTEIO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 				this.partida.listaMonasterios.push(nuevoMonasterio);
 				var adyacentesFull = _(this.posFull).filter (function(p){  /////REVISAR!!!
 					return _(nuevoMonasterio.posAdyacentes).any (function(pa){
@@ -1062,10 +1060,13 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 	var success = this.ponerSeguidorJugador(posSeguidor,IdPropietario);
 	if (success){
 		this.completarAreas(this.fichaActual,this.posFull[this.posFull.length - 1]); //preguntar. Yo creo que esta condicion no es valida. Se debe llamar siempre.
+			
 		this.partida.pasarTurno();
 		var siguienteJugador = this.partida.getJugadorActual();
 		if(siguienteJugador){
+		        _(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
 			this.objetoResumen.cambiarIdJug(siguienteJugador.idJugador)
+			console.log("Ahora es el fin del turno del jugador humano y el numero de seguidores a quitar es: " + this.objetoResumen.arraySeguidoresQuitar.length);
 			objetoResumen.push(this.objetoResumen);
 			while( _(siguienteJugador.idJugador).isNumber() ){
 				var jugadorIA = this.partida.getJugadorActual();
@@ -1079,14 +1080,21 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 					//aqui el siguienteJugador es un objeto que tiene idJugador valido.
 					this.objetoResumen.cambiarIdJug(siguienteJugador.idJugador);
 				}
+				_(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
+				console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AQUI TERMINA EL TURNO DE LA IA");
+				console.log("el array de jugs es: " + this.objetoResumen.arrayResumenJugs.length);
+				console.log("el array de seguidores a quitar es: " + this.objetoResumen.arraySeguidoresQuitar.length);
+				console.log("el id del siguienteJugador es: " + this.objetoResumen.idSiguienteJug);
 				objetoResumen.push(this.objetoResumen); //actualizamos el resumenTotal.
 				if (!siguienteJugador) break; //si se acaba la partida salimos del bucle porque la condicion de entrada fallaria.
 			}
 		}else{ //aqui acaba la partida antes de que juegen las IAs. siguienteJugador = null;
+		        _(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
 			this.objetoResumen.cambiarIdJug(siguienteJugador);
 			objetoResumen.push(this.objetoResumen);
 		}
 	}
+	
 	return [success, objetoResumen];
 }
 
@@ -1209,6 +1217,9 @@ Partida.prototype.startCallIU = function(){
                 arrayJugs.push(obj);
         });
 		console.log("EN IA.JS this.idPartida es: " +this.idPartida);
+		console.log("el turno es: " + this.turno);
+		console.log("el jugador act es: " + this.getJugadorActual());
+		console.log("el id del jugador es: " + this.getJugadorActual().idJugador);
 		//
 		//
 		//
@@ -1217,12 +1228,12 @@ Partida.prototype.startCallIU = function(){
 		//
 		//
 		//
-        //empezarPartida (this.idPartida,arrayJugs,this.getJugadorActual().idJugador);
+        empezarPartida (this.idPartida,arrayJugs,this.getJugadorActual().idJugador);
 }
 
 //aqui devuelvo el jugador que tiene el turno
 Partida.prototype.getJugadorActual = function(){
-    return (this.turno) ? this.jugs[this.turno] : this.turno;
+    return (this.turno != null) ? this.jugs[this.turno] : this.turno;
 }
 
 Partida.prototype.pasarTurno = function(){
@@ -1264,7 +1275,6 @@ Partida.prototype.recuentoPuntosFinal = function(){
         return !r.isClosed;
     });
     var monasteriosNoCerrados = _(this.listaMonasterios).filter(function(m){
-		console.log("MONAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASTEIO: " + m);
         return !m.isClosed;
     });
 
@@ -1284,7 +1294,6 @@ Partida.prototype.recuentoPuntosFinal = function(){
         console.log("%%%%%%%%%%%se ha cerrado el camino con pdato: " + r.id);
     });
     _(monasteriosNoCerrados).each(function(m){
-	console.log("VAAAAAAAAAAAAAAAAAAAAAAMMMMMMMMMMMMMMMMMMOOOOOOOOOOOOOOOOOOOOOOSSSSSSSSSSSSSSSSSSSSS a cerrar los monasteios");
         m.close();
         console.log("%%%%%%%%%%%se ha cerrado el monasterio con pdato: " + m.id);
     });
@@ -1569,11 +1578,14 @@ Ciudad.prototype.close = function(){
 			var cell = _(this.partida.tablero.cellSet).find(function(c){
 				return c.ficha.numFicha == seg.numFicha;
 			});
+			console.log("voy a quitar seguidor: ");
+			console.log("long de seguidores en la ciudad: " + this.seguidores.length);
+			console.log("pos del seguidor a quitar: " + cell.pos);
 			this.partida.tablero.objetoResumen.addSeguidorQuitar(cell.pos);
 		},this);
 	}
-	_(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);	
 }
+	
 
 Ciudad.prototype.updateLibres = function(bool){
 	if (bool){
@@ -1700,7 +1712,7 @@ Camino.prototype.close = function(){
 			jug.puntos += puntos;
 			jug.numSeguidores += s.cont;
 		},this);
-	_(this.seguidores).each(function(seg){
+		_(this.seguidores).each(function(seg){
 	        console.log("---------------numero de la ficha en la que se quiere poner seguidor: " + seg.numFicha)
 			var cell = _(this.partida.tablero.cellSet).find(function(c){
 				return c.ficha.numFicha == seg.numFicha;
@@ -1709,7 +1721,7 @@ Camino.prototype.close = function(){
 			this.partida.tablero.objetoResumen.addSeguidorQuitar(cell.pos);
 		},this);
 	}
-	_(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);	
+		
 	
 }
 
@@ -1736,9 +1748,10 @@ Camino.prototype.updateLibres = function(bool){
 var Monasterio = function(idMonasterio,pos){
     this.id = idMonasterio;
     this.isClosed = false;
-	this.setPosAdyacentes(pos);
+    this.setPosAdyacentes(pos);
 	this.seguidores = [];
 	this.propSeguidores = [];
+	this.numFichas = 1;
 }
 
 Monasterio.prototype.setPosAdyacentes = function(pos){
@@ -1762,7 +1775,7 @@ Monasterio.prototype.updateAdyacentes = function(pos){
 	} 
 }
 
-//Hay que cambiar este metodo para que tenga en cuenta los no cerrados.
+
 Monasterio.prototype.calcularPuntos = function(){
     return 9 - this.posAdyacentes.length;
 };
@@ -1770,26 +1783,24 @@ Monasterio.prototype.calcularPuntos = function(){
 Monasterio.prototype.close = function(){
 	//aqui se hará el recuento de puntos.
 	this.isClosed = true;
-	console.log("tamaño de PROOOOOOOOOOOOOPSEGUIDOR: " + this.propSeguidores.length);
 	if (this.propSeguidores.length > 0){ //si hay alguien a quien dar puntos.
 		//var puntos = 9;
 		var puntos = this.calcularPuntos();
 		var jugador = _(this.partida.jugs).find(function(jug){
 			return jug.idJugador == this.propSeguidores[0];
 		},this);
-		console.log("********************LE VAMOS A SUMAR AL JUGADOR: " + puntos);
 		jugador.puntos += puntos;
 		jugador.numSeguidores++;
-		var cell = _(this.partida.tablero.cellSet).find(function(c){
+		var cell = _(this.tablero.cellSet).find(function(c){
 			return c.ficha.numFicha == this.seguidores[0].numFicha;
 		},this);
-		this.partida.tablero.objetoResumen.addSeguidorQuitar(cell.pos);
+		this.tablero.objetoResumen.addSeguidorQuitar(cell.pos);
 	}
-	_(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);	
+		
+	//this.quitarSeguidor(jugador.idJugador);
 }
 
 Monasterio.prototype.ponerSeguidor = function (seguidor){
-	console.log("VOY A PONER EL SEGUIDOR O QUE!!!!!!!!!!!!!!");
     this.propSeguidores.push(seguidor.idJugador);
 	this.seguidores.push(seguidor);
 }
@@ -1811,14 +1822,19 @@ var ObjetoResumen = function(){
 	this.arraySeguidoresQuitar = [];
 }
 
+
+
 ObjetoResumen.prototype.addJugPuntos = function(jugador){
 	//aqui jugador.nombre no esta definido por lo que en un principio estará undefined. (Despues de la integracion con plataforma existira)
+	console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% EL JUGADOR TIENE NUMSEGUIDORES: " + jugador.numSeguidores);
 	var res = {nombre: jugador.nombre, puntos: jugador.puntos, numSeguidores: jugador.numSeguidores};
 	this.arrayResumenJugs.push(res);
 }
 
 ObjetoResumen.prototype.addSeguidorQuitar = function(pos){
+	console.log("entro en addSeguidorQuitar");
 	this.arraySeguidoresQuitar.push(pos);
+	console.log(this.arraySeguidoresQuitar.length);
 }
 
 ObjetoResumen.prototype.cambiarIdJug = function(id){
@@ -1833,7 +1849,14 @@ ObjetoResumen.prototype.cambiarIdJug = function(id){
 
 var ObjetoResumenIA = function(){
 	this.fichaPuesta = [];
+	this.initialize();
 }
+
+ObjetoResumen.prototype.initialize = function(){
+	this.arraySeguidoresQuitar = [];
+	this.arrayResumenJugs = [];
+}
+
 ObjetoResumenIA.prototype = new ObjetoResumen();
 
 ObjetoResumenIA.prototype.addFicha = function(ficha, pos, giro){
@@ -1859,7 +1882,7 @@ var Jugador = function(idJugador, nombreJugador){
     this.caminos = [];
     this.monasterios = [];
     this.puntos = 0;
-	this.numSeguidores = 7;
+    this.numSeguidores = 7;
 	this.nombre = nombreJugador;
 	this.ciudadesIncluidas = [];
 }
@@ -1886,7 +1909,7 @@ var Jugador = function(idJugador, nombreJugador){
 
 var IAPlayer = function(idIA){
 	this.base = Jugador;
-	this.base (idIA);
+	this.base (idIA,"IA" + idIA);
 	this.finish = false;
 }
 
@@ -1905,9 +1928,8 @@ IAPlayer.prototype.playTurn = function(){
 	var ficha = this.partida.tablero.dameFicha(); //se almacena en tablero.fichaActual.
 	var posFree = this.partida.tablero.posFree;
 	var giro = 0;
-	var p;
+	
 	var success = false;
-	var posSeguidor = -1;
 	//va probando en las posiciones libres con un giro inicial de 0, si no ha encajado en ninguna, se cambia el giro
 	//y se vuelve a probar en todas hasta que encaje. Esto es hasta que se hagan 3 giros. 
 	
@@ -1916,6 +1938,7 @@ IAPlayer.prototype.playTurn = function(){
 	    while(!success && (auxPosFree.length > 0) ){
 	        var i = Math.floor (Math.random() * (auxPosFree.length) );
 	        success = this.partida.tablero.ponerFicha(auxPosFree[i],giro);
+	        if (success) this.partida.tablero.objetoResumen.addFicha(ficha, auxPosFree[i], giro);
 	        auxPosFree.splice(i,1);
 	    }
 	    giro++;
@@ -1949,7 +1972,6 @@ IAPlayer.prototype.playTurn = function(){
 	console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx this.partida.tablero.objetoResumen " + this.partida.tablero.objetoResumen);
 	console.log("El objeto resumen VALIDO es: " + this.partida.tablero.objetoResumen);
 	console.log(_(this.partida.tablero.objetoResumen).functions());
-	this.partida.tablero.objetoResumen.addFicha(ficha, p, giro);
 	// aqui se ve si se quiere poner seguidor o no, y se hacen los intentos para ponerlo
 	var probPonerS = this.numSeguidores*(1/7);
 	if(Math.random() < probPonerS){
@@ -1959,18 +1981,16 @@ IAPlayer.prototype.playTurn = function(){
 		while (!success && i > 0){
 			var aux = ( Math.floor ( Math.random() * (posAProbar.length) ) );
 			success = this.partida.tablero.ponerSeguidorJugador(posAProbar[aux],this.idJugador);
-			if(!success){
-				posAProbar.splice(aux,1);
-			}else{
-				posSeguidor = posAProbar[aux];
-			}
+			if (success) this.partida.tablero.objetoResumen.addSeguidor(posAProbar[aux]);
+			posAProbar.splice(aux,1);
 			i--;
 		}
 	}else{
 		this.partida.tablero.ponerSeguidorJugador();
+		this.partida.tablero.objetoResumen.addSeguidor(-1); //si no se pone seguidor se le pasa un -1 a IU.
 	}
-	this.partida.tablero.objetoResumen.addSeguidor(posSeguidor);
-	console.log("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIICHA: {tipo:" + ficha.tipo + ", giro: " + giro + ", posSeguidor: " + posSeguidor);
+
+	
 	//Ahora partida habrá cambiado el turno y le tocará al jugador correspondiente que podría 
 	//ser otra IA perfectamente.
 	_(this.partida.listaCampos).each(function(c){
@@ -1982,6 +2002,13 @@ IAPlayer.prototype.playTurn = function(){
     _(this.partida.listaCaminos).each(function(c){
             console.log("camino" + c.id + ":" + c.content + " id fichas: " + c.idFichas);
     }) 
+    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+    console.log("VOYYYYY AAAAA PITAR EL RESUMEN IA");
+    var resumenIA = this.partida.tablero.objetoResumen;
+    console.log("estos son los atributos del objetoResumenIA: " + _(resumenIA).keys());
+    console.log("la posicion en la que IA coloca la ficha es: x:" + resumenIA.fichaPuesta[1].x + ", y: " + resumenIA.fichaPuesta[1].y);
+    console.log("el cuadrante en el que la IA coloca el seguidor es: " + resumenIA.fichaPuesta[2]);
+    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 }
 
 
