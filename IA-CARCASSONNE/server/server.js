@@ -4,14 +4,15 @@ var partidaPrueba;
 
 //generamos una partida para que el cliente pueda probar la interfaz sin problemas de sincronía
 console.log("server: voy a generar una partida");
-generarPartida(0,[{idJugador:"EkNAbvaTMCyDmGqXT",nombreJugador:'Jorge'},
-				  {idJugador:"bLK48ekXwCcmMiXbT",nombreJugador:'Alberto'}
+generarPartida(0,[{idJugador:"6qjaAAk3hji5hTmBN",nombreJugador:'Jorge'},
+				  {idJugador:"FaWR4LAzH6FENyu9Y",nombreJugador:'Alberto'}
 				  //{idJugador:"C",nombreJugador:'c'},
 				  //{idJugador:"D",nombreJugador:'d'},
                     //{idJugador:"E",nombreJugador:'e'}
-				],3); 
+				],2); 
 console.log("server: he generado la partida");
 
+partidaTerminada
 
 Meteor.methods ({    
     
@@ -345,6 +346,24 @@ Meteor.methods ({
 		return objFinal;
     },
     
+    finalizarPartidaPL: function (id_partida,resumen){
+        var partida = {};
+        partida.idPartida = id_partida;
+        resumen = _(resumen).filter(function(player){
+            var patt = new RegExp("IA");
+            return !patt.test(player.nombre);
+        });
+        partida.numJugadores = resumen.length;
+        partida.arrayJugadores = [];
+        _(resumen).each(function(player){
+            partida.arrayJugadores.push({
+                nombreJugador: player.nombre,
+                puntuacion: player.puntos
+            });
+        });
+        //llamada a PL para acabar la partida
+        partidaTerminada (partida);
+    }
 
 });
 

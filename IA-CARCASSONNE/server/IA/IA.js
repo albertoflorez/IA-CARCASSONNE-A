@@ -848,7 +848,12 @@ Tablero.prototype.completarAreas = function(ficha,pos){
 
     //una vez que tenemos actualizados todos los lados libres de las ciudades y los campos. Cerramos solo aquellos que hayan quedado a 0.
     _(this.partida.listaCiudades).each(function(c){
-    	if (c.ladosLibres == 0 && !c.isClosed) c.close();
+    	if (c.ladosLibres == 0 && !c.isClosed){ 
+    	    console.log("I0O0I0O0I0O0I0O0I0OI0O0I0O0I0O0I0O0I0O0I0O0I");        
+    	    console.log("voy a cerrar la ciudad");
+    	    c.close();
+    	    console.log("I0O0I0O0I0O0I0O0I0OI0O0I0O0I0O0I0O0I0O0I0O0I");
+    	}
     });
     _(this.partida.listaCaminos).each(function(r){
     	if (r.ladosLibres == 0 && !r.isClosed) r.close();
@@ -1384,7 +1389,7 @@ Campo.prototype.unificar = function (camposAIntegrar){
 		contenido.push(c.content);
 		ciudades.push(c.ciudadesIncluidas);
 		seg.push(c.seguidores);
-	});
+	},this);
 	//en content tenemos los contents de todos los campos, los unimos en un solo array y eliminamos los duplicados.
 	this.content = _(contenido).flatten();
     console.log("el content antes de hacer el uniq: "+this.content);
@@ -1500,15 +1505,25 @@ Ciudad.prototype.unificar = function (ciudadesAIntegrar){
 	seguidores.push (this.propSeguidores);
 	campos.push (this.camposAdyacentes);
 	seg.push (this.seguidores);
+	console.log("o0o0o0o0o0o0o0o0o0o0o+++++++++++o0o0o0o0o0o0o0o0o0o");
 	_(ciudadesAIntegrar).each(function(c){
 		contenido.push(c.content);
+		console.log("contenido de ciudad: " + contenido);
 		campos.push (c.camposAdyacentes);
+		console.log("camposAdyacentes: " + campos);
 		fichas.push (c.idFichas);
+		console.log("id_fichas: " + fichas);
 		seguidores.push(c.propSeguidores);
+		console.log("idsJugadoresSeguidores: " + seguidores);
 		seg.push(c.seguidores);
+		console.log("numeroSeguidores: " + seg.length);
+	
 		this.numEscudos += c.numEscudos;
+		console.log("numEscudos: " + this.numEscudos);
 		this.ladosLibres += c.ladosLibres;
-	});
+		console.log("ladosLibres: " + this.ladosLibres);
+	},this);
+	console.log("o0o0o0o0o0o0o0o0o0o0o+++++++++++o0o0o0o0o0o0o0o0o0o");
 	//en content tenemos los contents de todos las ciudades, los unimos en un solo array y eliminamos los duplicados.
 	this.content = _(contenido).flatten();
     console.log("el content antes de hacer el uniq: "+this.content);
@@ -1605,7 +1620,7 @@ Ciudad.prototype.close = function(){
 			});
 			console.log("voy a quitar seguidor: ");
 			console.log("long de seguidores en la ciudad: " + this.seguidores.length);
-			console.log("pos del seguidor a quitar: " + cell.pos);
+			console.log("pos del seguidor a quitar: {x:" + cell.pos.x + ", y: " + cell.pos.y + "}");
 			this.partida.tablero.objetoResumen.addSeguidorQuitar(cell.pos);
 		},this);
 	}
@@ -1613,11 +1628,15 @@ Ciudad.prototype.close = function(){
 	
 
 Ciudad.prototype.updateLibres = function(bool){
+    console.log("I0O0I0O0I0O0I0O0I-------I0O0I0O0I0O0I0O0I0O0I0O0I")
+	console.log("antes de updateLibres: ladoslibres es: " + this.ladosLibres);
 	if (bool){
 		this.ladosLibres++;
 	}else{
 		this.ladosLibres--;
 	} 
+	console.log("despues de updateLibres: ladoslibres es: " + this.ladosLibres);
+    console.log("I0O0I0O0I0O0I0O0-------I0O0I0O0I0O0I0O0I0O0I0O0I")
 	/*if (this.ladosLibres == 0){
 		this.close();
 	}*/
