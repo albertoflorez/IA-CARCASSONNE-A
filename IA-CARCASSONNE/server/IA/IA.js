@@ -1106,19 +1106,22 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 	var success = this.ponerSeguidorJugador(posSeguidor,IdPropietario);
 	if (success){
 		this.completarAreas(this.fichaActual,this.posFull[this.posFull.length - 1]); //preguntar. Yo creo que esta condicion no es valida. Se debe llamar siempre.
-			
 		this.partida.pasarTurno();
 		var siguienteJugador = this.partida.getJugadorActual();
+		_(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
 		if(siguienteJugador){
-		        _(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
 			this.objetoResumen.cambiarIdJug(siguienteJugador.idJugador)
 			console.log("Ahora es el fin del turno del jugador humano y el numero de seguidores a quitar es: " + this.objetoResumen.arraySeguidoresQuitar.length);
 			objetoResumen.push(this.objetoResumen);
 			while( _(siguienteJugador.idJugador).isNumber() ){
 				var jugadorIA = this.partida.getJugadorActual();
 				jugadorIA.playTurn();
-				this.partida.pasarTurno();
-				siguienteJugador = this.partida.getJugadorActual();
+				if (!this.objetoResumen.fichaPuesta){
+					siguienteJugador = null; //la IA no ha podido poner ficha. Por lo tanto siguiente Turno es null y se finaliza la partida.
+				}else{
+					this.partida.pasarTurno();
+					siguienteJugador = this.partida.getJugadorActual();
+				}
 				if (!siguienteJugador){
 					//no hay siguiente jugador porque la partida termina. El id del siguiente es null.
 					this.objetoResumen.cambiarIdJug(siguienteJugador); //aqui siguienteJugador == null
@@ -1134,8 +1137,7 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 				objetoResumen.push(this.objetoResumen); //actualizamos el resumenTotal.
 				if (!siguienteJugador) break; //si se acaba la partida salimos del bucle porque la condicion de entrada fallaria.
 			}
-		}else{ //aqui acaba la partida antes de que juegen las IAs. siguienteJugador = null;
-		        _(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
+		}else{ //aqui acaba la partida antes de que juegen las IAs. siguienteJugador = null
 			this.objetoResumen.cambiarIdJug(siguienteJugador);
 			objetoResumen.push(this.objetoResumen);
 		}
