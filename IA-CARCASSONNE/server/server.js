@@ -12,7 +12,7 @@ generarPartida(0,[{idJugador:"6qjaAAk3hji5hTmBN",nombreJugador:'Jorge'},
 				],2); 
 console.log("server: he generado la partida");
 
-partidaTerminada
+
 
 Meteor.methods ({    
     
@@ -347,7 +347,7 @@ Meteor.methods ({
     },
     
     finalizarPartidaPL: function (id_partida,resumen){
-        var partida = {};
+        /*var partida = {};
         partida.idPartida = id_partida;
         resumen = _(resumen).filter(function(player){
             var patt = new RegExp("IA");
@@ -362,7 +362,7 @@ Meteor.methods ({
             });
         });
         //llamada a PL para acabar la partida
-        partidaTerminada (partida);
+        partidaTerminada (partida);*/
     }
 
 });
