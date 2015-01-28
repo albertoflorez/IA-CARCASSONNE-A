@@ -435,12 +435,19 @@ Mazo.prototype.dameFichaMadre = function(){
 
 Mazo.prototype.dameFichaMazo = function(){
 	var num = Math.floor(Math.random()*this.data.length)
-	var ficha = this.data [num];
+    var ficha = this.data [num];
 	this.data.splice(num,1); //eliminamos la ficha del mazo.
 	//devuelve una ficha aleatoria, y la guarda en fichaActual
 	console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    la ficha que vamos a poner (que ha salido del mazo): " + ficha.dato);
+	
 	return ficha;
 };
+
+Mazo.prototype.incluirFichasNoEncajan = function(arrayFichasNoEncajan){
+    _(arrayFichasNoEncajan).each(function(f){
+        this.mazo.data.push(f);
+    });
+}
 
 
 
@@ -1005,11 +1012,11 @@ Tablero.prototype.encaja = function(ficha,pos){
     console.log("estas son las celdas adyacentes: " + cellAdyacentes + "long : " + cellAdyacentes.length);
     
 	//devuelve si encaja con todas las fichas adyacentes.
-	var that = this; //necesario para poder llamar a coinciden del tablero en la función del underscore.
+	//necesario para poder llamar a coinciden del tablero en la función del underscore.
 	return _(cellAdyacentes).all(function(cAd){
         //console.log(cAd.ficha);
-		return that.coinciden (ficha,cAd.ficha,pos,cAd.pos);
-	});
+		return this.coinciden (ficha,cAd.ficha,pos,cAd.pos);
+	},this);
 }
 
 Tablero.prototype.ponerFicha = function(pos, giro){
@@ -1097,29 +1104,29 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 		this.partida.pasarTurno();
 		var siguienteJugador = this.partida.getJugadorActual();
 		if(siguienteJugador){
-		        _(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
+		    _(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
 			this.objetoResumen.cambiarIdJug(siguienteJugador.idJugador)
 			console.log("Ahora es el fin del turno del jugador humano y el numero de seguidores a quitar es: " + this.objetoResumen.arraySeguidoresQuitar.length);
 			objetoResumen.push(this.objetoResumen);
 			while( _(siguienteJugador.idJugador).isNumber() ){
 				var jugadorIA = this.partida.getJugadorActual();
 				jugadorIA.playTurn();
-				this.partida.pasarTurno();
-				siguienteJugador = this.partida.getJugadorActual();
-				if (!siguienteJugador){
-					//no hay siguiente jugador porque la partida termina. El id del siguiente es null.
-					this.objetoResumen.cambiarIdJug(siguienteJugador); //aqui siguienteJugador == null
+				if(this.objetoResumen.fichaPuesta){
+				    this.partida.pasarTurno();
+				    siguienteJugador = this.partida.getJugadorActual();
 				}else{
-					//aqui el siguienteJugador es un objeto que tiene idJugador valido.
-					this.objetoResumen.cambiarIdJug(siguienteJugador.idJugador);
+				    siguienteJugador = null; 
 				}
-				_(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
-				console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AQUI TERMINA EL TURNO DE LA IA");
-				console.log("el array de jugs es: " + this.objetoResumen.arrayResumenJugs.length);
-				console.log("el array de seguidores a quitar es: " + this.objetoResumen.arraySeguidoresQuitar.length);
-				console.log("el id del siguienteJugador es: " + this.objetoResumen.idSiguienteJug);
-				objetoResumen.push(this.objetoResumen); //actualizamos el resumenTotal.
-				if (!siguienteJugador) break; //si se acaba la partida salimos del bucle porque la condicion de entrada fallaria.
+			    if (!siguienteJugador){
+				    //no hay siguiente jugador porque la partida termina. El id del siguiente es null.
+				    this.objetoResumen.cambiarIdJug(siguienteJugador); //aqui siguienteJugador == null
+			    }else{
+				    //aqui el siguienteJugador es un objeto que tiene idJugador valido.
+				    this.objetoResumen.cambiarIdJug(siguienteJugador.idJugador);
+			    }
+			    _(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
+			    objetoResumen.push(this.objetoResumen); //actualizamos el resumenTotal.
+			    if (!siguienteJugador) break; //si se acaba la partida salimos del bucle porque la condicion de entrada fallaria.
 			}
 		}else{ //aqui acaba la partida antes de que juegen las IAs. siguienteJugador = null;
 		        _(this.partida.jugs).each(function(jug){ this.partida.tablero.objetoResumen.addJugPuntos(jug);},this);
@@ -1133,7 +1140,38 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 
 
 Tablero.prototype.dameFicha = function(){
-	this.fichaActual = this.mazo.dameFichaMazo();
+	
+	var success = false;
+	var giro = 0;
+	var arrayNoEncajan = [];
+	var ficha; 
+	
+	while (!success && this.mazo.data.length>0){
+	    ficha = this.mazo.dameFichaMazo();
+	    while (!success && giro<4){
+	        ficha.aplicarGiro(giro);
+	    
+	        success = _(this.posFree).any(function(p){
+	            return this.encaja(ficha,p);
+	        },this);
+	        
+	        ficha.desaplicarGiro(giro);
+	        giro ++;
+	    }
+	    
+	    if (!success){
+	        arrayNoEncajan.push(ficha);
+	    }else{
+	        this.fichaActual = ficha;
+	    }
+	}
+	
+	if (!success){
+	    this.fichaActual = null;
+	}
+	
+	this.mazo.incluirFichasNoEncajan(arrayNoEncajan);
+	
     //console.log("la ficha actual en tablero.dameficha es: "+ this.fichaActual.numFicha);
     console.log("!!!!!!!!!!!!!!!!!!!!!!!         la ficha actual que vamos a devolver en dameFicha tablero: " + this.fichaActual.dato);
 	return this.fichaActual;
@@ -1989,101 +2027,107 @@ IAPlayer.prototype.playTurn = function(){
 	console.log("ADIOS CARACOLA")
 	//Aquí jugara su turno la IA. Se la llamará desde partida.
 	var ficha = this.partida.tablero.dameFicha(); //se almacena en tablero.fichaActual.
-	var posFree = this.partida.tablero.posFree;
-	var giro = 0;
-	
-	var success = false;
-	//va probando en las posiciones libres con un giro inicial de 0, si no ha encajado en ninguna, se cambia el giro
-	//y se vuelve a probar en todas hasta que encaje. Esto es hasta que se hagan 3 giros. 
-	
-	while(!success && giro<4){
-	    var auxPosFree = [];
-	    _(posFree).each(function(pF){
-	        auxPosFree.push(pF);
-	    });
-	    
-	    while(!success && (auxPosFree.length > 0) ){
-	        var i = Math.floor (Math.random() * (auxPosFree.length) );
-	        success = this.partida.tablero.ponerFicha(auxPosFree[i],giro);
-	        if (success){ 
-	        	this.partida.tablero.objetoResumen.addFicha(ficha, auxPosFree[i], giro);
-	        	console.log("Posicion que devolvemos a IU en el objetoResumenIA: x: " + auxPosFree[i].x + ", y: " + auxPosFree[i].y);
+	if(ficha){
+        var posFree = this.partida.tablero.posFree;
+        var giro = 0;
+
+        var success = false;
+        //va probando en las posiciones libres con un giro inicial de 0, si no ha encajado en ninguna, se cambia el giro
+        //y se vuelve a probar en todas hasta que encaje. Esto es hasta que se hagan 3 giros. 
+
+        while(!success && giro<4){
+            var auxPosFree = [];
+            _(posFree).each(function(pF){
+                auxPosFree.push(pF);
+            });
+            
+            while(!success && (auxPosFree.length > 0) ){
+                var i = Math.floor (Math.random() * (auxPosFree.length) );
+                success = this.partida.tablero.ponerFicha(auxPosFree[i],giro);
+                if (success){ 
+                	this.partida.tablero.objetoResumen.addFicha(ficha, auxPosFree[i], giro);
+                	console.log("Posicion que devolvemos a IU en el objetoResumenIA: x: " + auxPosFree[i].x + ", y: " + auxPosFree[i].y);
+                }
+                auxPosFree.splice(i,1);
+            }
+            giro++;
+        }
+
+
+
+
+        //
+        //
+        //CONTROLAR QUE PASA SI NO PUEDE PONER SEGUIDOR EN NINGUN CUADRANTE
+        //
+        //
+
+
+
+
+
+
+        /*while (!success && giro<4){
+	        var i = Math.floor (Math.random() * (posFree.length-1) );
+	        var i_next = i;
+	        do{
+		        p = posFree[i_next];
+		        success = this.partida.tablero.ponerFicha(p,giro);
+		        var i_next = (i_next == posFree.length -1)?  0 : i_next ++;
+	        }while(!success && i_next != i);
+	        giro ++;
+        }*/
+        console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx this.partida.tablero.objetoResumen " + this.partida.tablero.objetoResumen);
+        console.log("El objeto resumen VALIDO es: " + this.partida.tablero.objetoResumen);
+        console.log(_(this.partida.tablero.objetoResumen).functions());
+        // aqui se ve si se quiere poner seguidor o no, y se hacen los intentos para ponerlo
+        var probPonerS = this.numSeguidores*(1/7);
+        if(Math.random() < probPonerS){
+	        success = false;
+	        var i = 13;
+	        var posAProbar = _.range(0,12);
+	        while (!success && i > 0){
+		        var aux = ( Math.floor ( Math.random() * (posAProbar.length) ) );
+		        success = this.partida.tablero.ponerSeguidorJugador(posAProbar[aux],this.idJugador);
+		        if (success) this.partida.tablero.objetoResumen.addSeguidor(posAProbar[aux]);
+		        posAProbar.splice(aux,1);
+		        i--;
 	        }
-	        auxPosFree.splice(i,1);
-	    }
-	    giro++;
-	}
-	
-	
-	
-	
-	//
-	//
-	//CONTROLAR QUE PASA SI NO PUEDE PONER SEGUIDOR EN NINGUN CUADRANTE
-	//
-	//
-	
-	
-	
-	
-	
-	
-	/*while (!success && giro<4){
-		var i = Math.floor (Math.random() * (posFree.length-1) );
-		var i_next = i;
-		do{
-			p = posFree[i_next];
-			success = this.partida.tablero.ponerFicha(p,giro);
-			var i_next = (i_next == posFree.length -1)?  0 : i_next ++;
-		}while(!success && i_next != i);
-		giro ++;
-	}*/
-	console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx this.partida.tablero.objetoResumen " + this.partida.tablero.objetoResumen);
-	console.log("El objeto resumen VALIDO es: " + this.partida.tablero.objetoResumen);
-	console.log(_(this.partida.tablero.objetoResumen).functions());
-	// aqui se ve si se quiere poner seguidor o no, y se hacen los intentos para ponerlo
-	var probPonerS = this.numSeguidores*(1/7);
-	if(Math.random() < probPonerS){
-		success = false;
-		var i = 13;
-		var posAProbar = _.range(0,12);
-		while (!success && i > 0){
-			var aux = ( Math.floor ( Math.random() * (posAProbar.length) ) );
-			success = this.partida.tablero.ponerSeguidorJugador(posAProbar[aux],this.idJugador);
-			if (success) this.partida.tablero.objetoResumen.addSeguidor(posAProbar[aux]);
-			posAProbar.splice(aux,1);
-			i--;
-		}
-		if (!success){
-		    this.partida.tablero.ponerSeguidorJugador();
-		    this.partida.tablero.objetoResumen.addSeguidor(-1);
-		}
-	}else{
-		this.partida.tablero.ponerSeguidorJugador();
-		this.partida.tablero.objetoResumen.addSeguidor(-1); //si no se pone seguidor se le pasa un -1 a IU.
-	}
+	        if (!success){
+	            this.partida.tablero.ponerSeguidorJugador();
+	            this.partida.tablero.objetoResumen.addSeguidor(-1);
+	        }
+        }else{
+	        this.partida.tablero.ponerSeguidorJugador();
+	        this.partida.tablero.objetoResumen.addSeguidor(-1); //si no se pone seguidor se le pasa un -1 a IU.
+        }
 
-	//LLamamos a completarAreas al fin de cada turno de la IA.
-	this.partida.tablero.completarAreas(this.partida.tablero.fichaActual,this.partida.tablero.posFull[this.partida.tablero.posFull.length - 1]);
+        //LLamamos a completarAreas al fin de cada turno de la IA.
+        this.partida.tablero.completarAreas(this.partida.tablero.fichaActual,this.partida.tablero.posFull[this.partida.tablero.posFull.length - 1]);
 
-	//Ahora partida habrá cambiado el turno y le tocará al jugador correspondiente que podría 
-	//ser otra IA perfectamente.
-	_(this.partida.listaCampos).each(function(c){
-            console.log("campo" + c.id + ":" + c.content + " CIUDADES IIIIIIIIIIIIIIIIIIIIINCLUIDAS: " + c.ciudadesIncluidas);
-    });
-    _(this.partida.listaCiudades).each(function(c){
-            console.log("ciudad" + c.id + ":" + c.content + " id fichas: " + c.idFichas);
-    });
-    _(this.partida.listaCaminos).each(function(c){
-            console.log("camino" + c.id + ":" + c.content + " id fichas: " + c.idFichas);
-    }) 
-    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-    console.log("VOYYYYY AAAAA PITAR EL RESUMEN IA");
-    var resumenIA = this.partida.tablero.objetoResumen;
-    console.log("estos son los atributos del objetoResumenIA: " + _(resumenIA).keys());
-    console.log("la posicion en la que IA coloca la ficha es: x:" + resumenIA.fichaPuesta[1].x + ", y: " + resumenIA.fichaPuesta[1].y);
-    console.log("el cuadrante en el que la IA coloca el seguidor es: " + resumenIA.fichaPuesta[2]);
-    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+        //Ahora partida habrá cambiado el turno y le tocará al jugador correspondiente que podría 
+        //ser otra IA perfectamente.
+        _(this.partida.listaCampos).each(function(c){
+                console.log("campo" + c.id + ":" + c.content + " CIUDADES IIIIIIIIIIIIIIIIIIIIINCLUIDAS: " + c.ciudadesIncluidas);
+        });
+        _(this.partida.listaCiudades).each(function(c){
+                console.log("ciudad" + c.id + ":" + c.content + " id fichas: " + c.idFichas);
+        });
+        _(this.partida.listaCaminos).each(function(c){
+                console.log("camino" + c.id + ":" + c.content + " id fichas: " + c.idFichas);
+        }) 
+        console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+        console.log("VOYYYYY AAAAA PITAR EL RESUMEN IA");
+        var resumenIA = this.partida.tablero.objetoResumen;
+        console.log("estos son los atributos del objetoResumenIA: " + _(resumenIA).keys());
+        console.log("la posicion en la que IA coloca la ficha es: x:" + resumenIA.fichaPuesta[1].x + ", y: " + resumenIA.fichaPuesta[1].y);
+        console.log("el cuadrante en el que la IA coloca el seguidor es: " + resumenIA.fichaPuesta[2]);
+        console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+    }else{
+        this.partida.tablero.objetoResumen.fichaPuesta = null;
+        this.partida.tablero.ponerSeguidorJugador();
+        this.partida.tablero.objetoResumen.addSeguidor(-1);
+    }
 }
 
 
