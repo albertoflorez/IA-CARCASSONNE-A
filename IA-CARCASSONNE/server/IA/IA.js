@@ -430,7 +430,6 @@ Mazo.prototype.dameFichaMadre = function(){
 		var ficha = this.data[numFicha];
 		this.data.splice (0,1); //eliminamos la ficha madre.
 	}
-
 	return ficha;
 };
 
@@ -439,6 +438,7 @@ Mazo.prototype.dameFichaMazo = function(){
 	var ficha = this.data [num];
 	this.data.splice(num,1); //eliminamos la ficha del mazo.
 	//devuelve una ficha aleatoria, y la guarda en fichaActual
+	console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    la ficha que vamos a poner (que ha salido del mazo): " + ficha.dato);
 	return ficha;
 };
 
@@ -563,7 +563,7 @@ Tablero.prototype.generarAreas = function(ficha,pos){
                 if (!_(this.partida.listaCiudades).any(function(c){
                     return _(c.content).contains(auxPdata);
                 })){
-                    var nuevoCiudad = new Ciudad(auxPdata, ficha.escudo);
+                    var nuevoCiudad = new Ciudad(auxPdata);
                     nuevoCiudad.add(auxPdata);
 					nuevoCiudad.partida = this.partida;
                     this.partida.listaCiudades.push(nuevoCiudad);  
@@ -640,7 +640,7 @@ Tablero.prototype.asignarCaminoAFicha = function(idFicha,pdatoady,pdatoficha){
 
 //Almacena en el content de la Cuidad correspondiente los pdatos que pasan a formar parte
 //de ella.
-Tablero.prototype.asignarCiudadAFicha = function(idFicha,escudo,pdatoady,pdatoficha){
+Tablero.prototype.asignarCiudadAFicha = function(idFicha,pdatoady,pdatoficha){
     var ciudad = _(this.partida.listaCiudades).find(function(elem){
         return _(elem.content).any (function(subCelda){
            return subCelda == pdatoady;
@@ -649,7 +649,6 @@ Tablero.prototype.asignarCiudadAFicha = function(idFicha,escudo,pdatoady,pdatofi
     if(!_(ciudad.content).contains(pdatoficha)){
     	console.log("Ahora si que se asigna el pdato a la ciudad.");
         ciudad.add(pdatoficha);
-		if (escudo) ciudad.numEscudos++;
     }
     //           *****************                ******************                **********************
     //           *****************                ******************                **********************
@@ -667,7 +666,6 @@ Tablero.prototype.asignarCiudadAFicha = function(idFicha,escudo,pdatoady,pdatofi
 //Se encarga de propagar las áreas hacia la ficha que hemos puesto.
 Tablero.prototype.propagar = function(ficha, pdatosAdy, pdatosFicha, datosCell){
     console.log("******************      entramos a propagar");
-	var escudo = ficha.escudo;
     for (var i = 0; i< 3; i++){
         var pdatoAdy = pdatosAdy[i];
         var pdatoFicha = pdatosFicha [i];
@@ -684,9 +682,7 @@ Tablero.prototype.propagar = function(ficha, pdatosAdy, pdatosFicha, datosCell){
                 break;
             case 'c':
             	console.log("asignamos a una ciudad");
-                this.asignarCiudadAFicha(ficha.numFicha,escudo,pdatoAdy,pdatoFicha);
-				//escudo se pone a false para que solo se cuente una vez.
-				escudo = false;
+                this.asignarCiudadAFicha(ficha.numFicha,pdatoAdy,pdatoFicha);
                 break;
         }
     }
@@ -917,7 +913,11 @@ Tablero.prototype.updatePosFree = function(pos){
 		if (!_(this.posFull).any(function(pF){
 			return pA.x == pF.x && pA.y == pF.y;
 		})){
-			this.posFree.push(pA);
+		    if(!_(this.posFree).any(function(pF){
+			    return pA.x == pF.x && pA.y == pF.y;
+		    })){
+			    this.posFree.push(pA);
+			}
 		};
 	},this);
 
@@ -1015,7 +1015,9 @@ Tablero.prototype.encaja = function(ficha,pos){
 Tablero.prototype.ponerFicha = function(pos, giro){
     console.log("Posicion en la que queremos poner la ficha: x: " + pos.x + ", y: " + pos.y);
 	//this.fichaActual.giroIU = giro;
+	console.log("!!!!!!!!!!!!!!!!!!! la ficha actual en poner ficha antes de aplicar el giro es: " + this.fichaActual.dato);
     this.fichaActual.aplicarGiro(giro);
+	console.log("!!!!!!!!!!!!!!!!!!! la ficha actual en poner ficha despues de aplicar el giro es: " + this.fichaActual.dato);
     //console.log("ficha actual girada: ",this.fichaActual.dato);
     console.log("vamos a colocar la ficha");
     var posicionValida = _(this.posFree).any(function(pF){
@@ -1026,6 +1028,7 @@ Tablero.prototype.ponerFicha = function(pos, giro){
 	if(!success){
 		this.fichaActual.desaplicarGiro(giro);
 	}
+	console.log("se ha puesto la ficha??----> " + success + " en {x:" + this.posFull[this.posFull.length-1].x + ", y: "+ this.posFull[this.posFull.length-1].y + "}");
 	return success;
 }
 //_________________________________________________________________________________
@@ -1132,6 +1135,7 @@ Tablero.prototype.ponerSeguidor = function(posSeguidor,IdPropietario){
 Tablero.prototype.dameFicha = function(){
 	this.fichaActual = this.mazo.dameFichaMazo();
     //console.log("la ficha actual en tablero.dameficha es: "+ this.fichaActual.numFicha);
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!         la ficha actual que vamos a devolver en dameFicha tablero: " + this.fichaActual.dato);
 	return this.fichaActual;
 }
 //______________________________________________________________________
@@ -1463,7 +1467,7 @@ Campo.prototype.close = function(){
 //*                                                                       *
 //*************************************************************************
 
-var Ciudad = function(idCiudad,tieneEscudo){
+var Ciudad = function(idCiudad){
     this.id = idCiudad;
     this.content = []; //contiene los componentes de pdata de las fichas que lo forman
     this.idFichas = [];
@@ -1471,7 +1475,6 @@ var Ciudad = function(idCiudad,tieneEscudo){
     this.seguidores = [];
 	this.propSeguidores = [];
 	this.numEscudos = 0;
-    if (tieneEscudo) this.numEscudos++;
     this.ladosLibres = 0;
 	this.camposAdyacentes = [];
 }
@@ -1517,9 +1520,6 @@ Ciudad.prototype.unificar = function (ciudadesAIntegrar){
 		console.log("idsJugadoresSeguidores: " + seguidores);
 		seg.push(c.seguidores);
 		console.log("numeroSeguidores: " + seg.length);
-	
-		this.numEscudos += c.numEscudos;
-		console.log("numEscudos: " + this.numEscudos);
 		this.ladosLibres += c.ladosLibres;
 		console.log("ladosLibres: " + this.ladosLibres);
 	},this);
@@ -1549,7 +1549,14 @@ Ciudad.prototype.quitarSeguidor = function(idJugador){
 
 Ciudad.prototype.calcularPuntos = function(){
 	var puntos;
-	
+	_(this.idFichas).each(function(idf){
+	    var cell = _(this.partida.tablero.cellSet).find(function(c){
+	        return c.ficha.numFicha == idf;
+	    });
+	    if(cell.ficha.escudo){
+	        this.numEscudos++;
+	    }
+	},this);
 	if ( (this.idFichas.length > 2) && (this.partida.turno != null) ){
 		puntos = ((this.idFichas.length + this.numEscudos) * 2);
 	}else{
