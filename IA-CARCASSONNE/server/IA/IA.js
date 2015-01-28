@@ -1997,7 +1997,11 @@ IAPlayer.prototype.playTurn = function(){
 	//y se vuelve a probar en todas hasta que encaje. Esto es hasta que se hagan 3 giros. 
 	
 	while(!success && giro<4){
-	    var auxPosFree = _(posFree).clone(); 
+	    var auxPosFree = [];
+	    _(posFree).each(function(pF){
+	        auxPosFree.push(pF);
+	    });
+	    
 	    while(!success && (auxPosFree.length > 0) ){
 	        var i = Math.floor (Math.random() * (auxPosFree.length) );
 	        success = this.partida.tablero.ponerFicha(auxPosFree[i],giro);
@@ -2049,6 +2053,10 @@ IAPlayer.prototype.playTurn = function(){
 			if (success) this.partida.tablero.objetoResumen.addSeguidor(posAProbar[aux]);
 			posAProbar.splice(aux,1);
 			i--;
+		}
+		if (!success){
+		    this.partida.tablero.ponerSeguidorJugador();
+		    this.partida.tablero.objetoResumen.addSeguidor(-1);
 		}
 	}else{
 		this.partida.tablero.ponerSeguidorJugador();
