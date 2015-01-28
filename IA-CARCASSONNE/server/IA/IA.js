@@ -1710,7 +1710,7 @@ Camino.prototype.unificar = function (caminosAIntegrar){
 	this.seguidores = _(seg).flatten();
 	this.seguidores = _(this.seguidores).uniq();
 	this.propSeguidores = _(seguidores).flatten();
-	this.propSeguidores = _(this.propSeguidores).uniq();
+	
 }
 
 Camino.prototype.ponerSeguidor = function (seguidor){
